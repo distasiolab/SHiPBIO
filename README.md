@@ -1,9 +1,9 @@
-# ProjectTemplate
-An empty project template to start with. Contains the directory structure:
+# annData_ManualAnnotate
 
+Tools for creating ROIs / Annotations manually for annData objects in QuPath
 
 ```
-ProjectName_version
+annData_ManualAnnotate
 |	README.md
 |	.gitignore
 |
