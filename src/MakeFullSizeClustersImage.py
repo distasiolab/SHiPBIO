@@ -8,14 +8,14 @@ from PIL import Image
 from matplotlib import cm
 
 ## --------------------------------------------------------------------------------
-##
+## Argument parsing
 ## --------------------------------------------------------------------------------
 
 # Initialize parser
 parser = argparse.ArgumentParser()
 
 parser.add_argument("-f", "--file", help="annData *.h5ad file")
-parser.add_argument("-o", "--out", help="Output filename", nargs='?', const='')
+parser.add_argument("-o", "--out", help="Output filename", nargs='?')
 
 # Read arguments from command line
 args = parser.parse_args()
@@ -23,6 +23,20 @@ args = parser.parse_args()
 print("\n\n")
 print("Input image file: {0}".format(args.file))
 print("\n")
+
+if args.out == None:
+    outfile =  args.file + '.FullSizeImage_LeidenClusters.tif'
+else:
+    outfile = args.out
+print("\n\n")
+print("Output image file: {0}".format(outfile))
+print("\n")
+
+## --------------------------------------------------------------------------------
+## Run
+## --------------------------------------------------------------------------------
+
+
 print('Loading...')
 
 ad_filename = args.file
@@ -90,16 +104,6 @@ im = Image.fromarray(np.uint8(cm.gist_rainbow(OUTIMG_norm)*255)).convert('RGB')
 
 
 # Save output image file
-
-if args.out == "":
-    outfile =  args.file + '.FullSizeImage_LeidenClusters.tif'
-else:
-    outfile = args.out
-
-print("\n\n")
-print("Output image file: {0}".format(outfile))
-print("\n")
-
 im.save(outfile)
 
 print('Done!')
