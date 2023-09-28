@@ -1,17 +1,31 @@
+import argparse
+
 import numpy as np
 import anndata as ad
 import scanpy as sc
-import sys, os
-from matplotlib import pyplot as plt
+
 from PIL import Image
 from matplotlib import cm
 
+## --------------------------------------------------------------------------------
+##
+## --------------------------------------------------------------------------------
 
+# Initialize parser
+parser = argparse.ArgumentParser()
 
-ad_filename = '/Users/mmd47/Google Drive/My Drive/DiStasio Lab Share/03 Data/Retina_SlideSeq_Curio/Curio_Pilot Study on Control Human Retina/A0052_029/OUTPUT/A0052_029/A0052_029_anndata.h5ad'
-ad_filename = '/home/mdistasio/YaleGoogleDrive/DiStasio Lab Share/03 Data/Retina_SlideSeq_Curio/Curio_Pilot Study on Control Human Retina/A0052_029/OUTPUT/A0052_029/A0052_029_anndata.h5ad'
+parser.add_argument("-f", "--file", help="annData *.h5ad file")
+parser.add_argument("-o", "--out", help="Output filename", nargs='?', const='')
 
+# Read arguments from command line
+args = parser.parse_args()
+
+print("\n\n")
+print("Input image file: {0}".format(args.file))
+print("\n")
 print('Loading...')
+
+ad_filename = args.file
 adata = ad.read_h5ad(ad_filename)
 
 # QC
@@ -72,8 +86,21 @@ OUTIMG = BuildClusterImage(X,Y)
 OUTIMG = OUTIMG.astype(float)
 
 OUTIMG_norm = (OUTIMG - np.nanmin(OUTIMG))/(np.nanmax(OUTIMG) - np.nanmin(OUTIMG))
-im = Image.fromarray(np.uint8(cm.gist_earth(OUTIMG_norm)*255)).convert('RGB')
-im.save('test.tif')
+im = Image.fromarray(np.uint8(cm.gist_rainbow(OUTIMG_norm)*255)).convert('RGB')
+
+
+# Save output image file
+
+if args.out == "":
+    outfile =  args.file + '.FullSizeImage_LeidenClusters.tif'
+else:
+    outfile = args.out
+
+print("\n\n")
+print("Output image file: {0}".format(outfile))
+print("\n")
+
+im.save(outfile)
 
 print('Done!')
 
