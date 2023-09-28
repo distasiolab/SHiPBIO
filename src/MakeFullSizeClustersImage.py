@@ -4,7 +4,7 @@ import numpy as np
 import anndata as ad
 import scanpy as sc
 
-from PIL import Image
+from PIL import Image, ImageFilter
 from matplotlib import cm
 
 ## --------------------------------------------------------------------------------
@@ -101,10 +101,10 @@ OUTIMG = OUTIMG.astype(float)
 
 OUTIMG_norm = (OUTIMG - np.nanmin(OUTIMG))/(np.nanmax(OUTIMG) - np.nanmin(OUTIMG))
 im = Image.fromarray(np.uint8(cm.gist_rainbow(OUTIMG_norm)*255)).convert('RGB')
-
+im_sm = im.filter(ImageFilter.GaussianBlur(radius=5))
 
 # Save output image file
-im.save(outfile)
+im_sm.save(outfile)
 
 print('Done!')
 
