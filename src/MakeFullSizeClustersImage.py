@@ -101,7 +101,7 @@ OUTIMG = OUTIMG.astype(float)
 
 OUTIMG_norm = (OUTIMG - np.nanmin(OUTIMG))/(np.nanmax(OUTIMG) - np.nanmin(OUTIMG))
 im = Image.fromarray(np.uint8(cm.gist_rainbow(OUTIMG_norm)*255)).convert('RGB')
-imc = ImageEnhance.Contrast(im.filter(ImageFilter.BoxBlur(radius=1)).filter(ImageFilter.GaussianBlur(radius=2))).enhance(50); imc.show()
+imc = ImageEnhance.Contrast(im.filter(ImageFilter.BoxBlur(radius=1)).filter(ImageFilter.GaussianBlur(radius=2))).enhance(50)
 
 # Save output image file
 imc.save(outfile)

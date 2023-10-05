@@ -3,7 +3,11 @@ import argparse
 import xml.etree.ElementTree as ET
 import geojson
 
+from numba import jit
+
+
 import numpy as np
+import pandas as pd
 import anndata as ad
 import scanpy as sc
 
@@ -26,7 +30,6 @@ print("Input image file: {0}".format(args.file))
 print("\n")
 print("Annotations coordinates file: {0}".format(args.coords))
 print("\n")
-
 
 
 
@@ -55,29 +58,26 @@ def PointsInPolygon(points, poly):
     return inside 
 
 
-
-
-
-
-
 with open(args.coords) as f:
     gj = geojson.load(f)
 FeatureCollection = gj['features']
 
-CropRegions = list(filter(lambda region: region["properties"]["classification"]["name"] == "CropRegion", FeatureCollection))
 
-print("Found {0} annotations with 'CropRegion' label. They are: [left, top, width, heigth]".format(len(CropRegions)))
+Annotations = []
 
-crop_region_specs = []
-for Region in CropRegions:
-    left = min([i[0] for i in Region["geometry"]["coordinates"][0]])
-    top = min([i[1] for i in Region["geometry"]["coordinates"][0]])
-    width = max([i[0] for i in Region["geometry"]["coordinates"][0]]) - left
-    height = max([i[1] for i in Region["geometry"]["coordinates"][0]]) - top
+for F in FeatureCollection:
+    try:
+        # Make sure the right keys are there
+        _ = F['properties']['classification']['name']
+        Annotations.append(F)
+    except KeyError:
+        pass
+    
+AnnotationNames = list(set([A["properties"]["classification"]["name"] for A in Annotations]))
 
-    crop_region_specs.append([left,top,width,height])
-
-print(crop_region_specs)
+print("Found {0} annotations.".format(len(Annotations)))
+print("Found {0} UNIQUE annotations:".format(len(AnnotationNames)))
+print(AnnotationNames)
 
 
 ## --------------------------------------------------------------------------------
@@ -88,15 +88,12 @@ print(crop_region_specs)
 
 adata = ad.read_h5ad(args.file)
 
-cr = 1    
-for CropR in crop_region_specs:
+X_origin = [min(adata.obsm['X_spatial'][:,0]),min(adata.obsm['X_spatial'][:,1])]
 
-    left = CropR[0]
-    top = CropR[1]
-    width = CropR[2]
-    height = CropR[3]
-
-
+for Annotation in Annotations:
+    print(Annotation["properties"]["classification"]["name"])
+    InPolygon = PointsInPolygon(np.array(adata.obsm['X_spatial'] - X_origin), np.array(Annotation['geometry']['coordinates'][0]))
+    print(np.sum(InPolygon))
     
 print("\n\n\nDone!")
 
