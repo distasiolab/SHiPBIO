@@ -88,11 +88,15 @@ print(AnnotationNames)
 
 adata = ad.read_h5ad(args.file)
 
+for AN in AnnotationNames:
+    adata.obs[AN] = False
+
 X_origin = [min(adata.obsm['X_spatial'][:,0]),min(adata.obsm['X_spatial'][:,1])]
 
 for Annotation in Annotations:
     print(Annotation["properties"]["classification"]["name"])
     InPolygon = PointsInPolygon(np.array(adata.obsm['X_spatial'] - X_origin), np.array(Annotation['geometry']['coordinates'][0]))
+    adata.obs[Annotation["properties"]["classification"]["name"]][np.where(InPolygon)[0]] = True
     print(np.sum(InPolygon))
     
 print("\n\n\nDone!")
