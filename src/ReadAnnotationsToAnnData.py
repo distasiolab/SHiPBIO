@@ -1,5 +1,5 @@
 import argparse
-
+import os
 import xml.etree.ElementTree as ET
 import geojson
 
@@ -12,7 +12,7 @@ import anndata as ad
 import scanpy as sc
 
 ## --------------------------------------------------------------------------------
-##
+## Input arguments
 ## --------------------------------------------------------------------------------
 
 # Initialize parser
@@ -20,19 +20,24 @@ parser = argparse.ArgumentParser()
 
 parser.add_argument("-f", "--file", help="AnnData File")
 parser.add_argument("-c", "--coords", help="Coordinates File (GeoJSON file format; *.json)")
-parser.add_argument("-o", "--out", help="Output filename", nargs='?', const='')
+parser.add_argument("-o", "--out", help="Output filename")
 
 # Read arguments from command line
 args = parser.parse_args()
 
-print("\n\n")
+if args.out is None:
+    outfilename = os.path.splitext(args.file)[0] + "_annotated.h5ad"
+else:
+    outfilename = args.out
+
+print("\n")
 print("Input image file: {0}".format(args.file))
-print("\n")
 print("Annotations coordinates file: {0}".format(args.coords))
-print("\n")
+print("Output AnnData file: {0}".format(outfilename))
 
-
-
+## --------------------------------------------------------------------------------
+## Method Definitions
+## --------------------------------------------------------------------------------
 
 @jit(nopython=True)
 def PointsInPolygon(points, poly):
@@ -58,6 +63,10 @@ def PointsInPolygon(points, poly):
     return inside 
 
 
+## --------------------------------------------------------------------------------
+## Main Method
+## --------------------------------------------------------------------------------
+
 with open(args.coords) as f:
     gj = geojson.load(f)
 FeatureCollection = gj['features']
@@ -75,10 +84,9 @@ for F in FeatureCollection:
     
 AnnotationNames = list(set([A["properties"]["classification"]["name"] for A in Annotations]))
 
+print("\n")
 print("Found {0} annotations.".format(len(Annotations)))
-print("Found {0} UNIQUE annotations:".format(len(AnnotationNames)))
-print(AnnotationNames)
-
+print("Found {0} UNIQUE annotations: ".format(len(AnnotationNames))+" ".join(AnnotationNames))
 
 ## --------------------------------------------------------------------------------
 ## Read in AnnData and assign annotations to observations based on
@@ -93,11 +101,16 @@ for AN in AnnotationNames:
 
 X_origin = [min(adata.obsm['X_spatial'][:,0]),min(adata.obsm['X_spatial'][:,1])]
 
+print("\n")
 for Annotation in Annotations:
-    print(Annotation["properties"]["classification"]["name"])
     InPolygon = PointsInPolygon(np.array(adata.obsm['X_spatial'] - X_origin), np.array(Annotation['geometry']['coordinates'][0]))
     adata.obs[Annotation["properties"]["classification"]["name"]][np.where(InPolygon)[0]] = True
-    print(np.sum(InPolygon))
+    print("{0} contains {1} points.".format(Annotation["properties"]["classification"]["name"],np.sum(InPolygon)))
+
+
+adata.write(outfilename)
+print("\n")
+print("Wrote AnnData file: {0}".format(outfilename))
     
 print("\n\n\nDone!")
 
