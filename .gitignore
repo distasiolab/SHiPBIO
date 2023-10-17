@@ -8,6 +8,9 @@ ReferenceFiles
 # Slurm job scheduler outputs
 slurm*.out
 
+# Jupyter notebook checkpoints
+.ipynb_checkpoints
+
 # Log files
 *.log
 
