@@ -6,9 +6,13 @@
 # Marcello DiStasio, Oct 2023
 
 
+import warnings
+warnings.filterwarnings("ignore", category=FutureWarning)
+
 import scvi
 import scanpy as sc
 import anndata as ad
+import numpy as np
 
 import sys, os
 from tqdm import tqdm
@@ -23,7 +27,11 @@ import pymde
 sc.settings.figdir = './img/integration'
 
 os.makedirs('./calc', exist_ok=True)
-os.makedirs('./img/integration', exist_ok=True)
+outfilename = os.path.join('.','calc','anndata_integrated.h5ad')
+
+IMGDIR = './img/integration'
+os.makedirs(IMGDIR, exist_ok=True)
+
 
 ###############################################################################
 ## LOAD INDIVIDUAL DATASETS
@@ -31,28 +39,44 @@ os.makedirs('./img/integration', exist_ok=True)
 
 BASEDIR = './data/'
 samples = os.listdir(os.path.join(BASEDIR,'AnnData'))
+samplepathf = os.path.join(BASEDIR,'AnnData','{}')
 
 print(samples)
 
-sys.exit(0)
+retinas = []
+adata = ad.read_h5ad(samplepathf.format(samples[0]))
+retinas.append(adata[adata.obs['Retina_1']].copy())
+retinas.append(adata[adata.obs['Retina_2']].copy())
+
+adata = ad.read_h5ad(samplepathf.format(samples[1]))
+retinas.append(adata[adata.obs['Retina']].copy())
 
 adata_objects = []
-sample_names = []
-for s in tqdm(samples):
-    adata = adata = ad.read_h5ad(s)
-    sc.pp.filter_cells(adata, min_genes=500)
-    sc.pp.filter_genes(adata, min_cells=3)
+for s in tqdm(retinas):
+    adata = s
+    sc.pp.filter_genes(adata, min_cells=5)
     adata.var['mt'] = adata.var_names.str.startswith('MT-')
     sc.pp.calculate_qc_metrics(adata, qc_vars=['mt'],
                                percent_top=None, log1p=False, inplace=True)
-    adata = adata[adata.obs.n_genes_by_counts < 2500, :]
+    adata = adata[adata.obs.n_genes_by_counts < 500, :]
     adata = adata[adata.obs.pct_counts_mt < 1, :]
     adata_objects.append(adata)
-    sample_names.append(s)
+
+    sc.pl.violin(adata, ['n_genes_by_counts', 'total_counts', 'pct_counts_mt'],
+                 jitter=0.4, multi_panel=True, save='QC_'+s.obs.columns[0], show=False)
+
+
     
-adata = ad.concat(adata_objects, label="batch", keys=sample_names)
+adata = ad.concat(adata_objects, label="batch", join="outer")
+
+# Clean up the NAs in manual annotation columns in adata.obs, which should be boolean
+cs = adata.obs.select_dtypes(include='object').columns
+adata.obs[cs] = adata.obs[cs].astype('boolean').fillna(False)
+
+
 adata.raw = adata
 adata.layers["counts"] = adata.X.copy()
+
 
 sc.pp.highly_variable_genes(
     adata,
@@ -60,6 +84,7 @@ sc.pp.highly_variable_genes(
     n_top_genes=2000,
     layer="counts",
     batch_key="batch",
+    span=1,
     subset=True
 )
 
@@ -96,3 +121,6 @@ fig = sc.pl.embedding(
     show=False,
     save='_all_unlabeled_leiden.png'
 )
+
+
+adata.write(outfilename)
