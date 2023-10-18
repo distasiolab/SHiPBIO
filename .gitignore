@@ -1,6 +1,9 @@
 # Anything inside the 'data' folder ignored
 data/**
 !data/.gitkeep
+calc/*
+img/*
+
 
 # Any folder in the project tree called 'ReferenceFiles' is ignored
 ReferenceFiles
