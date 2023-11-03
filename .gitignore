@@ -1,7 +1,7 @@
 # Anything inside the 'data' folder ignored
 data/**
 !data/.gitkeep
-calc/*
+calc/**
 img/*
 
 
