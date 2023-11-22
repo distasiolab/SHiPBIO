@@ -66,11 +66,26 @@ adata.uns["spatial"] = dict()
 adata.uns["spatial"][library_id] = dict()
 retina5 = adata[adata.obs['Retina']]
 
+# File 5
+filename = os.path.join(FILEPATHBASE,'03 Data/Retina_SlideSeq_Curio/A23-1422_Ctrl_Macula_SlideSeq_001/OUTPUT/A23-1422_-_macula/A23-1422_-_macula_anndata_annotated.h5ad')
+adata = ad.read_h5ad(filename)
+
+library_id = 'A23-1422'
+adata.uns["spatial"] = dict()
+adata.uns["spatial"][library_id] = dict()
+retina6 = adata[adata.obs['Retina']]
+
+# File 6
+filename = os.path.join(FILEPATHBASE,'03 Data/Retina_SlideSeq_Curio/A23-1425_Ctrl_Macula_SlideSeq_001/OUTPUT/A23-1425_-_macula1/A23-1425_-_macula1_anndata_annotated.h5ad')
+adata = ad.read_h5ad(filename)
+
+library_id = 'A23-1425-M1'
+adata.uns["spatial"] = dict()
+adata.uns["spatial"][library_id] = dict()
+retina7 = adata[adata.obs['Retina']]
 
 
-
-
-
+r_all = {"R1": retina1, "R2": retina2, "R3": retina3, "R4": retina4, "R5": retina5, "R6": retina6, "R7": retina7}
 
 # --------------------------------------------------------------------------------
 # Done Loading 
@@ -84,7 +99,7 @@ retina5 = adata[adata.obs['Retina']]
 
 print('Concatenating...')
 
-r_all = {"R1": retina1, "R2": retina2, "R3": retina3, "R4": retina4, "R5": retina5}
+
 retinas_all = ad.concat(r_all, label="dataset", uns_merge="first", join='outer')
 
 # Clean up the NAs in manual annotation columns in adata.obs, which should be boolean
