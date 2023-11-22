@@ -49,11 +49,11 @@ retinas_all.raw = retinas_all  # keep full dimension safe
 print('Filtering for highly variable genes')
 sc.pp.filter_genes(
     retinas_all,
-    min_cells=3)
+    min_cells=20)
     
 sc.pp.highly_variable_genes(
     retinas_all,
-    n_top_genes=1200,
+    n_top_genes=3000,
     subset=True,
     layer="counts",
     flavor="seurat_v3")
@@ -80,8 +80,10 @@ retinas_all.layers['counts_scvi'] = model.posterior_predictive_sample().to_scipy
 # --------------------------------------------------------------------------------
 # Clustering
 # --------------------------------------------------------------------------------
-sc.pp.neighbors(retinas_all, use_rep=SCVI_LATENT_KEY)
-sc.tl.leiden(retinas_all)
+SCVI_NEIGHBORS_KEY = "neighbors_scVI"
+sc.pp.neighbors(retinas_all, use_rep=SCVI_LATENT_KEY, key_added=SCVI_NEIGHBORS_KEY)
+sc.tl.leiden(retinas_all, neighbors_key=SCVI_NEIGHBORS_KEY, resolution=1)
+
 SCVI_MDE_KEY = "X_scVI_MDE"
 retinas_all.obsm[SCVI_MDE_KEY] = scvi.model.utils.mde(retinas_all.obsm[SCVI_LATENT_KEY])
 
