@@ -85,7 +85,17 @@ adata.uns["spatial"][library_id] = dict()
 retina7 = adata[adata.obs['Retina']]
 
 
-r_all = {"R1": retina1, "R2": retina2, "R3": retina3, "R4": retina4, "R5": retina5, "R6": retina6, "R7": retina7}
+# File 7
+filename = os.path.join(FILEPATHBASE,'03 Data/Retina_SlideSeq_Curio/A23-1152_OD_AMD_SlideSeq_002/OUTPUT/A23-1152_-_Mac_AMD/A23-1152_-_Mac_AMD_anndata_annotated.h5ad')
+adata = ad.read_h5ad(filename)
+
+library_id = 'A23-1152_OD'
+adata.uns["spatial"] = dict()
+adata.uns["spatial"][library_id] = dict()
+retina8 = adata[adata.obs['Retina']]
+
+
+r_all = {"R1": retina1, "R2": retina2, "R3": retina3, "R4": retina4, "R5": retina5, "R6": retina6, "R7": retina7, "R8": retina8}
 
 # --------------------------------------------------------------------------------
 # Done Loading 
@@ -113,6 +123,8 @@ library_id = 'Curio_Seeker_v1.1_AllRetinas'
 retinas_all.uns["spatial"] = dict()
 retinas_all.uns["spatial"][library_id] = dict()
 
+SampleKey = {"R1": "A22_3781", "R2": "A22_3781", "R3": "A23-914", "R4": "A23-1277", "R5": "A23-1279", "R6": "A23-1422", "R7": "A23-1425-M1", "R8": "A23-1152_OD"}
+retinas_all.uns["SampleKey"] = SampleKey
 
 # --------------------------------------------------------------------------------
 # Save concatenated data
