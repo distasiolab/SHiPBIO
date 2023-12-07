@@ -105,7 +105,7 @@ if SAVEFIGS:
     nGroupsToPlot = 10
     groups = sorted(np.unique(retinas_all.obs['leiden']), key=lambda x: int(x))[0:nGroupsToPlot]
 
-    spect = plt.cm.Spectral.resampled(nGroupsToPlot)
+    spect = plt.cm.tab10.resampled(nGroupsToPlot)
     newcolors = np.flip(spect(np.linspace(0,1,nGroupsToPlot)), axis=0)
     newpalette = ListedColormap(newcolors)
     color_cycler = cycler(color=newpalette.colors)
@@ -122,9 +122,10 @@ if SAVEFIGS:
         ax.spines['left'].set_visible(False)
 
 
-    fig_filename = os.path.join(IMGDIR, 'UMAP_Harmony_-_.png')
-    fig.savefig(fig_filename, dpi=300)    
-    print('Saved figure: ' + fig_filename)
+    for img_ext in ['png','svg']:
+        fig_filename = os.path.join(IMGDIR, 'UMAP_Harmony_-_.' + img_ext)
+        fig.savefig(fig_filename, dpi=300)    
+        print('Saved figure: ' + fig_filename)
 
     
 
@@ -157,10 +158,12 @@ if SAVEFIGS:
     labels_handles = {  label: handle for ax in fig.axes for handle, label in zip(*ax.get_legend_handles_labels())    }
     fig.legend( labels_handles.values(), labels_handles.keys(), loc = "upper right", ncol=3)
 
+    
+    for img_ext in ['png','svg']:
+        fig_filename = os.path.join(IMGDIR, 'Spatial_Harmony_-_.' + img_ext)
+        fig.savefig(fig_filename, dpi=300)    
+        print('Saved figure: ' + fig_filename)
 
-    fig_filename = os.path.join(IMGDIR, 'Spatial_Harmony_-_.svg')
-    fig.savefig(fig_filename, dpi=300)    
-    print('Saved figure: ' + fig_filename)
         
 print("Complete! Exiting.")
 
