@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Preprocess.py
+# IntegrateHarmony.py
 # Part of anndata_manualAnnotate for processing spatial omics data
 # Marcello DiStasio
 # Oct 2023
@@ -25,8 +25,8 @@ from cycler import cycler
 # --------------------------------------------------------------------------------
 # Edit this path
 # --------------------------------------------------------------------------------
-#FILEPATHBASE = '/Users/mmd47/Library/CloudStorage/GoogleDrive-mmd47@yale.edu/My Drive/DiStasio Lab/DiStasio Lab Share/'
-FILEPATHBASE = '/home/mdistasio/YaleGoogleDrive/DiStasio Lab/DiStasio Lab Share/'
+FILEPATHBASE = '/Users/mmd47/Library/CloudStorage/GoogleDrive-mmd47@yale.edu/My Drive/DiStasio Lab/DiStasio Lab Share/'
+#FILEPATHBASE = '/home/mdistasio/YaleGoogleDrive/DiStasio Lab/DiStasio Lab Share/'
 
 
 # --------------------------------------------------------------------------------
