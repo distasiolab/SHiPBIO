@@ -39,6 +39,12 @@ print("Output AnnData file: {0}".format(outfilename))
 ## Method Definitions
 ## --------------------------------------------------------------------------------
 
+def dim(a):
+    if not type(a) == list:
+        return []
+    return [len(a)] + dim(a[0])
+
+
 @jit(nopython=True)
 def PointsInPolygon(points, poly):
     x,y = points[:,0], points[:,1]
@@ -103,7 +109,16 @@ X_origin = [min(adata.obsm['X_spatial'][:,0]),min(adata.obsm['X_spatial'][:,1])]
 
 print("\n")
 for Annotation in Annotations:
-    InPolygon = PointsInPolygon(np.array(adata.obsm['X_spatial'] - X_origin), np.array(Annotation['geometry']['coordinates'][0]))
+
+    print(len(dim(Annotation['geometry']['coordinates'][0])))
+    if len(dim(Annotation['geometry']['coordinates'][0])) > 2:
+        coords = np.array(Annotation['geometry']['coordinates'][0][0])
+    else:
+        coords = np.array(Annotation['geometry']['coordinates'][0])
+
+    print(coords)
+        
+    InPolygon = PointsInPolygon(np.array(adata.obsm['X_spatial'] - X_origin), coords)
     adata.obs[Annotation["properties"]["classification"]["name"]][np.where(InPolygon)[0]] = True
     print("{0} contains {1} points.".format(Annotation["properties"]["classification"]["name"],np.sum(InPolygon)))
 

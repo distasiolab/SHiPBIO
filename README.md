@@ -1,6 +1,6 @@
 # annData_ManualAnnotate
 
-Tools for creating ROIs / Annotations manually for annData objects in QuPath
+Tools for creating ROIs / Annotations manually for annData objects containing spatial transcriptomic data in QuPath. Also has functions for batch integration and plotting.
 
 ```
 annData_ManualAnnotate
@@ -25,10 +25,11 @@ annData_ManualAnnotate
 
 ```
 
-If needed, you may want to add subdirectories for raw data (like *.fastq) and processed data (like matrix files, etc)
+Code and Workbooks are in `src` directory.
 
-```
-mkdir data/raw
-mkdir data/processed
-mkdir ReferenceFiles
-```
+Current workflow is:
+
+1) Move individual sample *.h5ad files containing cropped & annotated (e.g. 'Retina' ROIs) data into a known location
+2) Preprocess.py (basically just loads and concatenates all datasets, saves resulting object in `calc` directory)
+3) IntegrateHarmony.py (batch correction)
+4) GeneratePlots.py
