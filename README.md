@@ -30,6 +30,6 @@ Code and Workbooks are in `src` directory.
 Current workflow is:
 
 1) Move individual sample *.h5ad files containing cropped & annotated (e.g. 'Retina' ROIs) data into a known location
-2) Preprocess.py (basically just loads and concatenates all datasets, saves resulting object in `calc` directory)
-3) IntegrateHarmony.py (batch correction)
-4) GeneratePlots.py
+2) `python Preprocess.py` (basically just loads and concatenates all datasets, saves resulting object in `calc` directory)
+3) `python IntegrateHarmony.py` (batch correction)
+4) `python GeneratePlots.py`
