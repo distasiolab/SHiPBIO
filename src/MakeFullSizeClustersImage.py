@@ -96,6 +96,17 @@ def BuildClusterImage(x,y):
     else:
         return np.nan
 
+def BuildCountsImage(x,y):
+    # Find all spots within distance 0.5 of the grid location
+    spots = np.where( np.logical_and( np.abs(adata.obsm['X_spatial'][:,0] - x) < downsample, np.abs(adata.obsm['X_spatial'][:,1] - y) < downsample ))
+    spots = spots[0]
+    if spots.size > 0:
+        # Get their cluster labels
+        return np.mean(adata.obs['total_counts'])
+    else:
+        return np.nan
+    
+
 OUTIMG = BuildClusterImage(X,Y)
 OUTIMG = OUTIMG.astype(float)
 

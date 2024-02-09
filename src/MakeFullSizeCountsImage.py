@@ -1,4 +1,28 @@
 import argparse
+
+import numpy as np
+import anndata as ad
+import scanpy as sc
+
+from PIL import Image, ImageFilter, ImageEnhance
+from matplotlib import cm
+
+## --------------------------------------------------------------------------------
+## Argument parsing
+## --------------------------------------------------------------------------------
+
+# Initialize parser
+parser = argparse.ArgumentParser()
+
+parser.add_argument("-f", "--file", help="annData *.h5ad file")
+parser.add_argument("-o", "--out", help="Output filename", nargs='?')
+
+# Read arguments from command line
+args = parser.parse_args()
+
+print("\n\n")
+print("Input image file: {0}".format(args.file))
+import argparse
 import os
 import xml.etree.ElementTree as ET
 import geojson
@@ -110,13 +134,11 @@ X_origin = [min(adata.obsm['X_spatial'][:,0]),min(adata.obsm['X_spatial'][:,1])]
 print("\n")
 for Annotation in Annotations:
 
-
+    print(len(dim(Annotation['geometry']['coordinates'][0])))
     if len(dim(Annotation['geometry']['coordinates'][0])) > 2:
         coords = np.array(Annotation['geometry']['coordinates'][0][0])
-    elif len(dim(Annotation['geometry']['coordinates'])) > 2:
-        coords = np.array(Annotation['geometry']['coordinates'][0])
     else:
-        coords = np.array(Annotation['geometry']['coordinates'])
+        coords = np.array(Annotation['geometry']['coordinates'][0])
 
     print(coords)
         
@@ -130,4 +152,74 @@ print("\n")
 print("Wrote AnnData file: {0}".format(outfilename))
     
 print("\n\n\nDone!")
+
+print("\n")
+
+if args.out == None:
+    outfile =  args.file + '.FullSizeImage_TotalCounts.tif'
+else:
+    outfile = args.out
+print("\n\n")
+print("Output image file: {0}".format(outfile))
+print("\n")
+
+## --------------------------------------------------------------------------------
+## Run
+## --------------------------------------------------------------------------------
+
+
+print('Loading...')
+
+ad_filename = args.file
+adata = ad.read_h5ad(ad_filename)
+
+# QC
+adata.var["mt"] = adata.var_names.str.startswith("MT-")
+sc.pp.calculate_qc_metrics(adata, qc_vars=["mt"], inplace=True)
+
+
+## Filtering
+print('Filtering...')
+#sc.pp.filter_cells(adata, min_genes=200)
+sc.pp.filter_genes(adata, min_cells=3)
+
+
+print('Building Output Image...')
+
+#fig = sc.pl.embedding(adata, basis='spatial', color='leiden', return_fig=True)
+
+
+minX = np.min(adata.obsm['X_spatial'][:,0])
+maxX = np.max(adata.obsm['X_spatial'][:,0])
+minY = np.min(adata.obsm['X_spatial'][:,1])
+maxY = np.max(adata.obsm['X_spatial'][:,1])
+
+
+downsample = 1
+
+X,Y = np.meshgrid(np.arange(minX, maxX, downsample), np.arange(minY, maxY, downsample))
+
+@np.vectorize
+def BuildCountsImage(x,y):
+    # Find all spots within distance 0.5 of the grid location
+    spots = np.where( np.logical_and( np.abs(adata.obsm['X_spatial'][:,0] - x) < downsample, np.abs(adata.obsm['X_spatial'][:,1] - y) < downsample ))
+    spots = spots[0]
+    if spots.size > 0:
+        # Get their cluster labels
+        return np.mean(adata.obs['total_counts'])
+    else:
+        return np.nan
+    
+
+OUTIMG = BuildCountsImage(X,Y)
+OUTIMG = OUTIMG.astype(float)
+
+OUTIMG_norm = (OUTIMG - np.nanmin(OUTIMG))/(np.nanmax(OUTIMG) - np.nanmin(OUTIMG))
+im = Image.fromarray(np.uint8(cm.gist_rainbow(OUTIMG_norm)*255)).convert('RGB')
+imc = ImageEnhance.Contrast(im.filter(ImageFilter.BoxBlur(radius=1)).filter(ImageFilter.GaussianBlur(radius=2))).enhance(50)
+
+# Save output image file
+imc.save(outfile)
+
+print('Done!')
 
