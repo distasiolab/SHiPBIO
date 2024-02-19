@@ -1,6 +1,11 @@
-# annData_ManualAnnotate
+# SHiPBIO
+## Spatial High-Plex Biological Analysis
 
-Tools for creating ROIs / Annotations manually for annData objects in QuPath
+Tools for 
+
+* Creating ROIs / Annotations manually for annData objects in QuPath
+* Clustering in Molecular Space
+* Analyzing Patterns in anatomically defined compartments
 
 ```
 annData_ManualAnnotate
