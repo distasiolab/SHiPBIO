@@ -8,7 +8,7 @@ Tools for
 * Analyzing Patterns in anatomically defined compartments
 
 ```
-annData_ManualAnnotate
+SHiPBIO
 |	README.md
 |	.gitignore
 |
