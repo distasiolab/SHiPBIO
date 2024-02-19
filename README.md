@@ -1,9 +1,14 @@
-# annData_ManualAnnotate
+# SHiPBIO
+## Spatial High-Plex Biological Analysis
 
-Tools for creating ROIs / Annotations manually for annData objects containing spatial transcriptomic data in QuPath. Also has functions for batch integration and plotting.
+Tools for 
+
+* Creating ROIs / Annotations manually for annData objects in QuPath
+* Clustering in Molecular Space
+* Analyzing Patterns in anatomically defined compartments
 
 ```
-annData_ManualAnnotate
+SHiPBIO
 |	README.md
 |	.gitignore
 |
@@ -25,11 +30,10 @@ annData_ManualAnnotate
 
 ```
 
-Code and Workbooks are in `src` directory.
+If needed, you may want to add subdirectories for raw data (like *.fastq) and processed data (like matrix files, etc)
 
-Current workflow is:
-
-1) Move individual sample *.h5ad files containing cropped & annotated (e.g. 'Retina' ROIs) data into a known location
-2) `python Preprocess.py` (basically just loads and concatenates all datasets, saves resulting object in `calc` directory)
-3) `python IntegrateHarmony.py` (batch correction)
-4) `python GeneratePlots.py`
+```
+mkdir data/raw
+mkdir data/processed
+mkdir ReferenceFiles
+```
