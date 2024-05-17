@@ -51,7 +51,7 @@ for filename in h5ad_files:
     library_id = 'IBM_Muscle_bx'
     adata.uns["spatial"] = dict()
     adata.uns["spatial"][library_id] = dict()
-    samples_all["Muscle_1"+str(sample)] = adata
+    samples_all["Muscle_"+str(sample)] = adata
     print('Loaded')
     sample = sample + 1
 print('Done loading all data sets')
