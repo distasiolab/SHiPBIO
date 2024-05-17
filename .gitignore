@@ -2,6 +2,12 @@
 data/**
 !data/.gitkeep
 
+figures/**
+
+calc
+
+.ipynb*
+
 # Any folder in the project tree called 'ReferenceFiles' is ignored
 ReferenceFiles
 
