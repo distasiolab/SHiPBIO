@@ -10,8 +10,9 @@ import anndata as ad
 import squidpy as sq
 import scanpy as sc
 
-import sys, os
-
+import os
+from pathlib import Path
+    
 parser = argparse.ArgumentParser()
 parser.add_argument('-b', '--basepath', type=str, help='Path to base directory for the project; should contain directories \'data\' and \'calc\'')
 args = parser.parse_args()
@@ -71,31 +72,32 @@ SampleKey = {"Muscle_1": "DM IBM 1",
 
 print('Concatenating...')
 
-all_samples = ad.concat(samples_all, label="dataset", uns_merge="first", join='outer')
-all_samples.obs_names_make_unique()
+samples_all = ad.concat(samples_all, label="dataset", uns_merge="first", join='outer')
+samples_all.obs_names_make_unique()
 
 # Clean up the NAs in manual annotation columns in adata.obs, which should be boolean
-cs = all_samples.obs.select_dtypes(include='object').columns
-all_samples.obs[cs] = all_samples.obs[cs].astype('boolean').fillna(False)
+cs = samples_all.obs.select_dtypes(include='object').columns
+samples_all.obs[cs] = samples_all.obs[cs].astype('boolean').fillna(False)
 
-all_samples.raw = all_samples
-all_samples.layers["counts"] = all_samples.X.copy()   
+samples_all.raw = samples_all
+samples_all.layers["counts"] = samples_all.X.copy()   
 
 library_id = 'Curio_Seeker_v1.1_AllRetinas'
-all_samples.uns["spatial"] = dict()
-all_samples.uns["spatial"][library_id] = dict()
+samples_all.uns["spatial"] = dict()
+samples_all.uns["spatial"][library_id] = dict()
 
 
 ## Sample-level info
-all_samples.uns["SampleKey"] = SampleKey
+samples_all.uns["SampleKey"] = SampleKey
 
 
 
 # --------------------------------------------------------------------------------
 # Save concatenated data
 # --------------------------------------------------------------------------------
-out_filename = os.path.join(FILEPATHBASE, 'calc', 'IBM_muscle_all.h5ad')
-all_samples.write(out_filename)
+Path(os.path.join(FILEPATHBASE, 'calc')).mkdir(parents=True, exist_ok=True)
+out_filename = os.path.join(FILEPATHBASE, 'calc', 'samples_all.h5ad')
+samples_all.write(out_filename)
 
 print('Saved concatenated data to: ' + out_filename)
 print('Done!')
