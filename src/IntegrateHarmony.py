@@ -114,9 +114,6 @@ if SAVEFIGS:
     # Spatial Scatter Montage
     Samples = list(samples_all.obs['dataset'].cat.categories)
 
-    print(SampleKey)
-    print(Samples)
-    
     nRow = 2
     nCol = int(np.ceil(len(Samples)/2))
     fig, axs = plt.subplots(nRow, nCol, figsize=(35,20))
