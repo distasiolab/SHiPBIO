@@ -30,9 +30,10 @@ args = parser.parse_args()
 
 FILEPATHBASE = args.basepath
 
+SAVEDATA = True
 SAVEFIGS = True
 if SAVEFIGS:
-    IMGDIR = os.path.join(FILEPATHBASE,'img')
+    IMGDIR = os.path.join(FILEPATHBASE,'img', 'out')
     Path(IMGDIR).mkdir(parents=True, exist_ok=True)
 
 # --------------------------------------------------------------------------------
@@ -73,9 +74,10 @@ sc.tl.umap(samples_all, init_pos='paga')
 # --------------------------------------------------------------------------------
 # Save concatenated data
 # --------------------------------------------------------------------------------
-out_filename = os.path.join(FILEPATHBASE, 'calc', 'samples_all_integrated_harmony_unfiltered.h5ad')
-samples_all.write(out_filename)
-print('Saved integrated data to: ' + out_filename)
+if SAVEDATA:
+    out_filename = os.path.join(FILEPATHBASE, 'calc', 'samples_all_integrated_harmony_unfiltered.h5ad')
+    samples_all.write(out_filename)
+    print('Saved integrated data to: ' + out_filename)
 
 
 # --------------------------------------------------------------------------------
