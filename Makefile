@@ -2,8 +2,10 @@
 ## Path to base directory for the project; should contain directories 'src', 'data', and 'calc'
 ##
 ##
-# Mac OS X 
+### Mac OS X 
 #BASEDIR := "/Users/mmd47/Google Drive/My Drive/DiStasio Lab/DiStasio Lab Share/02 Analysis/Muscle_IBM/SHiPBIO"
+#
+### Fedora
 BASEDIR := "/home/mdistasio/YaleGoogleDrive/DiStasio Lab/DiStasio Lab Share/02 Analysis/Muscle_IBM/SHiPBIO"
 ##
 

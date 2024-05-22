@@ -1,10 +1,7 @@
 import warnings
 warnings.filterwarnings('ignore')
 
-import cellcharter as cc
-
 import anndata as ad
-import squidpy as sq
 import scanpy as sc
 
 import numpy as np
@@ -52,7 +49,7 @@ samples_all = ad.read_h5ad(filename)
 # Imputation
 # --------------------------------------------------------------------------------
 magic_operator = magic.MAGIC()
-samples_all["X_magic"] = magic_operator.fit_transform(samples_all.X)
+samples_all.layers["X_magic"] = magic_operator.fit_transform(samples_all.X)
 
 # --------------------------------------------------------------------------------
 # Save
