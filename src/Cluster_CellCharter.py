@@ -75,6 +75,7 @@ n_clusters = 21
 gmm = cc.tl.Cluster(
     n_clusters=n_clusters, 
     random_state=12345,
+    covariance_type='diag',
     # If running on GPU
     trainer_params=dict(accelerator='gpu', devices=1)
 )
