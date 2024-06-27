@@ -2,7 +2,6 @@ import warnings
 warnings.filterwarnings('ignore')
 
 import anndata as ad
-import scanpy as sc
 
 import numpy as np
 import pandas as pd
@@ -13,7 +12,7 @@ import argparse
 import re
 import json
 
-import seaborn as sns
+
 from matplotlib import pyplot as plt
 from matplotlib.colors import ListedColormap
 from cycler import cycler
@@ -49,7 +48,7 @@ samples_all = ad.read_h5ad(filename)
 # Imputation
 # --------------------------------------------------------------------------------
 magic_operator = magic.MAGIC()
-samples_all.layers["X_magic"] = magic_operator.fit_transform(samples_all.X)
+samples_all.obsm["X_magic"] = magic_operator.fit_transform(samples_all.X)
 
 # --------------------------------------------------------------------------------
 # Save
