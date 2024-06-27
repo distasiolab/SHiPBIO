@@ -22,7 +22,6 @@ CONDA_ENV_PHATE="/gpfs/gibbs/project/distasio/mmd47/envs/phate"
 SOURCE="./src"
 CALC="./calc"
 
-
 function preprocess {
 	 echo "Preprocessing..."
 	 conda activate $CONDA_ENV_CELLCHARTER
@@ -32,27 +31,28 @@ function preprocess {
 
 function batch_integrate {
 	 echo "Batch Integration..."
-	 bash --init-file <(echo ". "$HOME/.bashrc"; 	      conda activate $CONDA_ENV_CELLCHARTER";	      export LD_LIBRARY_PATH=$CONDA_ENV_CELLCHARTER/lib/;	      python $SOURCE/IntegrateHarmony.py -b $BASEDIR)
+	 bash --init-file <(echo ". "$HOME/.bashrc"; 	      conda activate $CONDA_ENV_CELLCHARTER;	      export LD_LIBRARY_PATH=$CONDA_ENV_CELLCHARTER/lib/;	      python $SOURCE/IntegrateHarmony.py -b $BASEDIR")
 }
 
 function singlenuc_integrate {
 	 echo "Single Nucleus RNA seq Integration..."
-	 bash --init-file <(echo ". "$HOME/.bashrc"; 	      conda activate $CONDA_ENV_CELLCHARTER";	      export LD_LIBRARY_PATH=$CONDA_ENV_CELLCHARTER/lib/;	      python $SOURCE/Integrate_snRNAseq_GIMVI.py -b $BASEDIR)
+	 bash --init-file <(echo ". "$HOME/.bashrc"; 	      conda activate $CONDA_ENV_CELLCHARTER;	      export LD_LIBRARY_PATH=$CONDA_ENV_CELLCHARTER/lib/;	      python $SOURCE/Integrate_snRNAseq_GIMVI.py -b $BASEDIR")
 }
 
 
 function impute {
 	 echo "Imputation (MAGIC)..."
- 	 bash --init-file <(echo ". "$HOME/.bashrc"; 	      conda activate $CONDA_ENV_PHATE;	      export LD_LIBRARY_PATH=$CONDA_ENV_PHATE/lib/;	     	 python $SOURCE/Impute_MAGIC.py -b $BASEDIR)
+ 	 bash --init-file <(echo ". "$HOME/.bashrc"; 	      conda activate $CONDA_ENV_PHATE;	      export LD_LIBRARY_PATH=$CONDA_ENV_PHATE/lib/;	     	 python $SOURCE/Impute_MAGIC.py -b $BASEDIR")
 }
 
 function cluster {
 	 echo "Clustering..."
- 	 bash --init-file <(echo ". "$HOME/.bashrc"; 	      conda activate $CONDA_ENV_CELLCHARTER";	      export LD_LIBRARY_PATH=$CONDA_ENV_CELLCHARTER/lib/;	      python $SOURCE/Cluster_CellCharter.py -b $BASEDIR)
+ 	 bash --init-file <(echo ". "$HOME/.bashrc"; 	      conda activate $CONDA_ENV_CELLCHARTER;	      export LD_LIBRARY_PATH=$CONDA_ENV_CELLCHARTER/lib/;	      python $SOURCE/Cluster_CellCharter.py -b $BASEDIR")
 }
 
 function build {
 	 batch_integrate
+	 singlenuc_integrate
 	 impute
 	 cluster
 }
