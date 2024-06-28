@@ -28,10 +28,11 @@ CONDA_ACTIVATE = source $$(conda info --base)/etc/profile.d/conda.sh ; conda act
 SOURCE = ./src/
 CALC = ./calc/
 
-
+SINGLE_CELL_DATA := $(CALC)retina_sn_combined.h5ad
 
 PREPROCESS_RESULT := $(CALC)samples_all.h5ad
-INTEGRATE_RESULT := $(CALC)samples_all_integrated_harmony_unfiltered.h5ad
+BATCH_INTEGRATE_RESULT := $(CALC)samples_all_integrated_harmony_unfiltered.h5ad
+SINGLECELL_RESULT := $(CALC)samples_all_integrated_snRNAseq_imputed.h5ad
 IMPUTATION_RESULT := $(CALC)samples_all_integrated_imputed.h5ad
 CLUSTER_RESULT := $(CALC)samples_all_integrated_imputed_cellcharter_clustered.h5ad
 
@@ -44,9 +45,13 @@ preprocess: $(PREPROCESS_RESULT)
 	@echo "Preprocessing completed."
 	@echo $(PREPROCESS_RESULT) " exists."
 
-integrate: $(INTEGRATE_RESULT)
-	@echo "Integration completed."
-	@echo $(INTEGRATE_RESULT) " exists."
+batch_integrate: $(BATCH_INTEGRATE_RESULT)
+	@echo "Batch integration completed."
+	@echo $(BATCH_INTEGRATE_RESULT) " exists."
+
+singlecell_integrate: $(SINGLECELL_INTEGRATE_RESULT)
+	@echo "Single cell integration completed."
+	@echo $(SINGLECELL_INTEGRATE_RESULT) " exists."
 
 impute: $(IMPUTATION_RESULT)
 	@echo "Imputation completed."
@@ -67,26 +72,22 @@ $(PREPROCESS_RESULT):
 	python $(SOURCE)Preprocess.py -b $(BASEDIR)
 	conda deactivate
 
-$(INTEGRATE_RESULT): $(PREPROCESS_RESULT)
-	@echo "Batch Integration..."
-	conda deactivate
-	$(CONDA_ACTIVATE) $(CONDA_ENV_CELLCHARTER)
-	python $(SOURCE)IntegrateHarmony.py -b $(BASEDIR)
-	conda deactivate	
+$(BATCH_INTEGRATE_RESULT): $(PREPROCESS_RESULT)
+	@echo "Batch integration..."
+	bash --init-file <(echo ". "$(HOME)/.bashrc"; conda activate $(CONDA_ENV_CELLCHARTER); export LD_LIBRARY_PATH=$(CONDA_ENV_CELLCHARTER)/lib/; python $(SOURCE)/IntegrateHarmony.py -b $(BASEDIR)")
 
-$(IMPUTATION_RESULT): $(INTEGRATE_RESULT)
+$(SINGLECELL_INTEGRATE_RESULT): $(BATCH_INTEGRATE_RESULT) $(SINGLE_CELL_DATA)
+	@echo "Single cell integration..."
+	bash --init-file <(echo ". "$(HOME)/.bashrc"; conda activate $(CONDA_ENV_CELLCHARTER); export LD_LIBRARY_PATH=$(CONDA_ENV_CELLCHARTER)/lib/; python $(SOURCE)/Integrate_scRNAseq_GIMVI.py -b $(BASEDIR)")
+
+$(IMPUTATION_RESULT): $(SINGLECELL_INTEGRATE_RESULT)
 	@echo "Imputation (MAGIC)..."
-	conda deactivate
-	$(CONDA_ACTIVATE) $(CONDA_ENV_PHATE)
-	python $(SOURCE)Impute_MAGIC.py -b $(BASEDIR)
-	conda deactivate
+	bash --init-file <(echo ". "$(HOME)/.bashrc"; conda activate $(CONDA_ENV_PHATE); export LD_LIBRARY_PATH=$(CONDA_ENV_PHATE)/lib/; python $(SOURCE)/Impute_MAGIC.py -b $(BASEDIR)")
 
 $(CLUSTER_RESULT): $(IMPUTATION_RESULT)
 	@echo "Clustering..."
-	conda deactivate
-	$(CONDA_ACTIVATE) $(CONDA_ENV_CELLCHARTER)
-	python $(SOURCE)Cluster_CellCharter.py -b $(BASEDIR)
-	conda deactivate
+	bash --init-file <(echo ". "$(HOME)/.bashrc"; conda activate $(CONDA_ENV_CELLCHARTER); export LD_LIBRARY_PATH=$(CONDA_ENV_CELLCHARTER)/lib/; python $(SOURCE)/Cluster_CellCharter.py -b $(BASEDIR)")
+
 
 clean:
 	rm -rf calc

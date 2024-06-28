@@ -39,7 +39,7 @@ if SAVEFIGS:
 # --------------------------------------------------------------------------------
 # Load dataset
 # --------------------------------------------------------------------------------
-filename = os.path.join(FILEPATHBASE, 'calc', 'samples_all_integrated_harmony_unfiltered.h5ad')
+filename = os.path.join(FILEPATHBASE, 'calc', 'samples_all_integrated_snRNAseq_imputed.h5ad')
 print("Loading Data from: " + filename + ' ...')
 samples_all = ad.read_h5ad(filename)
 
