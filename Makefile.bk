@@ -59,23 +59,29 @@ cluster: $(CLUSTER_RESULT)
 
 $(PREPROCESS_RESULT): 
 	@echo "Preprocessing..."
-	echo 'conda activate ${CONDA_ENV_CELLCHARTER}; export LD_LIBRARY_PATH=${CONDA_ENV_CELLCHARTER}/lib/; python ${SOURCE}/Preprocess.py -b ${BASEDIR}' | bash -i
+	conda init
+	conda deactivate
+	$(CONDA_ACTIVATE) $(CONDA_ENV_CELLCHARTER)
+	python $(SOURCE)Preprocess.py -b $(BASEDIR)
+	conda deactivate
 
 $(BATCH_INTEGRATE_RESULT): $(PREPROCESS_RESULT)
 	@echo "Batch integration..."
-	echo 'conda activate ${CONDA_ENV_CELLCHARTER}; export LD_LIBRARY_PATH=${CONDA_ENV_CELLCHARTER}/lib/; python ${SOURCE}/IntegrateHarmony.py -b ${BASEDIR}' | bash -i
+	bash --init-file <(echo ". "$(HOME)/.bashrc"; conda activate $(CONDA_ENV_CELLCHARTER); export LD_LIBRARY_PATH=$(CONDA_ENV_CELLCHARTER)/lib/; python $(SOURCE)/IntegrateHarmony.py -b $(BASEDIR)")
 
 $(SINGLECELL_INTEGRATE_RESULT): $(BATCH_INTEGRATE_RESULT) $(SINGLE_CELL_DATA)
 	@echo "Single cell integration..."
-	echo 'conda activate ${CONDA_ENV_CELLCHARTER}; export LD_LIBRARY_PATH=${CONDA_ENV_CELLCHARTER}/lib/; python ${SOURCE}/Integrate_scRNAseq_GIMVI.py -b ${BASEDIR}' | bash -i 
+	echo 'conda activate ${CONDA_ENV_CELLCHARTER}; conda info; export LD_LIBRARY_PATH=${CONDA_ENV_CELLCHARTER}/lib/; python ${SOURCE}/Integrate_scRNAseq_GIMVI.py -b ${BASEDIR}' | bash -i 
+#	bash --init-file <(echo ". "${HOME}/.bashrc; conda activate ${CONDA_ENV_CELLCHARTER}; export LD_LIBRARY_PATH=${CONDA_ENV_CELLCHARTER}/lib/; python ${SOURCE}/Integrate_scRNAseq_GIMVI.py -b ${BASEDIR})
+
 
 $(IMPUTATION_RESULT): $(SINGLECELL_INTEGRATE_RESULT)
 	@echo "Imputation (MAGIC)..."
-	echo 'conda activate ${CONDA_ENV_PHATE}; export LD_LIBRARY_PATH=${CONDA_ENV_PHATE}/lib/; python ${SOURCE}/Impute_MAGIC.py -b ${BASEDIR}' | bash -i
+	bash --init-file <(echo ". "$(HOME)/.bashrc"; conda activate $(CONDA_ENV_PHATE); export LD_LIBRARY_PATH=$(CONDA_ENV_PHATE)/lib/; python $(SOURCE)/Impute_MAGIC.py -b $(BASEDIR)")
 
-$(CLUSTER_RESULT): $(SINGLECELL_INTEGRATE_RESULT)
+$(CLUSTER_RESULT): $(IMPUTATION_RESULT)
 	@echo "Clustering..."
-	echo 'conda activate ${CONDA_ENV_CELLCHARTER}; export LD_LIBRARY_PATH=${CONDA_ENV_CELLCHARTER}/lib/; export PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:32; python ${SOURCE}/Cluster_CellCharter.py -b ${BASEDIR}' | bash -i
+	bash --init-file <(echo ". "$(HOME)/.bashrc"; conda activate $(CONDA_ENV_CELLCHARTER); export LD_LIBRARY_PATH=$(CONDA_ENV_CELLCHARTER)/lib/; python $(SOURCE)/Cluster_CellCharter.py -b $(BASEDIR)")
 
 
 clean:

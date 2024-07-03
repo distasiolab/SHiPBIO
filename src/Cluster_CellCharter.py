@@ -1,6 +1,9 @@
 import warnings
 warnings.filterwarnings('ignore')
 
+from pytorch_lightning import Trainer
+from pytorch_lightning.tuner import batch_size_scaling
+
 import cellcharter as cc
 
 import anndata as ad
@@ -42,7 +45,8 @@ if SAVEFIGS:
 # --------------------------------------------------------------------------------
 # Load datasets 
 # --------------------------------------------------------------------------------
-filename = os.path.join(FILEPATHBASE, 'calc', 'samples_all_integrated_imputed.h5ad')
+#filename = os.path.join(FILEPATHBASE, 'calc', 'samples_all_integrated_imputed.h5ad')
+filename = os.path.join(FILEPATHBASE, 'calc', 'samples_all_integrated_snRNAseq_imputed.h5ad')
 print("Loading Data from: " + filename + ' ...')
 samples_all = ad.read_h5ad(filename)
 
@@ -64,7 +68,7 @@ for r in np.arange(1,len(Samples)):
 # --------------------------------------------------------------------------------
 sq.gr.spatial_neighbors(samples_all, coord_type='generic', delaunay=True, spatial_key='X_spatial_fov')
 cc.gr.remove_long_links(samples_all)
-cc.gr.aggregate_neighbors(samples_all, n_layers=1, use_rep='X_magic', out_key='X_cellcharter', sample_key='batch') #n_layers = 1 means 1-hop neighbors
+cc.gr.aggregate_neighbors(samples_all, n_layers=3, use_rep='X_spatial_fov', out_key='X_cellcharter', sample_key='batch') #n_layers = 3 means 1,2,3-hop neighbors
 
 
 # --------------------------------------------------------------------------------
@@ -76,9 +80,31 @@ gmm = cc.tl.Cluster(
     n_clusters=n_clusters, 
     random_state=12345,
     covariance_type='full',
+    batch_size=2,
     # If running on GPU
-    trainer_params=dict(accelerator='gpu', devices=1)
+    #trainer_params=dict(accelerator='gpu', devices=1, auto_scale_batch_size='binsearch')
+    trainer_params=dict(accelerator='gpu', devices=1, default_root_dir=os.path.join(FILEPATHBASE, 'tmp'))
 )
+
+
+import logging
+
+
+# configure logging on module level, redirect to file
+gmm_logger = logging.getLogger(type(gmm.trainer()).__name__)
+gmm_logger.setLevel(logging.DEBUG)
+gmm_logger.addHandler(logging.FileHandler(os.path.join(FILEPATHBASE, 'tmp', 'gmm.log')))
+
+#gmm.trainer().save_checkpoint(filepath=os.path.join(FILEPATHBASE, 'calc', 'samples_all_integrated_imputed_cellcharter_1hop_CellCharterModel_PRETRAINED.ckpt'))
+#gmm.trainer().test(gmm)
+#batch_size_scaling.scale_batch_size(trainer=gmm.trainer(), model=gmm)
+
+#gmm.trainer().tuner.scale_batch_size(gmm)
+
+
+
+
+                      
 gmm.fit(samples_all, use_rep='X_cellcharter')
 samples_all.obs['spatial_cluster'] = gmm.predict(samples_all, use_rep='X_cellcharter')
 
@@ -132,7 +158,7 @@ samples_all.obs['spatial_cluster'] = gmm.predict(samples_all, use_rep='X_cellcha
 # --------------------------------------------------------------------------------
 if SAVEDATA:
     # Save
-    filename_out = os.path.join(FILEPATHBASE, 'calc', 'samples_all_integrated_imputed_cellcharter_1hop_clustered.h5ad')
+    filename_out = os.path.join(FILEPATHBASE, 'calc', 'samples_all_integrated_imputed_cellcharter_3hop_clustered.h5ad')
     samples_all.write_h5ad(filename_out)
     print('Saved ' + filename_out)
 
