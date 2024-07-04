@@ -68,13 +68,13 @@ for r in np.arange(1,len(Samples)):
 # --------------------------------------------------------------------------------
 sq.gr.spatial_neighbors(samples_all, coord_type='generic', delaunay=True, spatial_key='X_spatial_fov')
 cc.gr.remove_long_links(samples_all)
-cc.gr.aggregate_neighbors(samples_all, n_layers=3, use_rep='X_spatial_fov', out_key='X_cellcharter', sample_key='batch') #n_layers = 3 means 1,2,3-hop neighbors
+cc.gr.aggregate_neighbors(samples_all, n_layers=3, use_rep='X_scVI', out_key='X_cellcharter', sample_key='batch') #n_layers = 3 means 1,2,3-hop neighbors
 
 
 # --------------------------------------------------------------------------------
 # Cluster
 # --------------------------------------------------------------------------------
-n_clusters = 10
+n_clusters = 21
 
 gmm = cc.tl.Cluster(
     n_clusters=n_clusters, 
@@ -230,10 +230,10 @@ for text in fig.findobj(match=lambda x: isinstance(x, plt.Text)):
 
 if SAVEFIGS:
     n_clusters = len(samples_all.obs['spatial_cluster'].cat.categories)
-    filename_out = os.path.join(IMGDIR, 'AllSamples_MAGIC_CellCharter_' + str(n_clusters) + '_Clusters_typelabels.png')
+    filename_out = os.path.join(IMGDIR, 'AllSamples_integrated_imputed_CellCharter_' + str(n_clusters) + '_Clusters.png')
     fig.savefig(filename_out, dpi=300)
     print('Saved: ' + filename_out)
-    filename_out = os.path.join(IMGDIR, 'AllSamples_MAGIC_CellCharter_' + str(n_clusters) + '_Clusters_typelabels.svg')
+    filename_out = os.path.join(IMGDIR, 'AllSamples_integrated_imputed_CellCharter_' + str(n_clusters) + '_Clusters.svg')
     fig.savefig(filename_out, dpi=300)
     print('Saved: ' + filename_out)
 # --------------------------------------------------
