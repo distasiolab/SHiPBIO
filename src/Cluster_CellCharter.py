@@ -230,10 +230,10 @@ for text in fig.findobj(match=lambda x: isinstance(x, plt.Text)):
 
 if SAVEFIGS:
     n_clusters = len(samples_all.obs['spatial_cluster'].cat.categories)
-    filename_out = os.path.join(IMGDIR, 'AllSamples_MAGIC_CellCharter_' + str(n_clusters) + '_Clusters_typelabels.png')
+    filename_out = os.path.join(IMGDIR, 'AllSamples_integrated_imputed_cellcharter_3hop_clustered_' + str(n_clusters) + '_clusters.png')
     fig.savefig(filename_out, dpi=300)
     print('Saved: ' + filename_out)
-    filename_out = os.path.join(IMGDIR, 'AllSamples_MAGIC_CellCharter_' + str(n_clusters) + '_Clusters_typelabels.svg')
+    filename_out = os.path.join(IMGDIR, 'AllSamples_integrated_imputed_cellcharter_3hop_clustered_' + str(n_clusters) + '_clusters.svg')
     fig.savefig(filename_out, dpi=300)
     print('Saved: ' + filename_out)
 # --------------------------------------------------
