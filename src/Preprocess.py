@@ -1,7 +1,7 @@
 # Preprocess.py
-# Part of anndata_manualAnnotate for processing spatial omics data
+# Part of SHiPBIO for processing spatial omics data
 # Marcello DiStasio
-# Oct 2023
+# Jul 2024
 
 
 import anndata as ad
@@ -9,13 +9,17 @@ import squidpy as sq
 import scanpy as sc
 
 import os
+import csv
 
-#FILEPATHBASE = '/Users/mmd47/Library/CloudStorage/GoogleDrive-mmd47@yale.edu/My Drive/DiStasio Lab/DiStasio Lab Share/'
-FILEPATHBASE = '/home/mdistasio/YaleGoogleDrive/DiStasio Lab/DiStasio Lab Share/'
+from pathlib import Path
+import argparse
 
-SAVEFIGS = True
-if SAVEFIGS:
-    IMGDIR = os.path.join(FILEPATHBASE,'02 Analysis/annData_ManualAnnotate/img/')
+parser = argparse.ArgumentParser()
+parser.add_argument('-b', '--basepath', type=str, help='Path to base directory for the project; should contain directories \'data\' and \'calc\'')
+parser.add_argument('-s', '--worksheet', type=str, help='Path to *.csv file with sample file paths and information')
+args = parser.parse_args()
+
+FILEPATHBASE = args.basepath
 
 
 # --------------------------------------------------------------------------------
@@ -26,172 +30,57 @@ if SAVEFIGS:
 #   3. ReadAnnotationsToAnnData.py
 #
 # --------------------------------------------------------------------------------
+def read_csv_into_dict(filename, known_columns):
+    result = []
+    with open(filename, mode='r', newline='\n') as file:
+        reader = csv.DictReader(file, delimiter=',')
+        for row in reader:
+            entry = {}
+            unknown_cols = []
+            for key, value in row.items():
+                if key.strip() in known_columns:
+                    entry[key.strip()] = value.strip()
+                else:
+                    if value is not None:
+                        unknown_cols.append(value.strip())
+            entry['Annotations'] = unknown_cols
+            result.append(entry)
+    return result
+
+
+known_columns =['sampleID', 'sampleName', 'AnatomicLocation', 'filename']
+data = read_csv_into_dict(args.worksheet, known_columns)
+    
+import pprint
+pp = pprint.PrettyPrinter(indent=4, width=200)
+print("Sample worksheet info from " + args.worksheet)
+pp.pprint(data)
 
 print('Loading data files and selecting annotated regions...')
 
-## MACULAR RETINA
-
-# File 1    
-filename = os.path.join(FILEPATHBASE,'03 Data','Retina_SlideSeq_Curio','A22_3781_AMD_SlideSeq_001','A0052_029_anndata_annotated.h5ad')
-adata = ad.read_h5ad(filename)
-
-library_id = 'A22_3781'
-adata.uns["spatial"] = dict()
-adata.uns["spatial"][library_id] = dict()
-retina1 = adata[(adata.obs['Retina_1'] == True) | (adata.obs['Retina_2'] == True)]
-
-# File 2
-filename = os.path.join(FILEPATHBASE,'03 Data/Retina_SlideSeq_Curio/A23-914_OS_Ctrl_SlideSeq_001/A0052_030_anndata_annotated.h5ad')
-adata = ad.read_h5ad(filename)
-
-library_id = 'A23-914'
-adata.uns["spatial"] = dict()
-adata.uns["spatial"][library_id] = dict()
-retina2 = adata[adata.obs['Retina']]
-
-# File 3
-filename = os.path.join(FILEPATHBASE,'03 Data/Retina_SlideSeq_Curio/A23-1277_AMD_SlideSeq_001/OUTPUT/A23-1277-OS_macula/A23-1277-OS_macula_anndata_annotated.h5ad')
-adata = ad.read_h5ad(filename)
-
-library_id = 'A23-1277'
-adata.uns["spatial"] = dict()
-adata.uns["spatial"][library_id] = dict()
-retina3 = adata[adata.obs['Retina']]
-
-# File 4
-filename = os.path.join(FILEPATHBASE,'03 Data/Retina_SlideSeq_Curio/A23-1279-OS_SlideSeq_001/23-1279-OS_OUTPUT/OUTPUT/A23-1279-OS_macula/A23-1279-OS_macula_anndata_annotated.h5ad')
-adata = ad.read_h5ad(filename)
-
-library_id = 'A23-1279'
-adata.uns["spatial"] = dict()
-adata.uns["spatial"][library_id] = dict()
-retina4 = adata[adata.obs['Retina']]
-
-# File 5
-filename = os.path.join(FILEPATHBASE,'03 Data/Retina_SlideSeq_Curio/A23-1422_Ctrl_Macula_SlideSeq_001/OUTPUT/A23-1422_-_macula/A23-1422_-_macula_anndata_annotated.h5ad')
-adata = ad.read_h5ad(filename)
-
-library_id = 'A23-1422'
-adata.uns["spatial"] = dict()
-adata.uns["spatial"][library_id] = dict()
-retina5 = adata[adata.obs['Retina']]
-
-# File 6
-filename = os.path.join(FILEPATHBASE,'03 Data/Retina_SlideSeq_Curio/A23-1425_Ctrl_Macula_SlideSeq_001/OUTPUT/A23-1425_-_macula1/A23-1425_-_macula1_anndata_annotated.h5ad')
-adata = ad.read_h5ad(filename)
-
-library_id = 'A23-1425-M1'
-adata.uns["spatial"] = dict()
-adata.uns["spatial"][library_id] = dict()
-retina6 = adata[adata.obs['Retina']]
-
-
-# File 7
-filename = os.path.join(FILEPATHBASE,'03 Data/Retina_SlideSeq_Curio/A23-1152_OD_AMD_SlideSeq_002/OUTPUT/A23-1152_-_Mac_AMD/A23-1152_-_Mac_AMD_anndata_annotated.h5ad')
-adata = ad.read_h5ad(filename)
-
-library_id = 'A23-1152_OD'
-adata.uns["spatial"] = dict()
-adata.uns["spatial"][library_id] = dict()
-retina7 = adata[adata.obs['Retina']]
-
-
-## PERIPHERAL RETINA
-
-# File 8
-filename = os.path.join(FILEPATHBASE,'03 Data/Retina_SlideSeq_Curio/Peripheral_Retina/1279_Peripheral_SlideSeq_001/OUTPUT/1279_P/1279_P_anndata_annotated.h5ad')
-adata = ad.read_h5ad(filename)
-
-library_id = 'A23-1279_P'
-adata.uns["spatial"] = dict()
-adata.uns["spatial"][library_id] = dict()
-retina8 = adata[adata.obs['Retina']]
-
-
-# File 9
-filename = os.path.join(FILEPATHBASE,'03 Data/Retina_SlideSeq_Curio/Peripheral_Retina/1341-1_Peripheral_SlideSeq_001/OUTPUT/1341-1_P/1341-1_P_anndata_annotated.h5ad')
-adata = ad.read_h5ad(filename)
-
-library_id = 'A23-1341_P'
-adata.uns["spatial"] = dict()
-adata.uns["spatial"][library_id] = dict()
-retina9 = adata[adata.obs['Retina']]
-
-
-# File 10
-filename = os.path.join(FILEPATHBASE,'03 Data/Retina_SlideSeq_Curio/Peripheral_Retina/1422_P_Peripheral_SlideSeq_001/OUTPUT/1422_P/1422_P_anndata_annotated.h5ad')
-adata = ad.read_h5ad(filename)
-
-library_id = 'A23-1422_P'
-adata.uns["spatial"] = dict()
-adata.uns["spatial"][library_id] = dict()
-retina10 = adata[adata.obs['Retina']]
-
-# File 11
-filename = os.path.join(FILEPATHBASE,'03 Data/Retina_SlideSeq_Curio/Peripheral_Retina/1425-3_Peripheral_SlideSeq_001/OUTPUT/1425-3_P/1425-3_P_anndata_annotated.h5ad')
-adata = ad.read_h5ad(filename)
-
-library_id = 'A23-1425-3_P'
-adata.uns["spatial"] = dict()
-adata.uns["spatial"][library_id] = dict()
-retina11 = adata[adata.obs['Retina']]
-
-
-
-### Done Loading 
-
+cnt = 1
+for sample in data:
+    print("Loading:" + sample['filename'] + "...")
+    adata = ad.read_h5ad(sample['filename'])
+    adata.uns["spatial"] = dict()
+    adata.uns["spatial"][sample['sampleID']] = dict()
+    sample['data'] = adata[adata.obs[sample.Annotations].any(axis=1)]
+    print("Done loading sample " + str(cnt) + "/" + str(len(data)) + ".")
+print("Done loading data")
 
 # --------------------------------------------------------------------------------
 # Defining Sample-Level Characteristics
 # --------------------------------------------------------------------------------
 
-r_all = {"R1": retina1,
-         "R2": retina2,
-         "R3": retina3,
-         "R4": retina4,
-         "R5": retina5,
-         "R6": retina6,
-         "R7": retina7,
-         "R8": retina8,
-         "R9": retina9,
-         "R10": retina10,
-         "R11": retina11}
-
-SampleKey = {"R1": "A22_3781",
-             "R2": "A23-914",
-             "R3": "A23-1277",
-             "R4": "A23-1279",
-             "R5": "A23-1422",
-             "R6": "A23-1425-M1",
-             "R7": "A23-1152_OD",
-             "R8": "A23-1279_P",
-             "R9": "A23-1341_P",
-             "R10": "A23-1422_P",
-             "R11": "A23-1425-3_P"}
-
-AnatLoc = {"R1": "macula_retina",
-           "R2": "macula_retina",
-           "R3": "macula_retina",
-           "R4": "macula_retina",
-           "R5": "macula_retina",
-           "R6": "macula_retina",
-           "R7": "macula_retina",
-           "R8": "peripheral_retina",
-           "R9": "peripheral_retina",
-           "R10": "peripheral_retina",
-           "R11": "peripheral_retina"}
-
-
-
-
-
+r_all =     dict([[sample['sampleID'],sample['data']] for sample in data])
+SampleKey = dict([[sample['sampleID'],sample['sampleName']] for sample in data])
+AnaLoc =    dict([[sample['sampleID'],sample['AnatomicLocation']] for sample in data])
 
 # --------------------------------------------------------------------------------
 # Concatenation of all datasets into one
 # --------------------------------------------------------------------------------
 
 print('Concatenating...')
-
 
 retinas_all = ad.concat(r_all, label="dataset", uns_merge="first", join='outer')
 

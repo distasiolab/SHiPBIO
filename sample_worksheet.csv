@@ -1,6 +1,6 @@
 sampleID, sampleName, AnatomicLocation, filename, annotation1, annotation2, ..., annotationN
-R1, A22_3781, macula_retina, /home/mdistasio/YaleGoogleDrive/DiStasio Lab/DiStasio Lab Share/03 Data/Retina_SlideSeq_Curio/A22_3781_AMD_SlideSeq_001/A0052_029_anndata_annotated.h5ad, Retina_1, Retina_2						     
-R2, A23-914, macula_retina, /home/mdistasio/YaleGoogleDrive/DiStasio Lab/DiStasio Lab Share/03 Data/Retina_SlideSeq_Curio/A23-914_OS_Ctrl_SlideSeq_001/A0052_030_anndata_annotated.h5ad, Retina						     
+R1, A22_3781, macula_retina, /home/mdistasio/YaleGoogleDrive/DiStasio Lab/DiStasio Lab Share/03 Data/Retina_SlideSeq_Curio/A22_3781_AMD_SlideSeq_001/A0052_029_anndata_annotated.h5ad, Retina_1, Retina_2
+R2, A23-914, macula_retina, /home/mdistasio/YaleGoogleDrive/DiStasio Lab/DiStasio Lab Share/03 Data/Retina_SlideSeq_Curio/A23-914_OS_Ctrl_SlideSeq_001/A0052_030_anndata_annotated.h5ad, Retina
 R3, A23-1277, macula_retina, /home/mdistasio/YaleGoogleDrive/DiStasio Lab/DiStasio Lab Share/03 Data/Retina_SlideSeq_Curio/A23-1277_AMD_SlideSeq_001/OUTPUT/A23-1277-OS_macula/A23-1277-OS_macula_anndata_annotated.h5ad, Retina
 R4, A23-1279, macula_retina, /home/mdistasio/YaleGoogleDrive/DiStasio Lab/DiStasio Lab Share/03 Data/Retina_SlideSeq_Curio/A23-1279-OS_SlideSeq_001/23-1279-OS_OUTPUT/OUTPUT/A23-1279-OS_macula/A23-1279-OS_macula_anndata_annotated.h5ad, Retina
 R5, A23-1422, macula_retina, /home/mdistasio/YaleGoogleDrive/DiStasio Lab/DiStasio Lab Share/03 Data/Retina_SlideSeq_Curio/A23-1422_Ctrl_Macula_SlideSeq_001/OUTPUT/A23-1422_-_macula/A23-1422_-_macula_anndata_annotated.h5ad, Retina
