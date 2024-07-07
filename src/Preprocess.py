@@ -64,7 +64,7 @@ for sample in data:
     adata = ad.read_h5ad(sample['filename'])
     adata.uns["spatial"] = dict()
     adata.uns["spatial"][sample['sampleID']] = dict()
-    sample['data'] = adata[adata.obs[sample.Annotations].any(axis=1)]
+    sample['data'] = adata[adata.obs[sample['Annotations']].any(axis=1)]
     print("Done loading sample " + str(cnt) + "/" + str(len(data)) + ".")
 print("Done loading data")
 
