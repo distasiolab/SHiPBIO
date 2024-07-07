@@ -7,13 +7,16 @@
 ########################################################################################################################
 ### Fedora
 #BASEDIR := "/home/mdistasio/YaleGoogleDrive/DiStasio Lab/DiStasio Lab Share/02 Analysis/Muscle_IBM/SHiPBIO"
+SHELL=/bin/bash -i
+BASEDIR := "/home/mdistasio/Workspace/SHiPBIO"
+CONDA_ENV_CELLCHARTER := "/home/mdistasio/miniconda3/envs/cellcharter-env"
 ##
 ########################################################################################################################
 ### mccleary.ycrc.yale.edu
-SHELL=/bin/bash -i
-BASEDIR := "/home/mmd47/project/retina_curio/SHiPBIO"
-CONDA_ENV_CELLCHARTER := "/gpfs/gibbs/project/distasio/mmd47/envs/cellcharter-env"
-CONDA_ENV_PHATE := "/gpfs/gibbs/project/distasio/mmd47/envs/phate"
+#SHELL=/bin/bash -i
+#BASEDIR := "/home/mmd47/project/retina_curio/SHiPBIO"
+#CONDA_ENV_CELLCHARTER := "/gpfs/gibbs/project/distasio/mmd47/envs/cellcharter-env"
+#CONDA_ENV_PHATE := "/gpfs/gibbs/project/distasio/mmd47/envs/phate"
 
 ##
 ########################################################################################################################
@@ -59,7 +62,7 @@ cluster: $(CLUSTER_RESULT)
 
 $(PREPROCESS_RESULT): 
 	@echo "Preprocessing..."
-	echo 'conda activate ${CONDA_ENV_CELLCHARTER}; export LD_LIBRARY_PATH=${CONDA_ENV_CELLCHARTER}/lib/; python ${SOURCE}/Preprocess.py -b ${BASEDIR}' | bash -i
+	echo 'conda activate ${CONDA_ENV_CELLCHARTER}; export LD_LIBRARY_PATH=${CONDA_ENV_CELLCHARTER}/lib/; python ${SOURCE}/Preprocess.py -b ${BASEDIR}' -s ${BASEDIR}/sample_worksheet.csv | bash -i
 
 $(BATCH_INTEGRATE_RESULT): $(PREPROCESS_RESULT)
 	@echo "Batch integration..."

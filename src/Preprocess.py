@@ -66,6 +66,7 @@ for sample in data:
     adata.uns["spatial"][sample['sampleID']] = dict()
     sample['data'] = adata[adata.obs[sample['Annotations']].any(axis=1)]
     print("Done loading sample " + str(cnt) + "/" + str(len(data)) + ".")
+    cnt=cnt+1
 print("Done loading data")
 
 # --------------------------------------------------------------------------------
@@ -105,7 +106,10 @@ retinas_all.uns["Anatomic_Location"] = AnatLoc
 # --------------------------------------------------------------------------------
 # Save concatenated data
 # --------------------------------------------------------------------------------
-out_filename = os.path.join(FILEPATHBASE,'02 Analysis', 'annData_ManualAnnotate', 'calc', 'retinas_all.h5ad')
+if not os.path.exists(os.path.join(FILEPATHBASE, 'calc')):
+    os.makedirs(os.path.join(FILEPATHBASE, 'calc'))
+                      
+out_filename = os.path.join(FILEPATHBASE, 'calc', 'samples_all.h5ad')
 retinas_all.write(out_filename)
 
 print('Saved concatenated data to: ' + out_filename)
