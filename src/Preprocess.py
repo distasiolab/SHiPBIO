@@ -74,7 +74,7 @@ print("Done loading data")
 
 r_all =     dict([[sample['sampleID'],sample['data']] for sample in data])
 SampleKey = dict([[sample['sampleID'],sample['sampleName']] for sample in data])
-AnaLoc =    dict([[sample['sampleID'],sample['AnatomicLocation']] for sample in data])
+AnatLoc =    dict([[sample['sampleID'],sample['AnatomicLocation']] for sample in data])
 
 # --------------------------------------------------------------------------------
 # Concatenation of all datasets into one
