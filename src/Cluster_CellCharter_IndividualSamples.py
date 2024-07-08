@@ -34,7 +34,7 @@ from cycler import cycler
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-b', '--basepath', type=str, help='Path to base directory for the project; should contain directories \'data\' and \'calc\'')
-parser.add_argument('-n', '--n_clusters', type=str, help='Number of clusters for CellCharter to find')
+parser.add_argument('-n', '--n_clusters', type=int, default=11, help='Number of clusters for CellCharter to find')
 args = parser.parse_args()
 
 
@@ -73,7 +73,7 @@ cc.gr.aggregate_neighbors(samples_all, n_layers=3, use_rep='X_scVI', out_key='X_
 # --------------------------------------------------------------------------------
 # Cluster
 # --------------------------------------------------------------------------------
-n_clusters = int(args.n_clusters)
+n_clusters = args.n_clusters
 print(f"Fitting Gaussian Mixture model with {n_clusters} clusters...")
 
 gmm = cc.tl.Cluster(
