@@ -59,7 +59,7 @@ cluster: $(CLUSTER_RESULT)
 
 cluster_individual: $(CLUSTER_INDIVIDUAL_RESULT)
 	@echo "Clustering completed."
-	@echo $(CLUSTER_RESULT) " exists."
+	@echo $(CLUSTER_INDIVIDUAL_RESULT) " exists."
 
 
 $(PREPROCESS_RESULT): 

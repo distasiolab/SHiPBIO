@@ -47,7 +47,7 @@ if SAVEFIGS:
 # --------------------------------------------------------------------------------
 #filename = os.path.join(FILEPATHBASE, 'calc', 'samples_all_integrated_imputed.h5ad')
 filename = os.path.join(FILEPATHBASE, 'calc', 'samples_all_integrated_snRNAseq_imputed.h5ad')
-print("Loading Data from: " + filename + ' ...')
+print("Loading Data from: " + filename + '...')
 samples_all = ad.read_h5ad(filename)
 
 SampleKey = samples_all.uns["SampleKey"]
@@ -57,7 +57,7 @@ Samples = list(samples_all.obs['dataset'].cat.categories)
 # --------------------------------------------------------------------------------
 # Compute Neighborhood Graph
 # --------------------------------------------------------------------------------
-sq.gr.spatial_neighbors(samples_all, coord_type='generic', delaunay=True, spatial_key='X_spatial_fov')
+sq.gr.spatial_neighbors(samples_all, coord_type='generic', delaunay=True, spatial_key='X_spatial')
 cc.gr.remove_long_links(samples_all)
 cc.gr.aggregate_neighbors(samples_all, n_layers=3, use_rep='X_scVI', out_key='X_cellcharter', sample_key='batch') #n_layers = 3 means 1,2,3-hop neighbors
 
@@ -88,7 +88,8 @@ gmm_logger.addHandler(logging.FileHandler(os.path.join(FILEPATHBASE, 'tmp', 'gmm
 
 Samples = list(samples_all.obs['dataset'].cat.categories)
 
-s = []
+
+s_all = {}
 for r in np.arange(len(Samples)):
     # Select each sample individually
     sample = samples_all[samples_all.obs['dataset']==Samples[r]]
@@ -98,9 +99,8 @@ for r in np.arange(len(Samples)):
     sample.obs['spatial_cluster'] = gmm.predict(sample, use_rep='X_cellcharter')
     
     #samples_all[samples_all.obs['dataset']==Samples[r]] = sample
-    s.append(sample)
+    s_all[Samples[r]] = sample
 
-s_all = dict([Samples,s])
 samples_all = ad.concat(s_all, label="dataset", uns_merge="first", join='outer')
     
 # --------------------------------------------------------------------------------
@@ -131,7 +131,7 @@ for r in np.arange(len(Samples)):
     # Select each sample individually
     sample = samples_all[samples_all.obs['dataset']==Samples[r]]
     
-    sc.tl.rank_genes_groups(sample, 'spatial_cluster', use_raw=True)
+    sc.tl.rank_genes_groups(sample, groupby='spatial_cluster', method='wilcoxon', use_raw=False, layer='X_scVI')
 
     ov = sc.tl.marker_gene_overlap(sample, marker_genes)
 
