@@ -31,7 +31,7 @@ BATCH_INTEGRATE_RESULT := $(CALC)samples_all_integrated_harmony_unfiltered.h5ad
 SINGLECELL_INTEGRATE_RESULT := $(CALC)samples_all_integrated_snRNAseq_imputed.h5ad
 IMPUTATION_RESULT := $(CALC)samples_all_integrated_imputed.h5ad
 CLUSTER_RESULT := $(CALC)samples_all_integrated_imputed_cellcharter_clustered.h5ad
-
+CLUSTER_INDIVIDUAL_RESULT := $(CALC)samples_all_integrated_imputed_cellcharter_clustered_individual.h5ad
 
 .dummy: preprocess integrate impute cluster
 
@@ -57,7 +57,9 @@ cluster: $(CLUSTER_RESULT)
 	@echo "Clustering completed."
 	@echo $(CLUSTER_RESULT) " exists."
 
-
+cluster_individual: $(CLUSTER_INDIVIDUAL_RESULT)
+	@echo "Clustering completed."
+	@echo $(CLUSTER_RESULT) " exists."
 
 
 $(PREPROCESS_RESULT): 
@@ -80,6 +82,10 @@ $(CLUSTER_RESULT): $(SINGLECELL_INTEGRATE_RESULT)
 	@echo "Clustering..."
 	echo 'conda activate ${CONDA_ENV_CELLCHARTER}; export LD_LIBRARY_PATH=${CONDA_ENV_CELLCHARTER}/lib/; export PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:32; python ${SOURCE}/Cluster_CellCharter.py -b ${BASEDIR}' | bash -i
 
+
+$(CLUSTER_INDIVIDUAL_RESULT): $(SINGLECELL_INTEGRATE_RESULT)
+	@echo "Clustering..."
+	echo 'conda activate ${CONDA_ENV_CELLCHARTER}; export LD_LIBRARY_PATH=${CONDA_ENV_CELLCHARTER}/lib/; export PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:32; python ${SOURCE}/Cluster_CellCharter_IndividualSamples.py -b ${BASEDIR}' | bash -i
 
 clean:
 	rm -rf calc
