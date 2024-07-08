@@ -1,3 +1,9 @@
+# Cluster_CellCharter_IndividualSamples.py
+# Part of SHiPBIO
+# Marcello DiStasio
+# July 2024
+##################################################
+
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -28,6 +34,7 @@ from cycler import cycler
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-b', '--basepath', type=str, help='Path to base directory for the project; should contain directories \'data\' and \'calc\'')
+parser.add_argument('-n', '--n_clusters', type=str, help='Number of clusters for CellCharter to find')
 args = parser.parse_args()
 
 
@@ -66,13 +73,14 @@ cc.gr.aggregate_neighbors(samples_all, n_layers=3, use_rep='X_scVI', out_key='X_
 # --------------------------------------------------------------------------------
 # Cluster
 # --------------------------------------------------------------------------------
-n_clusters = 21
+n_clusters = int(args.n_clusters)
+print(f"Fitting Gaussian Mixture model with {n_clusters} clusters...")
 
 gmm = cc.tl.Cluster(
     n_clusters=n_clusters, 
     random_state=12345,
     covariance_type='full',
-    batch_size=2,
+    batch_size=None,
     # If running on GPU
     #trainer_params=dict(accelerator='gpu', devices=1, auto_scale_batch_size='binsearch')
     trainer_params=dict(accelerator='gpu', devices=1, default_root_dir=os.path.join(FILEPATHBASE, 'tmp'))
@@ -130,22 +138,31 @@ for item in gates:
 for r in np.arange(len(Samples)):
     # Select each sample individually
     sample = samples_all[samples_all.obs['dataset']==Samples[r]]
-    
-    sc.tl.rank_genes_groups(sample, groupby='spatial_cluster', method='wilcoxon', use_raw=False, layer='X_scVI')
 
-    ov = sc.tl.marker_gene_overlap(sample, marker_genes)
+    if (len(sample.obs['spatial_cluster'].cat.categories) > 1):
 
-    fig, ax = plt.subplots(1, 1, figsize=(10,8))
-    sns.heatmap(ov, ax=ax, annot=True)
+        try:
+        
+            sc.tl.rank_genes_groups(sample, groupby='spatial_cluster', use_raw=False, layer='counts_scvi')
+            ov = sc.tl.marker_gene_overlap(sample, marker_genes)
+            
+            fig, ax = plt.subplots(1, 1, figsize=(10,8))
+            sns.heatmap(ov, ax=ax, annot=True)
+            
+            if SAVEFIGS:
+                filename_out = os.path.join(IMGDIR, 'Clusters_integrated_imputed_cellcharter_3hop_clustered_' + SampleKey[Samples[r]] + '_' + str(n_clusters) + '_clusters_markermatrix.png')
+                fig.savefig(filename_out, dpi=300)
+                print('Saved: ' + filename_out)
+                filename_out = os.path.join(IMGDIR, 'Clusters_integrated_imputed_cellcharter_3hop_clustered_' + SampleKey[Samples[r]] + '_' + str(n_clusters) + '_clusters_markermatrix.svg')
+                fig.savefig(filename_out, dpi=300)
+                print('Saved: ' + filename_out)
 
-    if SAVEFIGS:
-        filename_out = os.path.join(IMGDIR, 'Clusters_integrated_imputed_cellcharter_3hop_clustered_' + SampleKey[r] + '_' + str(n_clusters) + '_clusters_markermatrix.png')
-        fig.savefig(filename_out, dpi=300)
-        print('Saved: ' + filename_out)
-        filename_out = os.path.join(IMGDIR, 'Clusters_integrated_imputed_cellcharter_3hop_clustered_' + SampleKey[r] + '_' + str(n_clusters) + '_clusters_markermatrix.svg')
-        fig.savefig(filename_out, dpi=300)
-        print('Saved: ' + filename_out)
+        except:
+            print("For sample " + samples_all.uns['SampleKey'][Samples[r]] + ": Failure of sc.tl.rank_genes_groups.")
 
+    else:
+        print("For sample " + samples_all.uns['SampleKey'][Samples[r]] + ": Only one cluster found.")
+        
     # --------------------------------------------------------------------------------
     # Use marker genes to establish cluster labels for each sample
     # --------------------------------------------------------------------------------
@@ -188,7 +205,7 @@ for r in np.arange(len(Samples)):
 
     fig, ax = plt.subplots(1, 1, figsize=(40,30))
 
-    ss = 1
+    ss = 4
     sq.pl.spatial_scatter(samples_all[samples_all.obs['dataset']==Samples[r]],
                           color='spatial_cluster',
                           size=ss,
@@ -215,10 +232,10 @@ for r in np.arange(len(Samples)):
 
     if SAVEFIGS:
         n_clusters = len(samples_all.obs['spatial_cluster'].cat.categories)
-        filename_out = os.path.join(IMGDIR, 'Clusters_integrated_imputed_cellcharter_3hop_clustered_' + SampleKey[r] + '_' + str(n_clusters) + '_clusters_spatial.png')
+        filename_out = os.path.join(IMGDIR, 'Clusters_integrated_imputed_cellcharter_3hop_clustered_' + SampleKey[Samples[r]] + '_' + str(n_clusters) + '_clusters_spatial.png')
         fig.savefig(filename_out, dpi=300)
         print('Saved: ' + filename_out)
-        filename_out = os.path.join(IMGDIR, 'Clusters_integrated_imputed_cellcharter_3hop_clustered_' + SampleKey[r] + '_' + str(n_clusters) + '_clusters_spatial.svg')
+        filename_out = os.path.join(IMGDIR, 'Clusters_integrated_imputed_cellcharter_3hop_clustered_' + SampleKey[Samples[r]] + '_' + str(n_clusters) + '_clusters_spatial.svg')
         fig.savefig(filename_out, dpi=300)
         print('Saved: ' + filename_out)
         
