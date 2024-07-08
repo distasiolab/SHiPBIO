@@ -54,15 +54,6 @@ SampleKey = samples_all.uns["SampleKey"]
 Samples = list(samples_all.obs['dataset'].cat.categories)
 
 
-
-
-# Arrange samples in space
-samples_all.obsm['X_spatial_fov'] = samples_all.obsm['X_spatial'].copy()
-y_max_p = [np.max(samples_all[samples_all.obs['dataset']==Samples[r]].obsm['X_spatial'][:,1]) for r in np.arange(1,len(Samples))]
-y_offsets = np.append(0,np.cumsum(y_max_p))
-for r in np.arange(1,len(Samples)):
-    samples_all.obsm['X_spatial_fov'][samples_all.obs['dataset']==Samples[r],1] = samples_all.obsm['X_spatial_fov'][samples_all.obs['dataset']==Samples[r],1] + y_offsets[r]
-
 # --------------------------------------------------------------------------------
 # Compute Neighborhood Graph
 # --------------------------------------------------------------------------------
@@ -92,10 +83,12 @@ import logging
 # configure logging on module level, redirect to file
 gmm_logger = logging.getLogger(type(gmm.trainer()).__name__)
 gmm_logger.setLevel(logging.DEBUG)
+Path(os.path.join(FILEPATHBASE, 'tmp')).mkdir(parents=True, exist_ok=True)
 gmm_logger.addHandler(logging.FileHandler(os.path.join(FILEPATHBASE, 'tmp', 'gmm.log')))
 
 Samples = list(samples_all.obs['dataset'].cat.categories)
 
+s = []
 for r in np.arange(len(Samples)):
     # Select each sample individually
     sample = samples_all[samples_all.obs['dataset']==Samples[r]]
@@ -104,8 +97,12 @@ for r in np.arange(len(Samples)):
     # Cluster on this sample
     sample.obs['spatial_cluster'] = gmm.predict(sample, use_rep='X_cellcharter')
     
-    samples_all[samples_all.obs['dataset']==Samples[r]] = sample
+    #samples_all[samples_all.obs['dataset']==Samples[r]] = sample
+    s.append(sample)
 
+s_all = dict([Samples,s])
+samples_all = ad.concat(s_all, label="dataset", uns_merge="first", join='outer')
+    
 # --------------------------------------------------------------------------------
 # Save
 # --------------------------------------------------------------------------------

@@ -234,7 +234,6 @@ if SAVEFIGS:
     fig.savefig(filename_out, dpi=300)
     print('Saved: ' + filename_out)
     filename_out = os.path.join(IMGDIR, 'AllSamples_integrated_imputed_cellcharter_3hop_clustered_' + str(n_clusters) + '_clusters.svg')
->>>>>>> cc7e7402569302a14cc91572e5e5ecf1d54f1b70
     fig.savefig(filename_out, dpi=300)
     print('Saved: ' + filename_out)
 # --------------------------------------------------
