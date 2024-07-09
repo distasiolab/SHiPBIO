@@ -10,6 +10,7 @@
 SHELL=/bin/bash -i
 BASEDIR := "/home/mdistasio/Workspace/SHiPBIO"
 CONDA_ENV_CELLCHARTER := "/home/mdistasio/miniconda3/envs/cellcharter-env"
+SAMPLE_WORKSHEET := ${BASEDIR}/sample_worksheet.csv
 ##
 ########################################################################################################################
 ### mccleary.ycrc.yale.edu
@@ -17,6 +18,7 @@ CONDA_ENV_CELLCHARTER := "/home/mdistasio/miniconda3/envs/cellcharter-env"
 #BASEDIR := "/home/mmd47/project/retina_curio/SHiPBIO"
 #CONDA_ENV_CELLCHARTER := "/gpfs/gibbs/project/distasio/mmd47/envs/cellcharter-env"
 #CONDA_ENV_PHATE := "/gpfs/gibbs/project/distasio/mmd47/envs/phate"
+#SAMPLE_WORKSHEET := ${BASEDIR}/sample_worksheet.csv
 
 ##
 ########################################################################################################################
@@ -64,7 +66,7 @@ cluster_individual: $(CLUSTER_INDIVIDUAL_RESULT)
 
 $(PREPROCESS_RESULT): 
 	@echo "Preprocessing..."
-	echo 'conda activate ${CONDA_ENV_CELLCHARTER}; export LD_LIBRARY_PATH=${CONDA_ENV_CELLCHARTER}/lib/; python ${SOURCE}/Preprocess.py -b ${BASEDIR}' -s ${BASEDIR}/sample_worksheet.csv | bash -i
+	echo 'conda activate ${CONDA_ENV_CELLCHARTER}; export LD_LIBRARY_PATH=${CONDA_ENV_CELLCHARTER}/lib/; python ${SOURCE}/Preprocess.py -b ${BASEDIR}' -s ${SAMPLE_WORKSHEET} | bash -i
 
 $(BATCH_INTEGRATE_RESULT): $(PREPROCESS_RESULT)
 	@echo "Batch integration..."
