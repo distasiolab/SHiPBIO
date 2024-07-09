@@ -64,9 +64,10 @@ Samples = list(samples_all.obs['dataset'].cat.categories)
 # --------------------------------------------------------------------------------
 # Compute Neighborhood Graph
 # --------------------------------------------------------------------------------
+n_hops = 5
 sq.gr.spatial_neighbors(samples_all, coord_type='generic', delaunay=True, spatial_key='X_spatial')
 cc.gr.remove_long_links(samples_all)
-cc.gr.aggregate_neighbors(samples_all, n_layers=3, use_rep='X_scVI', out_key='X_cellcharter', sample_key='batch') #n_layers = 3 means 1,2,3-hop neighbors
+cc.gr.aggregate_neighbors(samples_all, n_layers=5, use_rep='X_scVI', out_key='X_cellcharter', sample_key='batch') #n_layers = 3 means 1,2,3-hop neighbors
 
 
 
@@ -116,7 +117,7 @@ samples_all = ad.concat(s_all, label="dataset", uns_merge="first", join='outer')
 # --------------------------------------------------------------------------------
 if SAVEDATA:
     # Save
-    filename_out = os.path.join(FILEPATHBASE, 'calc', 'samples_all_integrated_imputed_cellcharter_clustered_individual.h5ad')
+    filename_out = os.path.join(FILEPATHBASE, 'calc', 'samples_all_integrated_imputed_cellcharter_clustered_' + str(n_hops) + 'hops_individual.h5ad')
     samples_all.write_h5ad(filename_out)
     print('Saved ' + filename_out)
 
@@ -150,10 +151,10 @@ for r in np.arange(len(Samples)):
             sns.heatmap(ov, ax=ax, annot=True)
             
             if SAVEFIGS:
-                filename_out = os.path.join(IMGDIR, 'Clusters_integrated_imputed_cellcharter_3hop_clustered_' + SampleKey[Samples[r]] + '_' + str(n_clusters) + '_clusters_markermatrix.png')
+                filename_out = os.path.join(IMGDIR, 'Clusters_integrated_imputed_cellcharter_' + str(n_hops) + 'hops_clustered_' + SampleKey[Samples[r]] + '_' + str(n_clusters) + '_clusters_markermatrix.png')
                 fig.savefig(filename_out, dpi=300)
                 print('Saved: ' + filename_out)
-                filename_out = os.path.join(IMGDIR, 'Clusters_integrated_imputed_cellcharter_3hop_clustered_' + SampleKey[Samples[r]] + '_' + str(n_clusters) + '_clusters_markermatrix.svg')
+                filename_out = os.path.join(IMGDIR, 'Clusters_integrated_imputed_cellcharter_' + str(n_hops) + 'hops_clustered_' + SampleKey[Samples[r]] + '_' + str(n_clusters) + '_clusters_markermatrix.svg')
                 fig.savefig(filename_out, dpi=300)
                 print('Saved: ' + filename_out)
 
