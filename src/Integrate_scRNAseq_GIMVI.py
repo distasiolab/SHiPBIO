@@ -30,6 +30,7 @@ from cycler import cycler
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-b', '--basepath', type=str, help='Path to base directory for the project; should contain directories \'data\' and \'calc\'')
+parser.add_argument('-c', '--singlecell', type=str, help='Path to single cell seq *.h5ad file to use for integration')
 parser.add_argument('-o', '--output', type=str, help='Path to output *.h5ad file to create')
 args = parser.parse_args()
 
@@ -58,7 +59,11 @@ Samples = list(samples_all.obs['dataset'].cat.categories)
 
 
 # Load the single nucleus RNA Seq data
-filename_sn = os.path.join(FILEPATHBASE, 'calc', 'retina_sn_combined.h5ad')
+if args.output is None:
+    filename_sn = os.path.join(FILEPATHBASE, 'data', 'retina_sn_combined.h5ad')
+else:
+    filename_sn = args.singlecell
+
 print('Loading snRNAseq data from' + filename_sn + ' ...')
 samples_sn = ad.read_h5ad(filename_sn)
 print('Done')

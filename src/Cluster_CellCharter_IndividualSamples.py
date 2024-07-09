@@ -119,7 +119,7 @@ samples_all = ad.concat(s_all, label="dataset", uns_merge="first", join='outer')
 if SAVEDATA:
     # Save
     if args.output is None:
-        out_filename =      = os.path.join(FILEPATHBASE, 'calc', 'samples_all_integrated_imputed_cellcharter_clustered_' + str(n_hops) + 'hops_individual.h5ad')
+        out_filename = os.path.join(FILEPATHBASE, 'calc', 'samples_all_integrated_imputed_cellcharter_clustered_' + str(n_hops) + 'hops_individual.h5ad')
     else:
         out_filename = args.output
 

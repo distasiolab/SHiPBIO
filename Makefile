@@ -25,10 +25,11 @@ SAMPLE_WORKSHEET := ${BASEDIR}/sample_worksheet.csv
 
 SOURCE = ./src/
 CALC = ./calc/
+DATA = ./data/
 
 N_CLUSTERS := 14
 
-SINGLE_CELL_DATA := $(CALC)retina_sn_combined.h5ad
+SINGLE_CELL_DATA := $(DATA)retina_sn_combined.h5ad
 
 PREPROCESS_RESULT := $(CALC)samples_all.h5ad
 BATCH_INTEGRATE_RESULT := $(CALC)samples_all_integrated_harmony_unfiltered.h5ad
@@ -36,8 +37,6 @@ SINGLECELL_INTEGRATE_RESULT := $(CALC)samples_all_integrated_snRNAseq_imputed.h5
 IMPUTATION_RESULT := $(CALC)samples_all_integrated_imputed.h5ad
 CLUSTER_RESULT := $(CALC)samples_all_integrated_imputed_cellcharter_clustered.h5ad
 CLUSTER_INDIVIDUAL_RESULT := $(CALC)samples_all_integrated_imputed_cellcharter_clustered_individual_$(N_CLUSTERS)_hops.h5ad
-
-
 
 .dummy: preprocess integrate cluster_individual
 
@@ -78,7 +77,7 @@ $(BATCH_INTEGRATE_RESULT): $(PREPROCESS_RESULT)
 
 $(SINGLECELL_INTEGRATE_RESULT): $(BATCH_INTEGRATE_RESULT) $(SINGLE_CELL_DATA)
 	@echo "Single cell integration..."
-	echo 'conda activate ${CONDA_ENV_CELLCHARTER}; export LD_LIBRARY_PATH=${CONDA_ENV_CELLCHARTER}lib/; python ${SOURCE}Integrate_scRNAseq_GIMVI.py -b ${BASEDIR} -o ${SINGLECELL_INTEGRATE_RESULT}' | bash -i 
+	echo 'conda activate ${CONDA_ENV_CELLCHARTER}; export LD_LIBRARY_PATH=${CONDA_ENV_CELLCHARTER}lib/; python ${SOURCE}Integrate_scRNAseq_GIMVI.py -b ${BASEDIR} -c ${SINGLE_CELL_DATA} -o ${SINGLECELL_INTEGRATE_RESULT}' | bash -i 
 
 $(IMPUTATION_RESULT): $(SINGLECELL_INTEGRATE_RESULT)
 	@echo "Imputation (MAGIC)..."
