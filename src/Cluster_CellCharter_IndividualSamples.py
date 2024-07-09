@@ -162,12 +162,11 @@ for r in np.arange(len(Samples)):
 
     else:
         print("For sample " + samples_all.uns['SampleKey'][Samples[r]] + ": Only one cluster found.")
-        
+
     # --------------------------------------------------------------------------------
+    # After inspection of the figures, establishment of cluster label for each sample can be performed like this:
     # Use marker genes to establish cluster labels for each sample
     # --------------------------------------------------------------------------------
-        
-    # After inspection of the figures, establishment of cluster label for each sample can be performed like this:
     #spatial_cluster_label_key = {0 : 'Photoreceptor',
     #                             1 : 'RGC',
     #                             2 : 'Vascular',
@@ -205,7 +204,7 @@ for r in np.arange(len(Samples)):
 
     fig, ax = plt.subplots(1, 1, figsize=(40,30))
 
-    ss = 4
+    ss = 40
     sq.pl.spatial_scatter(samples_all[samples_all.obs['dataset']==Samples[r]],
                           color='spatial_cluster',
                           size=ss,
