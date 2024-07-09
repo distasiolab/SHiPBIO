@@ -30,6 +30,7 @@ from cycler import cycler
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-b', '--basepath', type=str, help='Path to base directory for the project; should contain directories \'data\' and \'calc\'')
+parser.add_argument('-o', '--output', type=str, help='Path to output *.h5ad file to create')
 args = parser.parse_args()
 
 
@@ -132,7 +133,11 @@ samples_all[:,st_adata.var_names] = transform(imputed)
 # --------------------------------------------------------------------------------
 if SAVEDATA:
     # Save
-    filename_out = os.path.join(FILEPATHBASE, 'calc', 'samples_all_integrated_snRNAseq_imputed.h5ad')
-    samples_all.write_h5ad(filename_out)
-    print('Saved ' + filename_out)
+    if args.output is None:
+        out_filename = os.path.join(FILEPATHBASE, 'calc', 'samples_all_integrated_snRNAseq_imputed.h5ad')
+    else:
+        out_filename = args.output
+    
+    samples_all.write_h5ad(out_filename)
+    print('Saved ' + out_filename)
 

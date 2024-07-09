@@ -28,6 +28,7 @@ from cycler import cycler
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-b', '--basepath', type=str, help='Path to base directory for the project; should contain directories \'data\' and \'calc\'')
+parser.add_argument('-o', '--output', type=str, help='Path to output *.h5ad file to create')
 args = parser.parse_args()
 
 
@@ -158,22 +159,13 @@ samples_all.obs['spatial_cluster'] = gmm.predict(samples_all, use_rep='X_cellcha
 # --------------------------------------------------------------------------------
 if SAVEDATA:
     # Save
-    filename_out = os.path.join(FILEPATHBASE, 'calc', 'samples_all_integrated_imputed_cellcharter_3hop_clustered.h5ad')
-    samples_all.write_h5ad(filename_out)
-    print('Saved ' + filename_out)
+    if args.output is None:
+        out_filename = os.path.join(FILEPATHBASE, 'calc', 'samples_all_integrated_imputed_cellcharter_3hop_clustered.h5ad')
+    else:
+        out_filename = args.output
 
-#    model.save(dir_path=os.path.join(FILEPATHBASE,'calc','GIMVI_model'), 
-#                  prefix='samples_all_unfiltered_snRNAseq_imputation',
-#                  overwrite=True)
-
-#if SAVEFIGS:
-#    n_clusters = len(samples_all.obs['spatial_cluster'].cat.categories)
-#    filename_out = os.path.join(IMGDIR, 'AllSamples_CellCharter_' + str(n_clusters) + '_Clusters_markermatrix.png')
-#    fig.savefig(filename_out, dpi=300)
-#    print('Saved: ' + filename_out)
-#    filename_out = os.path.join(IMGDIR, 'AllSamples_CellCharter_' + str(n_clusters) + '_Clusters_markermatrix.svg')
-#    fig.savefig(filename_out, dpi=300)
-#    print('Saved: ' + filename_out)
+    samples_all.write_h5ad(out_filename)
+    print('Saved ' + out_filename)
 
 
 # --------------------------------------------------------------------------------

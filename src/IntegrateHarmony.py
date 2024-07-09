@@ -26,6 +26,7 @@ from cycler import cycler
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-b', '--basepath', type=str, help='Path to base directory for the project; should contain directories \'data\' and \'calc\'')
+parser.add_argument('-o', '--output', type=str, help='Path to output *.h5ad file to create')
 args = parser.parse_args()
 
 FILEPATHBASE = args.basepath
@@ -75,7 +76,12 @@ sc.tl.umap(samples_all, init_pos='paga')
 # Save concatenated data
 # --------------------------------------------------------------------------------
 if SAVEDATA:
-    out_filename = os.path.join(FILEPATHBASE, 'calc', 'samples_all_integrated_harmony_unfiltered.h5ad')
+
+    if args.output is None:
+        out_filename = os.path.join(FILEPATHBASE, 'calc', 'samples_all_integrated_harmony_unfiltered.h5ad')
+    else:
+        out_filename = args.output
+    
     samples_all.write(out_filename)
     print('Saved integrated data to: ' + out_filename)
 

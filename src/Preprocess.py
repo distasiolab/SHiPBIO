@@ -17,6 +17,7 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('-b', '--basepath', type=str, help='Path to base directory for the project; should contain directories \'data\' and \'calc\'')
 parser.add_argument('-s', '--worksheet', type=str, help='Path to *.csv file with sample file paths and information')
+parser.add_argument('-o', '--output', type=str, help='Path to output *.h5ad file to create')
 args = parser.parse_args()
 
 FILEPATHBASE = args.basepath
@@ -83,23 +84,23 @@ AnatLoc =    dict([[sample['sampleID'],sample['AnatomicLocation']] for sample in
 
 print('Concatenating...')
 
-retinas_all = ad.concat(r_all, label="dataset", uns_merge="first", join='outer')
+samples_all = ad.concat(r_all, label="dataset", uns_merge="first", join='outer')
 
 # Clean up the NAs in manual annotation columns in adata.obs, which should be boolean
-cs = retinas_all.obs.select_dtypes(include='object').columns
-retinas_all.obs[cs] = retinas_all.obs[cs].astype('boolean').fillna(False)
+cs = samples_all.obs.select_dtypes(include='object').columns
+samples_all.obs[cs] = samples_all.obs[cs].astype('boolean').fillna(False)
 
-retinas_all.raw = retinas_all
-retinas_all.layers["counts"] = retinas_all.X.copy()   
+samples_all.raw = samples_all
+samples_all.layers["counts"] = samples_all.X.copy()   
 
 library_id = 'Curio_Seeker_v1.1_AllRetinas'
-retinas_all.uns["spatial"] = dict()
-retinas_all.uns["spatial"][library_id] = dict()
+samples_all.uns["spatial"] = dict()
+samples_all.uns["spatial"][library_id] = dict()
 
 
 ## Sample-level info
-retinas_all.uns["SampleKey"] = SampleKey
-retinas_all.uns["Anatomic_Location"] = AnatLoc
+samples_all.uns["SampleKey"] = SampleKey
+samples_all.uns["Anatomic_Location"] = AnatLoc
 
 
 
@@ -108,9 +109,13 @@ retinas_all.uns["Anatomic_Location"] = AnatLoc
 # --------------------------------------------------------------------------------
 if not os.path.exists(os.path.join(FILEPATHBASE, 'calc')):
     os.makedirs(os.path.join(FILEPATHBASE, 'calc'))
-                      
-out_filename = os.path.join(FILEPATHBASE, 'calc', 'samples_all.h5ad')
-retinas_all.write(out_filename)
+
+if args.output is None:
+    out_filename = os.path.join(FILEPATHBASE, 'calc', 'samples_all.h5ad')
+else:
+    out_filename = args.output
+    
+samples_all.write(out_filename)
 
 print('Saved concatenated data to: ' + out_filename)
 print('Done!')

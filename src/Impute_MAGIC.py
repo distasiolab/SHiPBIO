@@ -22,6 +22,7 @@ import magic
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-b', '--basepath', type=str, help='Path to base directory for the project; should contain directories \'data\' and \'calc\'')
+parser.add_argument('-o', '--output', type=str, help='Path to output *.h5ad file to create')
 args = parser.parse_args()
 
 
@@ -55,7 +56,11 @@ samples_all.obsm["X_magic"] = magic_operator.fit_transform(samples_all.X)
 # --------------------------------------------------------------------------------
 if SAVEDATA:
     # Save
-    filename_out = os.path.join(FILEPATHBASE, 'calc', 'samples_all_integrated_imputed.h5ad')
+    if args.output is None:
+        out_filename = os.path.join(FILEPATHBASE, 'calc', 'samples_all_integrated_imputed.h5ad') 
+    else:
+        out_filename = args.output
+
     samples_all.write_h5ad(filename_out)
-    print('Saved ' + filename_out)
+    print('Saved ' + out_filename)
 

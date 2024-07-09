@@ -26,6 +26,8 @@ SAMPLE_WORKSHEET := ${BASEDIR}/sample_worksheet.csv
 SOURCE = ./src/
 CALC = ./calc/
 
+N_CLUSTERS := 14
+
 SINGLE_CELL_DATA := $(CALC)retina_sn_combined.h5ad
 
 PREPROCESS_RESULT := $(CALC)samples_all.h5ad
@@ -33,9 +35,9 @@ BATCH_INTEGRATE_RESULT := $(CALC)samples_all_integrated_harmony_unfiltered.h5ad
 SINGLECELL_INTEGRATE_RESULT := $(CALC)samples_all_integrated_snRNAseq_imputed.h5ad
 IMPUTATION_RESULT := $(CALC)samples_all_integrated_imputed.h5ad
 CLUSTER_RESULT := $(CALC)samples_all_integrated_imputed_cellcharter_clustered.h5ad
-CLUSTER_INDIVIDUAL_RESULT := $(CALC)samples_all_integrated_imputed_cellcharter_clustered_individual.h5ad
+CLUSTER_INDIVIDUAL_RESULT := $(CALC)samples_all_integrated_imputed_cellcharter_clustered_individual_$(N_CLUSTERS)_hops.h5ad
 
-N_CLUSTERS := 14
+
 
 .dummy: preprocess integrate cluster_individual
 
@@ -68,28 +70,28 @@ cluster_individual: $(CLUSTER_INDIVIDUAL_RESULT)
 
 $(PREPROCESS_RESULT): 
 	@echo "Preprocessing..."
-	echo 'conda activate ${CONDA_ENV_CELLCHARTER}; export LD_LIBRARY_PATH=${CONDA_ENV_CELLCHARTER}lib/; python ${SOURCE}Preprocess.py -b ${BASEDIR}' -s ${SAMPLE_WORKSHEET} | bash -i
+	echo 'conda activate ${CONDA_ENV_CELLCHARTER}; export LD_LIBRARY_PATH=${CONDA_ENV_CELLCHARTER}lib/; python ${SOURCE}Preprocess.py -b ${BASEDIR} -o ${PREPROCESS_RESULT}' -s ${SAMPLE_WORKSHEET} | bash -i
 
 $(BATCH_INTEGRATE_RESULT): $(PREPROCESS_RESULT)
 	@echo "Batch integration..."
-	echo 'conda activate ${CONDA_ENV_CELLCHARTER}; export LD_LIBRARY_PATH=${CONDA_ENV_CELLCHARTER}lib/; python ${SOURCE}IntegrateHarmony.py -b ${BASEDIR}' | bash -i
+	echo 'conda activate ${CONDA_ENV_CELLCHARTER}; export LD_LIBRARY_PATH=${CONDA_ENV_CELLCHARTER}lib/; python ${SOURCE}IntegrateHarmony.py -b ${BASEDIR} -o ${BATCH_INTEGRATE_RESULT}' | bash -i
 
 $(SINGLECELL_INTEGRATE_RESULT): $(BATCH_INTEGRATE_RESULT) $(SINGLE_CELL_DATA)
 	@echo "Single cell integration..."
-	echo 'conda activate ${CONDA_ENV_CELLCHARTER}; export LD_LIBRARY_PATH=${CONDA_ENV_CELLCHARTER}lib/; python ${SOURCE}Integrate_scRNAseq_GIMVI.py -b ${BASEDIR}' | bash -i 
+	echo 'conda activate ${CONDA_ENV_CELLCHARTER}; export LD_LIBRARY_PATH=${CONDA_ENV_CELLCHARTER}lib/; python ${SOURCE}Integrate_scRNAseq_GIMVI.py -b ${BASEDIR} -o ${SINGLECELL_INTEGRATE_RESULT}' | bash -i 
 
 $(IMPUTATION_RESULT): $(SINGLECELL_INTEGRATE_RESULT)
 	@echo "Imputation (MAGIC)..."
-	echo 'conda activate ${CONDA_ENV_PHATE}; export LD_LIBRARY_PATH=${CONDA_ENV_PHATE}lib/; python ${SOURCE}Impute_MAGIC.py -b ${BASEDIR}' | bash -i
+	echo 'conda activate ${CONDA_ENV_PHATE}; export LD_LIBRARY_PATH=${CONDA_ENV_PHATE}lib/; python ${SOURCE}Impute_MAGIC.py -b ${BASEDIR} -o ${IMPUTATION_RESULT}' | bash -i
 
 $(CLUSTER_RESULT): $(SINGLECELL_INTEGRATE_RESULT)
 	@echo "Clustering..."
-	echo 'conda activate ${CONDA_ENV_CELLCHARTER}; export LD_LIBRARY_PATH=${CONDA_ENV_CELLCHARTER}lib/; export PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:32; python ${SOURCE}Cluster_CellCharter.py -b ${BASEDIR}' | bash -i
+	echo 'conda activate ${CONDA_ENV_CELLCHARTER}; export LD_LIBRARY_PATH=${CONDA_ENV_CELLCHARTER}lib/; export PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:32; python ${SOURCE}Cluster_CellCharter.py -b ${BASEDIR} -o ${CLUSTER_RESULT}' | bash -i
 
 
 $(CLUSTER_INDIVIDUAL_RESULT): $(SINGLECELL_INTEGRATE_RESULT)
 	@echo "Clustering..."
-	echo 'conda activate ${CONDA_ENV_CELLCHARTER}; export LD_LIBRARY_PATH=${CONDA_ENV_CELLCHARTER}lib/; export PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:32; python ${SOURCE}Cluster_CellCharter_IndividualSamples.py -b ${BASEDIR} -n ${N_CLUSTERS}' | bash -i
+	echo 'conda activate ${CONDA_ENV_CELLCHARTER}; export LD_LIBRARY_PATH=${CONDA_ENV_CELLCHARTER}lib/; export PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:32; python ${SOURCE}Cluster_CellCharter_IndividualSamples.py -b ${BASEDIR} -n ${N_CLUSTERS} -o ${CLUSTER_INDIVIDUAL_RESULT}' | bash -i
 
 clean:
 	rm -rf calc
