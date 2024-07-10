@@ -147,6 +147,8 @@ for r in np.arange(len(Samples)):
 
     if (len(sample.obs['spatial_cluster'].cat.categories) > 1):
 
+        ov = None
+        
         try:
         
             sc.tl.rank_genes_groups(sample, groupby='spatial_cluster', use_raw=False, layer='counts_scvi')
