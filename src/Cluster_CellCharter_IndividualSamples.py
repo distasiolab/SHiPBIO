@@ -34,7 +34,8 @@ from cycler import cycler
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-b', '--basepath', type=str, help='Path to base directory for the project; should contain directories \'data\' and \'calc\'')
-parser.add_argument('-n', '--n_clusters', type=int, default=11, help='Number of clusters for CellCharter to find')
+parser.add_argument('-n', '--n_clusters', type=int, default=11, help='Number of clusters for CellCharter to find', default=11)
+parser.add_argument('-d', '--distance', type=int, default=11, help='Distance; Number of hops to use to build neighborhood graph', default=3)
 parser.add_argument('-o', '--output', type=str, help='Path to output *.h5ad file to create')
 args = parser.parse_args()
 
@@ -65,7 +66,7 @@ Samples = list(samples_all.obs['dataset'].cat.categories)
 # --------------------------------------------------------------------------------
 # Compute Neighborhood Graph
 # --------------------------------------------------------------------------------
-n_hops = 5
+n_hops = args.distance
 sq.gr.spatial_neighbors(samples_all, coord_type='generic', delaunay=True, spatial_key='X_spatial')
 cc.gr.remove_long_links(samples_all)
 cc.gr.aggregate_neighbors(samples_all, n_layers=5, use_rep='X_scVI', out_key='X_cellcharter', sample_key='batch') #n_layers = 3 means 1,2,3-hop neighbors

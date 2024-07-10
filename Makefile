@@ -27,7 +27,8 @@ SOURCE = ./src/
 CALC = ./calc/
 DATA = ./data/
 
-N_CLUSTERS := 21
+N_CLUSTERS ?=11
+N_HOPS ?=3
 
 SINGLE_CELL_DATA := $(DATA)retina_sn_combined.h5ad
 
@@ -36,7 +37,7 @@ BATCH_INTEGRATE_RESULT := $(CALC)samples_all_integrated_harmony_unfiltered.h5ad
 SINGLECELL_INTEGRATE_RESULT := $(CALC)samples_all_integrated_snRNAseq_imputed.h5ad
 IMPUTATION_RESULT := $(CALC)samples_all_integrated_imputed.h5ad
 CLUSTER_RESULT := $(CALC)samples_all_integrated_imputed_cellcharter_clustered.h5ad
-CLUSTER_INDIVIDUAL_RESULT := $(CALC)samples_all_integrated_imputed_cellcharter_clustered_individual_$(N_CLUSTERS)_clusters.h5ad
+CLUSTER_INDIVIDUAL_RESULT := $(CALC)samples_all_integrated_imputed_cellcharter_clustered_individual_$(N_HOPS)_$(N_CLUSTERS)_clusters.h5ad
 
 .dummy: preprocess integrate cluster_individual
 
@@ -90,7 +91,7 @@ $(CLUSTER_RESULT): $(SINGLECELL_INTEGRATE_RESULT)
 
 $(CLUSTER_INDIVIDUAL_RESULT): $(SINGLECELL_INTEGRATE_RESULT)
 	@echo "Clustering..."
-	echo 'conda activate ${CONDA_ENV_CELLCHARTER}; export LD_LIBRARY_PATH=${CONDA_ENV_CELLCHARTER}lib/; export PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:32; python ${SOURCE}Cluster_CellCharter_IndividualSamples.py -b ${BASEDIR} -n ${N_CLUSTERS} -o ${CLUSTER_INDIVIDUAL_RESULT}' | bash -i
+	echo 'conda activate ${CONDA_ENV_CELLCHARTER}; export LD_LIBRARY_PATH=${CONDA_ENV_CELLCHARTER}lib/; export PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:32; python ${SOURCE}Cluster_CellCharter_IndividualSamples.py -b ${BASEDIR} -n ${N_CLUSTERS} -d ${N_HOPS} -o ${CLUSTER_INDIVIDUAL_RESULT}' | bash -i
 
 clean:
 	rm -rf calc
