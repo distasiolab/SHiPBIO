@@ -34,8 +34,8 @@ from cycler import cycler
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-b', '--basepath', type=str, help='Path to base directory for the project; should contain directories \'data\' and \'calc\'')
-parser.add_argument('-n', '--n_clusters', type=int, default=11, help='Number of clusters for CellCharter to find', default=11)
-parser.add_argument('-d', '--distance', type=int, default=11, help='Distance; Number of hops to use to build neighborhood graph', default=3)
+parser.add_argument('-n', '--n_clusters', type=int, default=11, help='Number of clusters for CellCharter to find')
+parser.add_argument('-d', '--distance', type=int, default=3, help='Distance; Number of hops to use to build neighborhood graph')
 parser.add_argument('-o', '--output', type=str, help='Path to output *.h5ad file to create')
 args = parser.parse_args()
 
