@@ -49,8 +49,8 @@ mkdir ReferenceFiles
 ```
 # Usage
 1. For each sample with data in anndata format (`*h5ad`):
-  1. Run `MakeFullSizeClustersImage.py -f /path/to/*.h5ad` which will output a rough (KNN in UMAP space) clustered image (into the same directory, unless you specify another location with the `-o` flag).
-  2. Open each image in [QuPath](https://qupath.github.io/). Draw annotations around your ROIs and set the classes of each anootation to your desired annotation labels. Then, in QuPath, run the script `Export_Annotations_GeoJSON.groovy`. This will create a *.json file in that same directory
-  3. Run `ReadAnnotationsToAnnData.py -f /path/to/*.h5ad -c /path/to/*.h5ad_annotations.json`.  This will create a file `/path/to/*_annotated.h5ad`
+   1. Run `MakeFullSizeClustersImage.py -f /path/to/*.h5ad` which will output a rough (KNN in UMAP space) clustered image (into the same directory, unless you specify another location with the `-o` flag).
+   2. Open each image in [QuPath](https://qupath.github.io/). Draw annotations around your ROIs and set the classes of each anootation to your desired annotation labels. Then, in QuPath, run the script `Export_Annotations_GeoJSON.groovy`. This will create a *.json file in that same directory
+   3. Run `ReadAnnotationsToAnnData.py -f /path/to/*.h5ad -c /path/to/*.h5ad_annotations.json`.  This will create a file `/path/to/*_annotated.h5ad`
 2. Make a copy of `sample_worksheet.csv` and edit so that each line contains information about the sample (including path to `/path/to/*_annotated.h5ad`)
 3. Run analysis with `make` or `make cluster_individual`
