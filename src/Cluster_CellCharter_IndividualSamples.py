@@ -237,10 +237,10 @@ for r in np.arange(len(Samples)):
 
     if SAVEFIGS:
         n_clusters = len(samples_all.obs['spatial_cluster'].cat.categories)
-        filename_out = os.path.join(IMGDIR, 'Clusters_integrated_imputed_cellcharter_3hop_clustered_' + SampleKey[Samples[r]] + '_' + str(n_clusters) + '_clusters_spatial.png')
+        filename_out = os.path.join(IMGDIR, 'Clusters_integrated_imputed_cellcharter_' + str(n_hops) + 'hops_clustered_' + SampleKey[Samples[r]] + '_' + str(n_clusters) + '_clusters_spatial.png')
         fig.savefig(filename_out, dpi=300)
         print('Saved: ' + filename_out)
-        filename_out = os.path.join(IMGDIR, 'Clusters_integrated_imputed_cellcharter_3hop_clustered_' + SampleKey[Samples[r]] + '_' + str(n_clusters) + '_clusters_spatial.svg')
+        filename_out = os.path.join(IMGDIR, 'Clusters_integrated_imputed_cellcharter_' + str(n_hops) + 'hops_clustered_' + SampleKey[Samples[r]] + '_' + str(n_clusters) + '_clusters_spatial.svg')
         fig.savefig(filename_out, dpi=300)
         print('Saved: ' + filename_out)
         
