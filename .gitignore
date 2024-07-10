@@ -4,6 +4,8 @@ data/**
 calc/**
 img/*
 tmp/*
+local/*
+!local/.gitkeep
 
 # Any folder in the project tree called 'ReferenceFiles' is ignored
 ReferenceFiles
