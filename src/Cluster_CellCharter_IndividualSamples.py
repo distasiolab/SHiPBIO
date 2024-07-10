@@ -36,6 +36,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-b', '--basepath', type=str, help='Path to base directory for the project; should contain directories \'data\' and \'calc\'')
 parser.add_argument('-n', '--n_clusters', type=int, default=11, help='Number of clusters for CellCharter to find')
 parser.add_argument('-d', '--distance', type=int, default=3, help='Distance; Number of hops to use to build neighborhood graph')
+parser.add_argument('-m', '--markers', type=int, default=3, help='Path to marker gene file')
 parser.add_argument('-o', '--output', type=str, help='Path to output *.h5ad file to create')
 args = parser.parse_args()
 
@@ -54,7 +55,6 @@ if SAVEFIGS:
 # --------------------------------------------------------------------------------
 # Load datasets 
 # --------------------------------------------------------------------------------
-#filename = os.path.join(FILEPATHBASE, 'calc', 'samples_all_integrated_imputed.h5ad')
 filename = os.path.join(FILEPATHBASE, 'calc', 'samples_all_integrated_snRNAseq_imputed.h5ad')
 print("Loading Data from: " + filename + '...')
 samples_all = ad.read_h5ad(filename)
@@ -131,9 +131,7 @@ if SAVEDATA:
 # --------------------------------------------------------------------------------
 # Plotting
 # --------------------------------------------------------------------------------
-
-    
-with open(os.path.join(FILEPATHBASE,'data', 'retinal_celltype_gates.json')) as f:
+with open(args.markers) as f:
     gates = json.load(f)
 
 marker_genes = {}

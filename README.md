@@ -53,4 +53,13 @@ mkdir ReferenceFiles
    2. Open each image in [QuPath](https://qupath.github.io/). Draw annotations around your ROIs and set the classes of each anootation to your desired annotation labels. Then, in QuPath, run the script `Export_Annotations_GeoJSON.groovy`. This will create a *.json file in that same directory
    3. Run `ReadAnnotationsToAnnData.py -f /path/to/*.h5ad -c /path/to/*.h5ad_annotations.json`.  This will create a file `/path/to/*_annotated.h5ad`
 2. Make a copy of `sample_worksheet.csv` and edit so that each line contains information about the sample (including path to `/path/to/*_annotated.h5ad`)
-3. Run analysis with `make` or `make cluster_individual`
+3. Edit `Makefile`:
+   1. Set paths for your system:
+      1. `BASEDIR` is the full path to the SHiPBIO directory itself
+      2. `CONDA_ENV_CELLCHARTER` is the full path to the conda environment you install cellharter in (see `conda activate cellcharter-env; conda info`)
+      3. `SAMPLE_WORKSHEET` is the path to the `sample_worksheet.csv` file
+      4. `MARKER_GENE_FILE` is the path to the marker gene `*.json` file
+   2. `SINGLE_CELL_DATA` is the path to an AnnData `*.h5ad` file containing single cell sequencing data to integrate with the spatial data (using GIMVI)
+   3. Edit `N_CLUSTERS` and `N_HOPS` to set the parameters for cellcharter clustering (number of GMM clusters, and hops along neighborhood graph, respectively)
+4. Run analysis with `make` or `make cluster_individual`. This will create a new file with all data concatenated in `calc/`, as well as figures in `img/out/` for each sample
+5. Inspect the spatial cluster images and marker gene matrix images generated in `img/out/` to determine the appropriate cluster label for each cluster numeric ID for each sample.  Edit `example_cluster_labels.json` to reflect the chosen labels for each sample. Then run `Cluster_CellCharter_RelabelClusters.py -b /path/to/SHiPBIO/ -c /path/to/*_cluster_labels.json`.  This will create the relabeled output figures in `img/out`.

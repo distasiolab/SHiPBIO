@@ -31,6 +31,7 @@ N_CLUSTERS ?=11
 N_HOPS ?=3
 
 SINGLE_CELL_DATA := $(DATA)retina_sn_combined.h5ad
+MARKER_GENE_FILE := $(DATA)retinal_celltype_gates.json
 
 PREPROCESS_RESULT := $(CALC)samples_all.h5ad
 BATCH_INTEGRATE_RESULT := $(CALC)samples_all_integrated_harmony_unfiltered.h5ad
@@ -88,10 +89,9 @@ $(CLUSTER_RESULT): $(SINGLECELL_INTEGRATE_RESULT)
 	@echo "Clustering..."
 	echo 'conda activate ${CONDA_ENV_CELLCHARTER}; export LD_LIBRARY_PATH=${CONDA_ENV_CELLCHARTER}lib/; export PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:32; python ${SOURCE}Cluster_CellCharter.py -b ${BASEDIR} -o ${CLUSTER_RESULT}' | bash -i
 
-
 $(CLUSTER_INDIVIDUAL_RESULT): $(SINGLECELL_INTEGRATE_RESULT)
 	@echo "Clustering..."
-	echo 'conda activate ${CONDA_ENV_CELLCHARTER}; export LD_LIBRARY_PATH=${CONDA_ENV_CELLCHARTER}lib/; export PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:32; python ${SOURCE}Cluster_CellCharter_IndividualSamples.py -b ${BASEDIR} -n ${N_CLUSTERS} -d ${N_HOPS} -o ${CLUSTER_INDIVIDUAL_RESULT}' | bash -i
+	echo 'conda activate ${CONDA_ENV_CELLCHARTER}; export LD_LIBRARY_PATH=${CONDA_ENV_CELLCHARTER}lib/; export PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:32; python ${SOURCE}Cluster_CellCharter_IndividualSamples.py -b ${BASEDIR} -n ${N_CLUSTERS} -d ${N_HOPS} -m ${MARKER_GENE_FILE} -o ${CLUSTER_INDIVIDUAL_RESULT}' | bash -i
 
 clean:
 	rm -rf calc
