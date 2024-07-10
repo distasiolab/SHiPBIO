@@ -27,7 +27,7 @@ SOURCE = ./src/
 CALC = ./calc/
 DATA = ./data/
 
-N_CLUSTERS := 14
+N_CLUSTERS := 21
 
 SINGLE_CELL_DATA := $(DATA)retina_sn_combined.h5ad
 
@@ -36,7 +36,7 @@ BATCH_INTEGRATE_RESULT := $(CALC)samples_all_integrated_harmony_unfiltered.h5ad
 SINGLECELL_INTEGRATE_RESULT := $(CALC)samples_all_integrated_snRNAseq_imputed.h5ad
 IMPUTATION_RESULT := $(CALC)samples_all_integrated_imputed.h5ad
 CLUSTER_RESULT := $(CALC)samples_all_integrated_imputed_cellcharter_clustered.h5ad
-CLUSTER_INDIVIDUAL_RESULT := $(CALC)samples_all_integrated_imputed_cellcharter_clustered_individual_$(N_CLUSTERS)_hops.h5ad
+CLUSTER_INDIVIDUAL_RESULT := $(CALC)samples_all_integrated_imputed_cellcharter_clustered_individual_$(N_CLUSTERS)_clusters.h5ad
 
 .dummy: preprocess integrate cluster_individual
 
