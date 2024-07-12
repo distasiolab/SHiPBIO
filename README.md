@@ -70,7 +70,7 @@ mkdir ReferenceFiles
 3. Edit `Makefile`:
    1. Set paths for your system:
       1. `BASEDIR` is the full path to the SHiPBIO directory itself
-      2. `CONDA_ENV_CELLCHARTER` is the full path to the conda environment you install cellharter in (see `conda activate cellcharter-env; conda info`)
+      2. `CONDA_ENV_CELLCHARTER` is the full path to the conda environment you installe cellcharter in (see `conda activate cellcharter-env; conda info`)
       3. `SAMPLE_WORKSHEET` is the path to the `sample_worksheet.csv` file
       4. `MARKER_GENE_FILE` is the path to the marker gene `*.json` file
    2. `SINGLE_CELL_DATA` is the path to an AnnData `*.h5ad` file containing single cell sequencing data to integrate with the spatial data (using GIMVI)
