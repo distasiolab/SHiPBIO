@@ -37,10 +37,11 @@ SHiPBIO
 `pip install cellcharter`
 3. Install [scvi-tools](https://scvi-tools.org/)
 `pip install --upgrade --upgrade-strategy only-if-needed scvi-tools`
-4. Install [harmonypy](https://github.com/slowkow/harmonypy) and pymde
-`pip install --upgrade --upgrade-strategy only-if-needed harmonypy`
-`pip install --upgrade --upgrade-strategy only-if-needed pymde`
-
+4. Install [harmonypy](https://github.com/slowkow/harmonypy) and [pymde](https://pymde.org/)
+```
+pip install --upgrade --upgrade-strategy only-if-needed harmonypy
+pip install --upgrade --upgrade-strategy only-if-needed pymde
+```
 # Set up
 * If needed, you may want to add subdirectories for raw data (like *.fastq) and processed data (like matrix files, etc)
 ```
