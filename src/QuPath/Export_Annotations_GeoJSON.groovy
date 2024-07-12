@@ -1,6 +1,6 @@
 
 
-
+// NOTE: Annnotations must be continuous.  Run Objects|Annotations|Split annotations
 
 def annotations = getAnnotationObjects()
 def entry = getProjectEntry() 

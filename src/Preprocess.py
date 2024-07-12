@@ -1,70 +1,82 @@
 # Preprocess.py
-# Part of anndata_manualAnnotate for processing spatial omics data
+# Part of SHiPBIO for processing spatial omics data
 # Marcello DiStasio
-# Oct 2023
+# Jul 2024
 
 
-import argparse
 
 import anndata as ad
 import squidpy as sq
 import scanpy as sc
 
 import os
+import csv
+
 from pathlib import Path
-    
+import argparse
+
 parser = argparse.ArgumentParser()
 parser.add_argument('-b', '--basepath', type=str, help='Path to base directory for the project; should contain directories \'data\' and \'calc\'')
+parser.add_argument('-s', '--worksheet', type=str, help='Path to *.csv file with sample file paths and information')
+parser.add_argument('-o', '--output', type=str, help='Path to output *.h5ad file to create')
 args = parser.parse_args()
 
 FILEPATHBASE = args.basepath
 
-SAVEFIGS = True
-if SAVEFIGS:
-    IMGDIR = os.path.join(FILEPATHBASE,'img')
-
-
 # --------------------------------------------------------------------------------
-# If manual spatial annotations are desired, then Prior to this loading, each
-# *_anndata.h5ad file should be annotated with
+# Prior to this loading, each *_anndata.h5ad should be annotated with
 #
 #   1. MakeFullSizeClustersImage.py
 #   2. QuPath (https://qupath.github.io/), to draw ROIs and export with Export_Annotations_GeoJSON.groovy
 #   3. ReadAnnotationsToAnnData.py
 #
 # --------------------------------------------------------------------------------
+def read_csv_into_dict(filename, known_columns):
+    result = []
+    with open(filename, mode='r', newline='\n') as file:
+        reader = csv.DictReader(file, delimiter=',')
+        for row in reader:
+            entry = {}
+            unknown_cols = []
+            for key, value in row.items():
+                if key.strip() in known_columns:
+                    entry[key.strip()] = value.strip()
+                else:
+                    if value is not None:
+                        unknown_cols.append(value.strip())
+            entry['Annotations'] = unknown_cols
+            result.append(entry)
+    return result
+
+
+known_columns =['sampleID', 'sampleName', 'AnatomicLocation', 'filename']
+data = read_csv_into_dict(args.worksheet, known_columns)
+    
+import pprint
+pp = pprint.PrettyPrinter(indent=4, width=200)
+print("Sample worksheet info from " + args.worksheet)
+pp.pprint(data)
 
 print('Loading data files and selecting annotated regions...')
 
-## Muscle data
-
-datadir = os.path.join(FILEPATHBASE, 'data')
-files = os.listdir(datadir)
-h5ad_files = [file for file in files if file.endswith('.h5ad')]
-
-sample = 1
-samples_all = dict()
-for filename in h5ad_files:
-    filepath = os.path.join(datadir, filename)
-    print("Loading data from " + filepath)
-    adata = ad.read_h5ad(filepath)
-    library_id = 'IBM_Muscle_bx'
+cnt = 1
+for sample in data:
+    print("Loading:" + sample['filename'] + "...")
+    adata = ad.read_h5ad(sample['filename'])
     adata.uns["spatial"] = dict()
-    adata.uns["spatial"][library_id] = dict()
-    samples_all["Muscle_"+str(sample)] = adata
-    print('Loaded')
-    sample = sample + 1
-print('Done loading all data sets')
-
-### Done Loading 
+    adata.uns["spatial"][sample['sampleID']] = dict()
+    sample['data'] = adata[adata.obs[sample['Annotations']].any(axis=1)]
+    print("Done loading sample " + str(cnt) + "/" + str(len(data)) + ".")
+    cnt=cnt+1
+print("Done loading data")
 
 # --------------------------------------------------------------------------------
 # Defining Sample-Level Characteristics
 # --------------------------------------------------------------------------------
 
-SampleKey = {"Muscle_1": "DM IBM 1",
-             "Muscle_2": "PTV IBM 2"
-             }
+r_all =     dict([[sample['sampleID'],sample['data']] for sample in data])
+SampleKey = dict([[sample['sampleID'],sample['sampleName']] for sample in data])
+AnatLoc =    dict([[sample['sampleID'],sample['AnatomicLocation']] for sample in data])
 
 # --------------------------------------------------------------------------------
 # Concatenation of all datasets into one
@@ -72,8 +84,7 @@ SampleKey = {"Muscle_1": "DM IBM 1",
 
 print('Concatenating...')
 
-samples_all = ad.concat(samples_all, label="dataset", uns_merge="first", join='outer')
-samples_all.obs_names_make_unique()
+samples_all = ad.concat(r_all, label="dataset", uns_merge="first", join='outer')
 
 # Clean up the NAs in manual annotation columns in adata.obs, which should be boolean
 cs = samples_all.obs.select_dtypes(include='object').columns
@@ -89,6 +100,8 @@ samples_all.uns["spatial"][library_id] = dict()
 
 ## Sample-level info
 samples_all.uns["SampleKey"] = SampleKey
+samples_all.uns["Anatomic_Location"] = AnatLoc
+
 
 
 
@@ -97,6 +110,15 @@ samples_all.uns["SampleKey"] = SampleKey
 # --------------------------------------------------------------------------------
 Path(os.path.join(FILEPATHBASE, 'calc')).mkdir(parents=True, exist_ok=True)
 out_filename = os.path.join(FILEPATHBASE, 'calc', 'samples_all.h5ad')
+
+if not os.path.exists(os.path.join(FILEPATHBASE, 'calc')):
+    os.makedirs(os.path.join(FILEPATHBASE, 'calc'))
+
+if args.output is None:
+    out_filename = os.path.join(FILEPATHBASE, 'calc', 'samples_all.h5ad')
+else:
+    out_filename = args.output
+
 samples_all.write(out_filename)
 
 print('Saved concatenated data to: ' + out_filename)

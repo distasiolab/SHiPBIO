@@ -1,6 +1,11 @@
 # Anything inside the 'data' folder ignored
 data/**
 !data/.gitkeep
+calc/**
+img/*
+tmp/*
+local/*
+!local/.gitkeep
 
 img/**
 figures/**
@@ -14,6 +19,9 @@ ReferenceFiles
 
 # Slurm job scheduler outputs
 slurm*.out
+
+# Jupyter notebook checkpoints
+.ipynb_checkpoints
 
 # Log files
 *.log
