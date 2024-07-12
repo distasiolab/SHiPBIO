@@ -31,24 +31,32 @@ SHiPBIO
 
 * Install [CellCharter](https://github.com/CSOgroup/cellcharter)
 1. Create a conda environment
-`conda create -n cellcharter-env -c conda-forge python=3.10 mamba`
-`conda activate cellcharter-env`
-2. Install cellcharter (which will bring along pytorch)
-`pip install cellcharter`
+```
+conda create -n cellcharter-env -c conda-forge python=3.10 mamba
+conda activate cellcharter-env
+```
+2. Install cellcharter (which should bring along pytorch)
+```
+pip install cellcharter
+```
 3. Install [scvi-tools](https://scvi-tools.org/)
-`pip install --upgrade --upgrade-strategy only-if-needed scvi-tools`
+```
+pip install --upgrade --upgrade-strategy only-if-needed scvi-tools
+```
 4. Install [harmonypy](https://github.com/slowkow/harmonypy) and [pymde](https://pymde.org/)
 ```
 pip install --upgrade --upgrade-strategy only-if-needed harmonypy
 pip install --upgrade --upgrade-strategy only-if-needed pymde
 ```
-# Set up
+
+## Set up
 * If needed, you may want to add subdirectories for raw data (like *.fastq) and processed data (like matrix files, etc)
 ```
 mkdir data/raw
 mkdir data/processed
 mkdir ReferenceFiles
 ```
+
 # Usage
 1. For each sample with data in anndata format (`*h5ad`):
    1. Run `MakeFullSizeClustersImage.py -f /path/to/*.h5ad` which will output a rough (KNN in UMAP space) clustered image (into the same directory, unless you specify another location with the `-o` flag).
