@@ -50,6 +50,7 @@ pip install --upgrade --upgrade-strategy only-if-needed pymde
 ```
 conda deactivate
 conda create -n magic-env -c conda-forge python=3.10 mamba
+conda activate magic-env
 pip install magic-impute
 ```
 
