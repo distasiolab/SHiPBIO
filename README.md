@@ -45,6 +45,7 @@ pip install --upgrade --upgrade-strategy only-if-needed scvi-tools
 ```
 pip install --upgrade --upgrade-strategy only-if-needed harmonypy
 pip install --upgrade --upgrade-strategy only-if-needed pymde
+pip install --upgrade --upgrade-strategy only-if-needed geojson
 ```
 5. Install [MAGIC](https://github.com/KrishnaswamyLab/MAGIC)
 ```
