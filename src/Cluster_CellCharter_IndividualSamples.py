@@ -140,6 +140,7 @@ for item in gates:
     gene_list = [gene['gene'] for gene in item['gates']]
     marker_genes[cell_type] = gene_list
 
+   
 for r in np.arange(len(Samples)):
     # Select each sample individually
     sample = samples_all[samples_all.obs['dataset']==Samples[r]]
@@ -170,57 +171,37 @@ for r in np.arange(len(Samples)):
     else:
         print("For sample " + samples_all.uns['SampleKey'][Samples[r]] + ": Only one cluster found.")
 
-    # --------------------------------------------------------------------------------
-    # After inspection of the figures, establishment of cluster label for each sample can be performed like this:
-    # Use marker genes to establish cluster labels for each sample
-    # --------------------------------------------------------------------------------
-    #spatial_cluster_label_key = {0 : 'Photoreceptor',
-    #                             1 : 'RGC',
-    #                             2 : 'Vascular',
-    #                             3 : 'Other',
-    #                             4 : 'Astrocyte',
-    #                             5 : 'Other',
-    #                             6 : 'Photoreceptor',
-    #                             7 : 'Muller glia',
-    #                             8 : 'Muller glia',
-    #                             9 : 'Bipolar',
-    #                             10: 'Vascular',
-    #                             11: 'RGC',
-    #                             12: 'Muller glia',
-    #                             13: 'Other',
-    #                             14: 'Photoreceptor',
-    #                             15: 'Other',
-    #                             16: 'RPE',
-    #                             17: 'Photoreceptor',
-    #                             18: 'RPE',
-    #                             19: 'Photoreceptor',
-    #                             20: 'Other'}
-    #
-    #samples_all.obs['spatial_cluster_label'] = samples_all.obs['spatial_cluster'].map(spatial_cluster_label_key)
-    
 
+
+groups = np.array(sorted(np.unique(samples_all.obs['spatial_cluster'])))
+nGroupsToColor = len(groups) 
+spect = plt.cm.tab10.resampled(nGroupsToColor)
+newcolors = spect(np.linspace(0,1,nGroupsToColor))
+newpalette = ListedColormap(newcolors)
+color_cycler = cycler(color=newpalette.colors)
+    
+for r in np.arange(len(Samples)):
+        
     # --------------------------------------------------
     # Plot of spatial scatter montage colored by cluster label
-    groups = np.array(sorted(np.unique(sample.obs['spatial_cluster'])))
-    nGroupsToColor = len(groups) 
-    spect = plt.cm.tab10.resampled(nGroupsToColor)
-    newcolors = spect(np.linspace(0,0.5,nGroupsToColor))
-    newpalette = ListedColormap(newcolors)
-    color_cycler = cycler(color=newpalette.colors)
-    
+
+    locX = samples_all.obsm['X_spatial'][samples_all.obs['dataset']==Samples[r]][:,0]
+    locY = samples_all.obsm['X_spatial'][samples_all.obs['dataset']==Samples[r]][:,1]
+    clust = samples_all.obs['spatial_cluster'][samples_all.obs['dataset']==Samples[r]]
 
     fig, ax = plt.subplots(1, 1, figsize=(40,30))
-
-    ss = 40
-    sq.pl.spatial_scatter(samples_all[samples_all.obs['dataset']==Samples[r]],
-                          color='spatial_cluster',
-                          size=ss,
-                          shape=None,
-                          groups=groups,
-                          ax=ax)
-    #palette=newpalette)
+    for g in groups:
+        mask = (clust == g)
+        ax.scatter(locX[mask],
+                   locY[mask],
+                   c=newcolors[g],
+                   label=g,
+                   cmap=newpalette)
+        
     ax.set_title(SampleKey[Samples[r]])
+    ax.set_aspect('equal')
 
+    ax.legend(title='Cluster', facecolor='black', bbox_to_anchor=(1.01,0.5), fontsize='large')
     ax.set_xlabel('')
     ax.set_ylabel('')
     ax.axis('off')
@@ -228,9 +209,7 @@ for r in np.arange(len(Samples)):
     ax.spines['right'].set_visible(False)
     ax.spines['bottom'].set_visible(False)
     ax.spines['left'].set_visible(False)
-
     fig.tight_layout()
-
     fig.set_facecolor('k')
     for text in fig.findobj(match=lambda x: isinstance(x, plt.Text)):
         if hasattr(text, 'set_color'):
@@ -238,10 +217,10 @@ for r in np.arange(len(Samples)):
 
     if SAVEFIGS:
         n_clusters = len(samples_all.obs['spatial_cluster'].cat.categories)
-        filename_out = os.path.join(IMGDIR, 'Clusters_integrated_imputed_cellcharter_' + str(n_hops) + 'hops_clustered_' + SampleKey[Samples[r]] + '_' + str(n_clusters) + '_clusters_spatial.png')
+        filename_out = os.path.join(IMGDIR, 'Clusters_integrated_imputed_cellcharter_' + str(n_hops) + 'hops_ ' + str(n_clusters) + '_clusters_' + SampleKey[Samples[r]] + '_clustered_spatial.png')
         fig.savefig(filename_out, dpi=300)
         print('Saved: ' + filename_out)
-        filename_out = os.path.join(IMGDIR, 'Clusters_integrated_imputed_cellcharter_' + str(n_hops) + 'hops_clustered_' + SampleKey[Samples[r]] + '_' + str(n_clusters) + '_clusters_spatial.svg')
+        filename_out = os.path.join(IMGDIR, 'Clusters_integrated_imputed_cellcharter_' + str(n_hops) + 'hops_ ' + str(n_clusters) + '_clusters_' + SampleKey[Samples[r]] + '_clustered_spatial.svg')
         fig.savefig(filename_out, dpi=300)
         print('Saved: ' + filename_out)
         
