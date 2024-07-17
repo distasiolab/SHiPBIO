@@ -131,6 +131,12 @@ if SAVEDATA:
 # --------------------------------------------------------------------------------
 # Plotting
 # --------------------------------------------------------------------------------
+
+
+# --------------------------------------------------------------------------------
+# Plots of Gene Marker vs. Cluster ID Matrix
+# --------------------------------------------------------------------------------
+
 with open(args.markers) as f:
     gates = json.load(f)
 
@@ -171,7 +177,9 @@ for r in np.arange(len(Samples)):
     else:
         print("For sample " + samples_all.uns['SampleKey'][Samples[r]] + ": Only one cluster found.")
 
-
+# ----------------------------------------------------------
+# Plots of spatial scatter montage colored by cluster label
+# ----------------------------------------------------------
 
 groups = np.array(sorted(np.unique(samples_all.obs['spatial_cluster'])))
 nGroupsToColor = len(groups) 
@@ -182,9 +190,6 @@ color_cycler = cycler(color=newpalette.colors)
     
 for r in np.arange(len(Samples)):
         
-    # --------------------------------------------------
-    # Plot of spatial scatter montage colored by cluster label
-
     locX = samples_all.obsm['X_spatial'][samples_all.obs['dataset']==Samples[r]][:,0]
     locY = samples_all.obsm['X_spatial'][samples_all.obs['dataset']==Samples[r]][:,1]
     clust = samples_all.obs['spatial_cluster'][samples_all.obs['dataset']==Samples[r]]
