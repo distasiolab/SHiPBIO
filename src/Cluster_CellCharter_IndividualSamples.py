@@ -158,10 +158,10 @@ for r in np.arange(len(Samples)):
             sns.heatmap(ov, ax=ax, annot=True)
             
             if SAVEFIGS:
-                filename_out = os.path.join(IMGDIR, 'Clusters_integrated_imputed_cellcharter_' + str(n_hops) + 'hops_clustered_' + SampleKey[Samples[r]] + '_' + str(n_clusters) + '_clusters_markermatrix.png')
+                filename_out = os.path.join(IMGDIR, 'Clusters_integrated_imputed_cellcharter_' + str(n_hops) + 'hops_ ' + str(n_clusters) + '_clusters_' + SampleKey[Samples[r]] +  '_clusters_markermatrix.png')
                 fig.savefig(filename_out, dpi=300)
                 print('Saved: ' + filename_out)
-                filename_out = os.path.join(IMGDIR, 'Clusters_integrated_imputed_cellcharter_' + str(n_hops) + 'hops_clustered_' + SampleKey[Samples[r]] + '_' + str(n_clusters) + '_clusters_markermatrix.svg')
+                filename_out = os.path.join(IMGDIR, 'Clusters_integrated_imputed_cellcharter_' + str(n_hops) + 'hops_ ' + str(n_clusters) + '_clusters_' + SampleKey[Samples[r]] +  '_clusters_markermatrix.svg')
                 fig.savefig(filename_out, dpi=300)
                 print('Saved: ' + filename_out)
 
@@ -201,7 +201,7 @@ for r in np.arange(len(Samples)):
     ax.set_title(SampleKey[Samples[r]])
     ax.set_aspect('equal')
 
-    ax.legend(title='Cluster', facecolor='black', bbox_to_anchor=(1.01,0.5), fontsize='large')
+    ax.legend(title='Cluster', facecolor='black', bbox_to_anchor=(1.01,0.5), fontsize='xx-large')
     ax.set_xlabel('')
     ax.set_ylabel('')
     ax.axis('off')
