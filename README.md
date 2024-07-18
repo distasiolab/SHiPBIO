@@ -47,7 +47,7 @@ pip install --upgrade --upgrade-strategy only-if-needed harmonypy
 pip install --upgrade --upgrade-strategy only-if-needed pymde
 pip install --upgrade --upgrade-strategy only-if-needed geojson
 ```
-5. Install [MAGIC](https://github.com/KrishnaswamyLab/MAGIC)
+5. (Optional) Install [MAGIC](https://github.com/KrishnaswamyLab/MAGIC)
 ```
 conda deactivate
 conda create -n magic-env -c conda-forge python=3.10 mamba
