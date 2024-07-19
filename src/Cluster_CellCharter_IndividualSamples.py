@@ -69,7 +69,7 @@ Samples = list(samples_all.obs['dataset'].cat.categories)
 n_hops = args.distance
 sq.gr.spatial_neighbors(samples_all, coord_type='generic', delaunay=True, spatial_key='X_spatial')
 cc.gr.remove_long_links(samples_all)
-cc.gr.aggregate_neighbors(samples_all, n_layers=5, use_rep='X_scVI', out_key='X_cellcharter', sample_key='batch') #n_layers = 3 means 1,2,3-hop neighbors
+cc.gr.aggregate_neighbors(samples_all, n_layers=n_hops, use_rep='X_scVI', out_key='X_cellcharter', sample_key='batch') #n_layers = 3 means 1,2,3-hop neighbors
 
 
 
@@ -120,7 +120,7 @@ samples_all = ad.concat(s_all, label="dataset", uns_merge="first", join='outer')
 if SAVEDATA:
     # Save
     if args.output is None:
-        out_filename = os.path.join(FILEPATHBASE, 'calc', 'samples_all_integrated_imputed_cellcharter_clustered_' + str(n_hops) + 'hops_individual.h5ad')
+        out_filename = os.path.join(FILEPATHBASE, 'calc', 'samples_all_integrated_imputed_cellcharter_clustered_' + str(n_hops) + '_hops_ ' + str(n_clusters) + '_clusters_' + '_individual.h5ad')
     else:
         out_filename = args.output
 
@@ -183,7 +183,7 @@ for r in np.arange(len(Samples)):
 
 groups = np.array(sorted(np.unique(samples_all.obs['spatial_cluster'])))
 nGroupsToColor = len(groups) 
-spect = plt.cm.tab10.resampled(nGroupsToColor)
+spect = plt.cm.gist_rainbow.resampled(nGroupsToColor)
 newcolors = spect(np.linspace(0,1,nGroupsToColor))
 newpalette = ListedColormap(newcolors)
 color_cycler = cycler(color=newpalette.colors)
