@@ -42,7 +42,7 @@ CLUSTER_INDIVIDUAL_RESULT := $(CALC)samples_all_integrated_imputed_cellcharter_c
 
 .dummy: preprocess integrate cluster_individual
 
-all: cluster_individual
+all: cluster
 
 preprocess: $(PREPROCESS_RESULT)
 	@echo "Preprocessing completed."
@@ -87,7 +87,7 @@ $(IMPUTATION_RESULT): $(SINGLECELL_INTEGRATE_RESULT)
 
 $(CLUSTER_RESULT): $(SINGLECELL_INTEGRATE_RESULT)
 	@echo "Clustering..."
-	echo 'conda activate ${CONDA_ENV_CELLCHARTER}; export LD_LIBRARY_PATH=${CONDA_ENV_CELLCHARTER}lib/; export PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:32; python ${SOURCE}Cluster_CellCharter.py -b ${BASEDIR} -o ${CLUSTER_RESULT}' | bash -i
+	echo 'conda activate ${CONDA_ENV_CELLCHARTER}; export LD_LIBRARY_PATH=${CONDA_ENV_CELLCHARTER}lib/; export PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:32; python ${SOURCE}Cluster_CellCharter.py -b ${BASEDIR} -n ${N_CLUSTERS} -d ${N_HOPS} -m ${MARKER_GENE_FILE} -o ${CLUSTER_RESULT}' | bash -i
 
 $(CLUSTER_INDIVIDUAL_RESULT): $(SINGLECELL_INTEGRATE_RESULT)
 	@echo "Clustering..."
