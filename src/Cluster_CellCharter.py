@@ -170,13 +170,11 @@ nCol = int(np.ceil(len(Samples)/3))
 fig, axs = plt.subplots(nRow, nCol, figsize=(40,30))
 for r in np.arange(len(Samples)):
     ax = axs.reshape(-1)[r]
-    ss = 1
             
     locX = samples_all.obsm['X_spatial'][samples_all.obs['dataset']==Samples[r]][:,0]
     locY = samples_all.obsm['X_spatial'][samples_all.obs['dataset']==Samples[r]][:,1]
     clust = samples_all.obs['spatial_cluster'][samples_all.obs['dataset']==Samples[r]]
 
-    fig, ax = plt.subplots(1, 1, figsize=(40,30))
     for g in groups:
         mask = (clust == g)
         ax.scatter(locX[mask],
@@ -214,10 +212,10 @@ for text in fig.findobj(match=lambda x: isinstance(x, plt.Text)):
 
 if SAVEFIGS:
     n_clusters = len(samples_all.obs['spatial_cluster'].cat.categories)
-    filename_out = os.path.join(IMGDIR, 'Clusters_integrated_imputed_cellcharter_' + str(n_hops) + 'hops_ ' + str(n_clusters) + '_clusters_AllSamples_clustered_spatial.png')
+    filename_out = os.path.join(IMGDIR, 'Clusters_integrated_imputed_cellcharter_' + str(n_hops) + '_hops_ ' + str(n_clusters) + '_clusters_AllSamples_clustered_spatial.png')
     fig.savefig(filename_out, dpi=300)
     print('Saved: ' + filename_out)
-    filename_out = os.path.join(IMGDIR, 'Clusters_integrated_imputed_cellcharter_' + str(n_hops) + 'hops_ ' + str(n_clusters) + '_clusters_AllSamples_clustered_spatial.svg')
+    filename_out = os.path.join(IMGDIR, 'Clusters_integrated_imputed_cellcharter_' + str(n_hops) + '_hops_ ' + str(n_clusters) + '_clusters_AllSamples_clustered_spatial.svg')
     fig.savefig(filename_out, dpi=300)
     print('Saved: ' + filename_out)
 # --------------------------------------------------
