@@ -40,7 +40,7 @@ args = parser.parse_args()
 # --------------------------------------------------------------------------------
 FILEPATHBASE = args.basepath
 
-SAVEDATA = False
+SAVEDATA = True
 SAVEFIGS = True
 if SAVEFIGS:
     IMGDIR = os.path.join(FILEPATHBASE, 'img', 'out')
@@ -60,6 +60,17 @@ Samples = list(samples_all.obs['dataset'].cat.categories)
 # --------------------------------------------------------------------------------
 # Preprocess
 # --------------------------------------------------------------------------------
+print('Filtering outliers in X_scVI projected into MDE space...')
+# Filter outliers in X_scVI projected into MDE space
+MDE_min_x = -4
+MDE_max_x = 4
+MDE_min_y = -4
+MDE_max_y = 4
+m0 = (MDE_min_x < samples_all.obsm['X_scVI_MDE'][:,0]) & (samples_all.obsm['X_scVI_MDE'][:,0] < MDE_max_x)
+m1 = (MDE_min_y < samples_all.obsm['X_scVI_MDE'][:,1]) & (samples_all.obsm['X_scVI_MDE'][:,1] < MDE_max_y)
+mask = m0 & m1
+samples_all = samples_all[mask,:]
+
 # Arrange samples in space
 print('Arrange samples in space...')
 samples_all.obsm['X_spatial_fov'] = samples_all.obsm['X_spatial'].copy()
@@ -75,8 +86,20 @@ print('Computing Neighborhood Graph...')
 n_hops = args.distance
 sq.gr.spatial_neighbors(samples_all, coord_type='generic', delaunay=True, spatial_key='X_spatial_fov')
 cc.gr.remove_long_links(samples_all)
-samples_all.obsm['counts_scvi'] = samples_all.layers['counts_scvi']
-cc.gr.aggregate_neighbors(samples_all, n_layers=n_hops, use_rep='counts_scvi', out_key='X_cellcharter', sample_key='batch') #n_layers = 3 means 1,2,3-hop neighbors
+cc.gr.aggregate_neighbors(samples_all, n_layers=n_hops, use_rep='X_scVI', out_key='X_cellcharter', sample_key='batch') #n_layers = 3 means 1,2,3-hop neighbors
+
+# --------------------------------------------------------------------------------
+# Save
+# --------------------------------------------------------------------------------
+if SAVEDATA:
+    # Save
+    if args.output is None:
+        out_filename = os.path.join(FILEPATHBASE, 'calc', 'samples_all_integrated_imputed_cellcharter_neighborhoods_' + str(n_hops) + '_hops.h5ad')
+    else:
+        out_filename = args.output
+
+    samples_all.write_h5ad(out_filename)
+    print('Saved ' + out_filename)
 
 
 # --------------------------------------------------------------------------------
@@ -95,13 +118,13 @@ gmm = cc.tl.Cluster(n_clusters=n_clusters,
 )
 
 
-import logging
+#import logging
 
 
-# configure logging on module level, redirect to file
-gmm_logger = logging.getLogger(type(gmm.trainer()).__name__)
-gmm_logger.setLevel(logging.DEBUG)
-gmm_logger.addHandler(logging.FileHandler(os.path.join(FILEPATHBASE, 'tmp', 'gmm.log')))
+## configure logging on module level, redirect to file
+#gmm_logger = logging.getLogger(type(gmm.trainer()).__name__)
+#gmm_logger.setLevel(logging.DEBUG)
+#gmm_logger.addHandler(logging.FileHandler(os.path.join(FILEPATHBASE, 'tmp', 'gmm.log')))
 
                       
 gmm.fit(samples_all, use_rep='X_cellcharter')

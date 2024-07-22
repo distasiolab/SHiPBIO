@@ -64,6 +64,25 @@ Samples = list(samples_all.obs['dataset'].cat.categories)
 
 
 # --------------------------------------------------------------------------------
+# Preprocess
+# --------------------------------------------------------------------------------
+print('Filtering outliers in X_scVI projected into MDE space...')
+# Filter outliers in X_scVI projected into MDE space
+MDE_min_x = -4
+MDE_max_x = 4
+MDE_min_y = -4
+MDE_max_y = 4
+m0 = (MDE_min_x < samples_all.obsm['X_scVI_MDE'][:,0]) & (samples_all.obsm['X_scVI_MDE'][:,0] < MDE_max_x)
+m1 = (MDE_min_y < samples_all.obsm['X_scVI_MDE'][:,1]) & (samples_all.obsm['X_scVI_MDE'][:,1] < MDE_max_y)
+mask = m0 & m1
+samples_all = samples_all[mask,:]
+
+
+print('Log transform scvi_counts')
+sc.pp.log1p(samples_all, layer='counts_scvi')
+
+
+# --------------------------------------------------------------------------------
 # Compute Neighborhood Graph
 # --------------------------------------------------------------------------------
 n_hops = args.distance
@@ -164,10 +183,10 @@ for r in np.arange(len(Samples)):
             sns.heatmap(ov, ax=ax, annot=True)
             
             if SAVEFIGS:
-                filename_out = os.path.join(IMGDIR, 'Clusters_integrated_imputed_cellcharter_' + str(n_hops) + 'hops_ ' + str(n_clusters) + '_clusters_' + SampleKey[Samples[r]] +  '_clusters_markermatrix.png')
+                filename_out = os.path.join(IMGDIR, 'Clusters_integrated_imputed_cellcharter_' + str(n_hops) + 'hops_' + str(n_clusters) + '_clusters_' + SampleKey[Samples[r]] +  '_clusters_markermatrix.png')
                 fig.savefig(filename_out, dpi=300)
                 print('Saved: ' + filename_out)
-                filename_out = os.path.join(IMGDIR, 'Clusters_integrated_imputed_cellcharter_' + str(n_hops) + 'hops_ ' + str(n_clusters) + '_clusters_' + SampleKey[Samples[r]] +  '_clusters_markermatrix.svg')
+                filename_out = os.path.join(IMGDIR, 'Clusters_integrated_imputed_cellcharter_' + str(n_hops) + 'hops_' + str(n_clusters) + '_clusters_' + SampleKey[Samples[r]] +  '_clusters_markermatrix.svg')
                 fig.savefig(filename_out, dpi=300)
                 print('Saved: ' + filename_out)
 
