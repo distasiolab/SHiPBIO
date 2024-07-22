@@ -28,7 +28,9 @@ from cycler import cycler
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-b', '--basepath', type=str, help='Path to base directory for the project; should contain directories \'data\' and \'calc\'')
+parser.add_argument('-i', '--inputfile', type=str, help='Path to input AnnData *.h5ad file')
 parser.add_argument('-c', '--clusterlabels', type=str, help='Path to *.json file with labels for clusters of each individual sample')
+parser.add_argument('-o', '--output', type=str, help='Path to output *.h5ad file to create')
 args = parser.parse_args()
 
 
@@ -46,7 +48,7 @@ if SAVEFIGS:
 # --------------------------------------------------------------------------------
 # Load datasets 
 # --------------------------------------------------------------------------------
-filename = os.path.join(FILEPATHBASE, 'calc', 'samples_all_integrated_imputed_cellcharter_clustered_individual.h5ad')
+filename = args.inputfile
 print("Loading Data from: " + filename + '...')
 samples_all = ad.read_h5ad(filename)
 
@@ -71,9 +73,13 @@ for r in np.arange(len(Samples)):
 # --------------------------------------------------------------------------------
 if SAVEDATA:
     # Save
-    filename_out = os.path.join(FILEPATHBASE, 'calc', 'samples_all_integrated_imputed_cellcharter_clustered_individual_labeled.h5ad')
-    samples_all.write_h5ad(filename_out)
-    print('Saved ' + filename_out)
+    if args.output is None:
+        out_filename = os.path.join(FILEPATHBASE, 'calc', 'samples_all_integrated_imputed_cellcharter_clustered_individual_labeled.h5ad')
+    else:
+        out_filename = args.output
+
+    samples_all.write_h5ad(out_filename)
+    print('Saved ' + out_filename)
 
 
 # --------------------------------------------------------------------------------
@@ -84,26 +90,53 @@ if SAVEDATA:
 # Plot of spatial scatter montage colored by cluster label
 groups = np.array(sorted(np.unique(samples_all.obs['spatial_cluster_label'])))
 nGroupsToColor = len(groups) 
-spect = plt.cm.tab10.resampled(nGroupsToColor)
-newcolors = spect(np.linspace(0,0.5,nGroupsToColor))
+spect = plt.cm.gist_rainbow.resampled(nGroupsToColor)
+newcolors = spect(np.linspace(0,1,nGroupsToColor))
+np.random.shuffle(newcolors)
+try:
+    newcolors[np.where(groups=='Other')[0][0],:] = [0.4,0.4,0.4,1] # Make 'Other' gray
+    newcolors[np.where(groups=='Photoreceptor')[0][0],:] = [0.5,0.1,0.5,1]
+    newcolors[np.where(groups=='RPE')[0][0],:] = [0.8,0.8,0,1] 
+    newcolors[np.where(groups=='MullerGlia')[0][0],:] = [1,0,0,1]
+    newcolors[np.where(groups=='RGC')[0][0],:] = [0,1,0,1]
+except:
+    pass
+
 newpalette = ListedColormap(newcolors)
 color_cycler = cycler(color=newpalette.colors)
-    
+
+
+
 nRow = 3
 nCol = int(np.ceil(len(Samples)/3))
-fig, axs = plt.subplots(nRow, nCol, figsize=(40,30))
+fig, axs = plt.subplots(nRow, nCol, figsize=(60,30))
+
 for r in np.arange(len(Samples)):
     ax = axs.reshape(-1)[r]
-    ss = 1
-    sq.pl.spatial_scatter(samples_all[samples_all.obs['dataset']==Samples[r]],
-                          color='spatial_cluster_label',
-                          size=ss,
-                          shape=None,
-                          groups=groups,
-                          ax=ax)#,
-#                          palette=newpalette)
+            
+    locX = samples_all.obsm['X_spatial'][samples_all.obs['dataset']==Samples[r]][:,0]
+    locY = samples_all.obsm['X_spatial'][samples_all.obs['dataset']==Samples[r]][:,1]
+    clust = samples_all.obs['spatial_cluster_label'][samples_all.obs['dataset']==Samples[r]]
+
+    for g in np.arange(len(groups)):
+        mask = (clust == groups[g])
+        ax.scatter(locX[mask],
+                   locY[mask],
+                   c=newcolors[g],
+                   label=groups[g],
+                   s=1,
+                   cmap=newpalette)
+
+    
     ax.set_title(SampleKey[Samples[r]])
 
+    if (r == len(Samples)-1):
+        lgnd = ax.legend(title='Cluster', facecolor='black', bbox_to_anchor=(1.01,0.5), fontsize='xx-large')
+        for h in lgnd.legendHandles:
+            h._sizes = [30]
+    ax.set_title(SampleKey[Samples[r]])
+    ax.set_aspect('equal')
+    
 for ax in axs.reshape(-1):
     ax.set_xlabel('')
     ax.set_ylabel('')
@@ -112,10 +145,6 @@ for ax in axs.reshape(-1):
     ax.spines['right'].set_visible(False)
     ax.spines['bottom'].set_visible(False)
     ax.spines['left'].set_visible(False)
-#    try:
-#        ax.get_legend().remove()
-#    except:
-#        pass
 
 fig.tight_layout()
 
@@ -123,9 +152,6 @@ fig.set_facecolor('k')
 for text in fig.findobj(match=lambda x: isinstance(x, plt.Text)):
     if hasattr(text, 'set_color'):
         text.set_color('white')
-
-#labels_handles = {  label: handle for ax in fig.axes for handle, label in zip(*ax.get_legend_handles_labels())    }
-#fig.legend( labels_handles.values(), labels_handles.keys(), loc = "lower right", ncol=3)
 
 
 if SAVEFIGS:
