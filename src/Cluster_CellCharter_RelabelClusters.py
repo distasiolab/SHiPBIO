@@ -92,13 +92,15 @@ groups = np.array(sorted(np.unique(samples_all.obs['spatial_cluster_label'])))
 nGroupsToColor = len(groups) 
 spect = plt.cm.gist_rainbow.resampled(nGroupsToColor)
 newcolors = spect(np.linspace(0,1,nGroupsToColor))
-np.random.shuffle(newcolors)
 try:
     newcolors[np.where(groups=='Other')[0][0],:] = [0.4,0.4,0.4,1] # Make 'Other' gray
-    newcolors[np.where(groups=='Photoreceptor')[0][0],:] = [0.5,0.1,0.5,1]
-    newcolors[np.where(groups=='RPE')[0][0],:] = [0.8,0.8,0,1] 
-    newcolors[np.where(groups=='MullerGlia')[0][0],:] = [1,0,0,1]
-    newcolors[np.where(groups=='RGC')[0][0],:] = [0,1,0,1]
+    newcolors[np.where(groups=='Photoreceptor')[0][0],:] = np.array([50, 136, 189, 255])/255
+    newcolors[np.where(groups=='RPE')[0][0],:]           = np.array([254, 224, 139, 255])/255
+    newcolors[np.where(groups=='MullerGlia')[0][0],:]    = np.array([158, 1, 66, 255])/255
+    newcolors[np.where(groups=='RGC')[0][0],:]           = np.array([244, 109, 67, 255])/255
+    newcolors[np.where(groups=='Astrocyte')[0][0],:]     = np.array([102, 194, 165, 255])/255
+    newcolors[np.where(groups=='Vascular')[0][0],:]      = np.array([94, 79, 162, 255])/255
+    newcolors[np.where(groups=='Amacrine')[0][0],:]      = np.array([230, 245, 152, 255])/255
 except:
     pass
 
