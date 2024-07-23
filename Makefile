@@ -32,7 +32,7 @@ N_HOPS ?=3
 
 SINGLE_CELL_DATA := $(DATA)retina_sn_combined.h5ad
 MARKER_GENE_FILE := $(DATA)retinal_celltype_gates.json
-CLUSTER_LABELS_FILE := $(DATA)samples_all_integrated_imputed_cellcharter_3hops_11_clusters_individual_clusterlabels.json
+CLUSTER_LABELS_FILE := $(DATA)samples_all_integrated_imputed_cellcharter_2hops_13_clusters_individual_clusterlabels.json
 
 PREPROCESS_RESULT := $(CALC)samples_all.h5ad
 BATCH_INTEGRATE_RESULT := $(CALC)samples_all_integrated_harmony_unfiltered.h5ad
