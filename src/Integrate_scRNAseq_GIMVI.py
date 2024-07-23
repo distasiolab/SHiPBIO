@@ -92,16 +92,15 @@ sc.tl.leiden(samples_all, key_added="leiden_scVI", neighbors_key=SCVI_NEIGHBORS_
 SCVI_MDE_KEY = "X_scVI_MDE"
 samples_all.obsm[SCVI_MDE_KEY] = scvi.model.utils.mde(samples_all.obsm[SCVI_LATENT_KEY])
 
-sc.pl.embedding(
-    samples_all,
-    basis=SCVI_MDE_KEY,
-    color=["batch", "leiden"],
-    frameon=False,
-    ncols=1,
-)
+#sc.pl.embedding(
+#    samples_all,
+#    basis=SCVI_MDE_KEY,
+#    color=["batch", "leiden"],
+#    frameon=False,
+#    ncols=1,
+#)
 samples_all.layers['counts_scvi'] = sparse.csr_matrix(model.posterior_predictive_sample())
 print('Done fitting an scVI model to the spatial data. Added samples_all.layers[\'counts_scvi\']')
-
 
 
 print('Fitting GIMVI model to the single cell and spatial data...')

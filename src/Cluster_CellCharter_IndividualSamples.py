@@ -34,6 +34,7 @@ from cycler import cycler
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-b', '--basepath', type=str, help='Path to base directory for the project; should contain directories \'data\' and \'calc\'')
+parser.add_argument('-i', '--inputfile', type=str, help='Path to input AnnData *.h5ad file')
 parser.add_argument('-n', '--n_clusters', type=int, default=11, help='Number of clusters for CellCharter to find')
 parser.add_argument('-d', '--distance', type=int, default=3, help='Distance; Number of hops to use to build neighborhood graph')
 parser.add_argument('-m', '--markers', type=str, default=3, help='Path to marker gene file')
@@ -55,7 +56,10 @@ if SAVEFIGS:
 # --------------------------------------------------------------------------------
 # Load datasets 
 # --------------------------------------------------------------------------------
-filename = os.path.join(FILEPATHBASE, 'calc', 'samples_all_integrated_snRNAseq_imputed.h5ad')
+if args.inputfile is None:
+    filename = os.path.join(FILEPATHBASE, 'calc', 'samples_all_integrated_snRNAseq_imputed.h5ad')
+else:
+    filename = filename = args.inputfile
 print("Loading Data from: " + filename + '...')
 samples_all = ad.read_h5ad(filename)
 
@@ -64,12 +68,24 @@ Samples = list(samples_all.obs['dataset'].cat.categories)
 
 
 # --------------------------------------------------------------------------------
-# Compute Neighborhood Graph
+# Preprocess
 # --------------------------------------------------------------------------------
-n_hops = args.distance
-sq.gr.spatial_neighbors(samples_all, coord_type='generic', delaunay=True, spatial_key='X_spatial')
-cc.gr.remove_long_links(samples_all)
-cc.gr.aggregate_neighbors(samples_all, n_layers=n_hops, use_rep='X_scVI', out_key='X_cellcharter', sample_key='batch') #n_layers = 3 means 1,2,3-hop neighbors
+print('Filtering outliers in X_scVI projected into MDE space...')
+# Filter outliers in X_scVI projected into MDE space
+MDE_min_x = -4
+MDE_max_x = 4
+MDE_min_y = -4
+MDE_max_y = 4
+m0 = (MDE_min_x < samples_all.obsm['X_scVI_MDE'][:,0]) & (samples_all.obsm['X_scVI_MDE'][:,0] < MDE_max_x)
+m1 = (MDE_min_y < samples_all.obsm['X_scVI_MDE'][:,1]) & (samples_all.obsm['X_scVI_MDE'][:,1] < MDE_max_y)
+mask = m0 & m1
+samples_all = samples_all[mask,:]
+
+
+print('Log transform scvi_counts')
+sc.pp.log1p(samples_all, layer='counts_scvi')
+
+
 
 
 
@@ -81,7 +97,7 @@ print(f"Fitting Gaussian Mixture model with {n_clusters} clusters...")
 
 gmm = cc.tl.Cluster(
     n_clusters=n_clusters, 
-    random_state=12345,
+    random_state=12346,
     covariance_type='full',
     batch_size=None,
     # If running on GPU
@@ -89,21 +105,21 @@ gmm = cc.tl.Cluster(
     trainer_params=dict(accelerator='gpu', devices=1, default_root_dir=os.path.join(FILEPATHBASE, 'tmp'))
 )
 
-import logging
-
-# configure logging on module level, redirect to file
-gmm_logger = logging.getLogger(type(gmm.trainer()).__name__)
-gmm_logger.setLevel(logging.DEBUG)
-Path(os.path.join(FILEPATHBASE, 'tmp')).mkdir(parents=True, exist_ok=True)
-gmm_logger.addHandler(logging.FileHandler(os.path.join(FILEPATHBASE, 'tmp', 'gmm.log')))
-
 Samples = list(samples_all.obs['dataset'].cat.categories)
-
 
 s_all = {}
 for r in np.arange(len(Samples)):
     # Select each sample individually
     sample = samples_all[samples_all.obs['dataset']==Samples[r]]
+
+    # --------------------------------------------------------------------------------
+    # Compute Neighborhood Graph
+    # --------------------------------------------------------------------------------
+    n_hops = args.distance
+    sq.gr.spatial_neighbors(sample, coord_type='generic', delaunay=True, spatial_key='X_spatial')
+    cc.gr.remove_long_links(sample)
+    cc.gr.aggregate_neighbors(sample, n_layers=n_hops, use_rep='X_scVI', out_key='X_cellcharter', sample_key='batch') #n_layers = 3 means 1,2,3-hop neighbors
+    
     # Fit the model for this sample
     gmm.fit(sample, use_rep='X_cellcharter')
     # Cluster on this sample
@@ -120,7 +136,7 @@ samples_all = ad.concat(s_all, label="dataset", uns_merge="first", join='outer')
 if SAVEDATA:
     # Save
     if args.output is None:
-        out_filename = os.path.join(FILEPATHBASE, 'calc', 'samples_all_integrated_imputed_cellcharter_clustered_' + str(n_hops) + '_hops_ ' + str(n_clusters) + '_clusters_' + '_individual.h5ad')
+        out_filename = os.path.join(FILEPATHBASE, 'calc', 'samples_all_integrated_imputed_cellcharter_clustered_' + str(n_hops) + '_hops_' + str(n_clusters) + '_clusters_' + '_individual.h5ad')
     else:
         out_filename = args.output
 
@@ -164,10 +180,10 @@ for r in np.arange(len(Samples)):
             sns.heatmap(ov, ax=ax, annot=True)
             
             if SAVEFIGS:
-                filename_out = os.path.join(IMGDIR, 'Clusters_integrated_imputed_cellcharter_' + str(n_hops) + 'hops_ ' + str(n_clusters) + '_clusters_' + SampleKey[Samples[r]] +  '_clusters_markermatrix.png')
+                filename_out = os.path.join(IMGDIR, 'Clusters_integrated_imputed_cellcharter_' + str(n_hops) + 'hops_' + str(n_clusters) + '_clusters_' + SampleKey[Samples[r]] +  '_clustered_markermatrix.png')
                 fig.savefig(filename_out, dpi=300)
                 print('Saved: ' + filename_out)
-                filename_out = os.path.join(IMGDIR, 'Clusters_integrated_imputed_cellcharter_' + str(n_hops) + 'hops_ ' + str(n_clusters) + '_clusters_' + SampleKey[Samples[r]] +  '_clusters_markermatrix.svg')
+                filename_out = os.path.join(IMGDIR, 'Clusters_integrated_imputed_cellcharter_' + str(n_hops) + 'hops_' + str(n_clusters) + '_clusters_' + SampleKey[Samples[r]] +  '_clustered_markermatrix.svg')
                 fig.savefig(filename_out, dpi=300)
                 print('Saved: ' + filename_out)
 
@@ -222,10 +238,10 @@ for r in np.arange(len(Samples)):
 
     if SAVEFIGS:
         n_clusters = len(samples_all.obs['spatial_cluster'].cat.categories)
-        filename_out = os.path.join(IMGDIR, 'Clusters_integrated_imputed_cellcharter_' + str(n_hops) + 'hops_ ' + str(n_clusters) + '_clusters_' + SampleKey[Samples[r]] + '_clustered_spatial.png')
+        filename_out = os.path.join(IMGDIR, 'Clusters_integrated_imputed_cellcharter_' + str(n_hops) + 'hops_' + str(n_clusters) + '_clusters_' + SampleKey[Samples[r]] + '_clustered_spatial.png')
         fig.savefig(filename_out, dpi=300)
         print('Saved: ' + filename_out)
-        filename_out = os.path.join(IMGDIR, 'Clusters_integrated_imputed_cellcharter_' + str(n_hops) + 'hops_ ' + str(n_clusters) + '_clusters_' + SampleKey[Samples[r]] + '_clustered_spatial.svg')
+        filename_out = os.path.join(IMGDIR, 'Clusters_integrated_imputed_cellcharter_' + str(n_hops) + 'hops_' + str(n_clusters) + '_clusters_' + SampleKey[Samples[r]] + '_clustered_spatial.svg')
         fig.savefig(filename_out, dpi=300)
         print('Saved: ' + filename_out)
         

@@ -57,22 +57,36 @@ SampleKey = samples_all.uns["SampleKey"]
 Samples = list(samples_all.obs['dataset'].cat.categories)
 
 
+# --------------------------------------------------------------------------------
+# Preprocess
+# --------------------------------------------------------------------------------
+print('Filtering outliers in X_scVI projected into MDE space...')
+# Filter outliers in X_scVI projected into MDE space
+MDE_min_x = -4
+MDE_max_x = 4
+MDE_min_y = -4
+MDE_max_y = 4
+m0 = (MDE_min_x < samples_all.obsm['X_scVI_MDE'][:,0]) & (samples_all.obsm['X_scVI_MDE'][:,0] < MDE_max_x)
+m1 = (MDE_min_y < samples_all.obsm['X_scVI_MDE'][:,1]) & (samples_all.obsm['X_scVI_MDE'][:,1] < MDE_max_y)
+mask = m0 & m1
+samples_all = samples_all[mask,:]
 
 # Arrange samples in space
+print('Arrange samples in space...')
 samples_all.obsm['X_spatial_fov'] = samples_all.obsm['X_spatial'].copy()
 y_max_p = [np.max(samples_all[samples_all.obs['dataset']==Samples[r]].obsm['X_spatial'][:,1]) for r in np.arange(1,len(Samples))]
 y_offsets = np.append(0,np.cumsum(y_max_p))
 for r in np.arange(1,len(Samples)):
     samples_all.obsm['X_spatial_fov'][samples_all.obs['dataset']==Samples[r],1] = samples_all.obsm['X_spatial_fov'][samples_all.obs['dataset']==Samples[r],1] + y_offsets[r]
-
+    
 # --------------------------------------------------------------------------------
 # Compute Neighborhood Graph
 # --------------------------------------------------------------------------------
+print('Computing Neighborhood Graph...')
 n_hops = args.distance
 sq.gr.spatial_neighbors(samples_all, coord_type='generic', delaunay=True, spatial_key='X_spatial_fov')
 cc.gr.remove_long_links(samples_all)
 cc.gr.aggregate_neighbors(samples_all, n_layers=n_hops, use_rep='X_scVI', out_key='X_cellcharter', sample_key='batch') #n_layers = 3 means 1,2,3-hop neighbors
-
 
 # --------------------------------------------------------------------------------
 # Cluster
@@ -80,27 +94,15 @@ cc.gr.aggregate_neighbors(samples_all, n_layers=n_hops, use_rep='X_scVI', out_ke
 n_clusters = args.n_clusters
 print(f"Fitting Gaussian Mixture model with {n_clusters} clusters...")
 
-
-gmm = cc.tl.Cluster(
-    n_clusters=n_clusters, 
-    random_state=12345,
-    covariance_type='full',
-    batch_size=2,
-    # If running on GPU
-    #trainer_params=dict(accelerator='gpu', devices=1, auto_scale_batch_size='binsearch')
-    trainer_params=dict(accelerator='gpu', devices=1, default_root_dir=os.path.join(FILEPATHBASE, 'tmp'))
+gmm = cc.tl.Cluster(n_clusters=n_clusters, 
+                    random_state=12345,
+                    covariance_type='full',
+                    batch_size=2,
+                    # If running on GPU
+                    #trainer_params=dict(accelerator='gpu', devices=1, auto_scale_batch_size='binsearch')
+                    trainer_params=dict(accelerator='gpu', devices=1, default_root_dir=os.path.join(FILEPATHBASE, 'tmp'))
 )
 
-
-import logging
-
-
-# configure logging on module level, redirect to file
-gmm_logger = logging.getLogger(type(gmm.trainer()).__name__)
-gmm_logger.setLevel(logging.DEBUG)
-gmm_logger.addHandler(logging.FileHandler(os.path.join(FILEPATHBASE, 'tmp', 'gmm.log')))
-
-                      
 gmm.fit(samples_all, use_rep='X_cellcharter')
 samples_all.obs['spatial_cluster'] = gmm.predict(samples_all, use_rep='X_cellcharter')
 
@@ -122,6 +124,39 @@ if SAVEDATA:
 # --------------------------------------------------------------------------------
 # Plots of Gene Marker vs. Cluster ID Matrix
 # --------------------------------------------------------------------------------
+
+with open(args.markers) as f:
+    gates = json.load(f)
+
+marker_genes = {}
+for item in gates:
+    cell_type = item['cell']
+    gene_list = [gene['gene'] for gene in item['gates']]
+    marker_genes[cell_type] = gene_list
+  
+ov = None
+
+try:
+
+    sc.tl.rank_genes_groups(samples_all, groupby='spatial_cluster', use_raw=False, layer='counts_scvi')
+    ov = sc.tl.marker_gene_overlap(samples_all, marker_genes)
+    
+    fig, ax = plt.subplots(1, 1, figsize=(10,8))
+    sns.heatmap(ov, ax=ax, annot=True)
+    
+    if SAVEFIGS:
+        filename_out = os.path.join(IMGDIR, 'Clusters_integrated_imputed_cellcharter_' + str(n_hops) + 'hops_' + str(n_clusters) + '_clusters_AllSamples_clusters_markermatrix.png')
+        fig.savefig(filename_out, dpi=300)
+        print('Saved: ' + filename_out)
+        filename_out = os.path.join(IMGDIR, 'Clusters_integrated_imputed_cellcharter_' + str(n_hops) + 'hops_' + str(n_clusters) + '_clusters_AllSamples_clusters_markermatrix.svg')
+        fig.savefig(filename_out, dpi=300)
+        print('Saved: ' + filename_out)
+
+except:
+    print("Failure of sc.tl.rank_genes_groups.")
+
+
+
 
 with open(args.markers) as f:
     gates = json.load(f)
@@ -168,6 +203,7 @@ color_cycler = cycler(color=newpalette.colors)
 nRow = 3
 nCol = int(np.ceil(len(Samples)/3))
 fig, axs = plt.subplots(nRow, nCol, figsize=(40,30))
+
 for r in np.arange(len(Samples)):
     ax = axs.reshape(-1)[r]
             
@@ -175,17 +211,20 @@ for r in np.arange(len(Samples)):
     locY = samples_all.obsm['X_spatial'][samples_all.obs['dataset']==Samples[r]][:,1]
     clust = samples_all.obs['spatial_cluster'][samples_all.obs['dataset']==Samples[r]]
 
-    for g in groups:
-        mask = (clust == g)
+    for g in np.arange(len(groups):
+        mask = (clust == groups[g])
         ax.scatter(locX[mask],
                    locY[mask],
                    c=newcolors[g],
-                   label=g,
+                   label=groups[g],
                    cmap=newpalette)
 
     
     ax.set_title(SampleKey[Samples[r]])
-
+    ax.legend(title='Cluster', facecolor='black', bbox_to_anchor=(1.01,0.5), fontsize='xx-large')
+    ax.set_title(SampleKey[Samples[r]])
+    ax.set_aspect('equal')
+    
 for ax in axs.reshape(-1):
     ax.set_xlabel('')
     ax.set_ylabel('')
