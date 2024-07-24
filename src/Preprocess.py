@@ -49,7 +49,7 @@ def read_csv_into_dict(filename, known_columns):
     return result
 
 
-known_columns =['sampleID', 'sampleName', 'AnatomicLocation', 'filename']
+known_columns =['sampleID', 'sampleName', 'Condition', 'AnatomicLocation', 'filename']
 data = read_csv_into_dict(args.worksheet, known_columns)
     
 import pprint
@@ -77,6 +77,7 @@ print("Done loading data")
 r_all =     dict([[sample['sampleID'],sample['data']] for sample in data])
 SampleKey = dict([[sample['sampleID'],sample['sampleName']] for sample in data])
 AnatLoc =    dict([[sample['sampleID'],sample['AnatomicLocation']] for sample in data])
+ConditionKey =    dict([[sample['sampleID'],sample['Condition']] for sample in data])
 
 # --------------------------------------------------------------------------------
 # Concatenation of all datasets into one
@@ -101,8 +102,7 @@ samples_all.uns["spatial"][library_id] = dict()
 ## Sample-level info
 samples_all.uns["SampleKey"] = SampleKey
 samples_all.uns["Anatomic_Location"] = AnatLoc
-
-
+samples_all.uns["ConditionKey"] = ConditionKey
 
 # --------------------------------------------------------------------------------
 # Save concatenated data
