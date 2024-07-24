@@ -4,7 +4,6 @@
 # Jul 2024
 
 
-
 import anndata as ad
 import squidpy as sq
 import scanpy as sc
@@ -22,6 +21,7 @@ parser.add_argument('-o', '--output', type=str, help='Path to output *.h5ad file
 args = parser.parse_args()
 
 FILEPATHBASE = args.basepath
+
 
 # --------------------------------------------------------------------------------
 # Prior to this loading, each *_anndata.h5ad should be annotated with
@@ -49,7 +49,7 @@ def read_csv_into_dict(filename, known_columns):
     return result
 
 
-known_columns =['sampleID', 'sampleName', 'AnatomicLocation', 'filename']
+known_columns =['sampleID', 'sampleName', 'Condition', 'AnatomicLocation', 'filename']
 data = read_csv_into_dict(args.worksheet, known_columns)
     
 import pprint
@@ -77,6 +77,7 @@ print("Done loading data")
 r_all =     dict([[sample['sampleID'],sample['data']] for sample in data])
 SampleKey = dict([[sample['sampleID'],sample['sampleName']] for sample in data])
 AnatLoc =    dict([[sample['sampleID'],sample['AnatomicLocation']] for sample in data])
+ConditionKey =    dict([[sample['sampleID'],sample['Condition']] for sample in data])
 
 # --------------------------------------------------------------------------------
 # Concatenation of all datasets into one
@@ -101,16 +102,11 @@ samples_all.uns["spatial"][library_id] = dict()
 ## Sample-level info
 samples_all.uns["SampleKey"] = SampleKey
 samples_all.uns["Anatomic_Location"] = AnatLoc
-
-
-
+samples_all.uns["ConditionKey"] = ConditionKey
 
 # --------------------------------------------------------------------------------
 # Save concatenated data
 # --------------------------------------------------------------------------------
-Path(os.path.join(FILEPATHBASE, 'calc')).mkdir(parents=True, exist_ok=True)
-out_filename = os.path.join(FILEPATHBASE, 'calc', 'samples_all.h5ad')
-
 if not os.path.exists(os.path.join(FILEPATHBASE, 'calc')):
     os.makedirs(os.path.join(FILEPATHBASE, 'calc'))
 
@@ -118,7 +114,7 @@ if args.output is None:
     out_filename = os.path.join(FILEPATHBASE, 'calc', 'samples_all.h5ad')
 else:
     out_filename = args.output
-
+    
 samples_all.write(out_filename)
 
 print('Saved concatenated data to: ' + out_filename)

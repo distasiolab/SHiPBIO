@@ -1,7 +1,7 @@
-sampleID, sampleName, AnatomicLocation, filename, annotation1, annotation2, ..., annotationN
-S1, Sample1, brain, /path/to/sample1, Hippocampus, Neocortex
-S2, Sample2, brain, /path/to/sample2, Neocortex
-S3, Sample3, brain, /path/to/sample3, Neocortex
-S4, Sample4, spinal_cord, /path/to/sample4, Neocortex
-S5, Sample5, spinal_cord, /path/to/sample5, Neocortex
-S6, Sample6, spinal_cord, /path/to/sample6, Neocortex
+sampleID, sampleName, Condition, AnatomicLocation, filename, annotation1, annotation2, ..., annotationN
+S1, Sample1, Control, brain, /path/to/sample1, Hippocampus, Neocortex
+S2, Sample2, Experimental, brain, /path/to/sample2, Neocortex
+S3, Sample3, Control, brain, /path/to/sample3, Neocortex
+S4, Sample4, Control, spinal_cord, /path/to/sample4, Neocortex
+S5, Sample5, Experimental, spinal_cord, /path/to/sample5, Neocortex
+S6, Sample6, Control, spinal_cord, /path/to/sample6, Neocortex
