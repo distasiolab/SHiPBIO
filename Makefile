@@ -71,7 +71,7 @@ cluster_individual: $(CLUSTER_INDIVIDUAL_RESULT)
 	@echo $(CLUSTER_INDIVIDUAL_RESULT) " exists."
 
 relabel: $(CLUSTER_INDIVIDUAL_RELABELED_RESULT)
-	@echo "Cluster relabeleding complete."
+	@echo "Cluster relabeling completed."
 	@echo $(CLUSTER_INDIVIDUAL_RELABELED_RESULT) " exists."
 
 

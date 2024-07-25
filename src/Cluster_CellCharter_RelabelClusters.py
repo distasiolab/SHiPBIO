@@ -100,7 +100,7 @@ try:
     newcolors[np.where(groups=='RGC')[0][0],:]           = np.array([244, 109, 67, 255])/255
     newcolors[np.where(groups=='Astrocyte')[0][0],:]     = np.array([102, 194, 165, 255])/255
     newcolors[np.where(groups=='Vascular')[0][0],:]      = np.array([94, 79, 162, 255])/255
-    newcolors[np.where(groups=='Amacrine')[0][0],:]      = np.array([230, 245, 152, 255])/255
+    newcolors[np.where(groups=='Amacrine')[0][0],:]      = np.array([213, 62, 79, 255])/255
 except:
     pass
 
