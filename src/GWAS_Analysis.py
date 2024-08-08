@@ -105,7 +105,7 @@ print("Done loading data")
 # --------------------------------------------------------------------------------
 
 samples_all_gwas = samples_all.copy()
-samples_all_gwas.X = samples_all_gwas.layers['counts_scvi']
+samples_all_gwas.X = samples_all_gwas.layers['counts_magic']
 print('QC and filtering')
 sc.pp.calculate_qc_metrics(samples_all_gwas)
 sc.pp.filter_cells(samples_all_gwas, min_counts=100)
