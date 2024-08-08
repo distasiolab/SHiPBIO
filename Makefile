@@ -2,26 +2,39 @@
 ## Environment variables for the project; BASEDIR should contain directories 'src', 'data', and 'calc'
 ##
 ##
-### Mac OS X 
+### Mac OS X
+##
 #BASEDIR := "/Users/mmd47/Google Drive/My Drive/DiStasio Lab/DiStasio Lab Share/02 Analysis/Muscle_IBM/SHiPBIO"
+##
+##
+##
+##
 ########################################################################################################################
 ### Fedora
+##
 #BASEDIR := "/home/mdistasio/YaleGoogleDrive/DiStasio Lab/DiStasio Lab Share/02 Analysis/Muscle_IBM/SHiPBIO"
-SHELL=/bin/bash -i
-BASEDIR := "/home/mdistasio/Workspace/SHiPBIO/"
-CONDA_ENV_CELLCHARTER := "/home/mdistasio/miniconda3/envs/cellcharter-env/"
-CONDA_ENV_PHATE := "/home/mdistasio/miniconda3/envs/phate-env/"
-SAMPLE_WORKSHEET := ${BASEDIR}/sample_worksheet.csv
-GWAS_WORKSHEET := ${BASEDIR}/gwas_worksheet.csv
+#SHELL=/bin/bash -i
+#BASEDIR := "/home/mdistasio/Workspace/SHiPBIO/"
+#CONDA_ENV_CELLCHARTER := "/home/mdistasio/miniconda3/envs/cellcharter-env/"
+#CONDA_ENV_PHATE := "/home/mdistasio/miniconda3/envs/phate-env/"
+#SAMPLE_WORKSHEET := ${BASEDIR}/sample_worksheet.csv
+#GWAS_WORKSHEET := ${BASEDIR}/gwas_worksheet.csv
+##
+##
+##
 ##
 ########################################################################################################################
 ### mccleary.ycrc.yale.edu
-#SHELL=/bin/bash -i
-#BASEDIR := "/home/mmd47/project/retina_curio/SHiPBIO"
-#CONDA_ENV_CELLCHARTER := "/gpfs/gibbs/project/distasio/mmd47/envs/cellcharter-env"
-#CONDA_ENV_PHATE := "/gpfs/gibbs/project/distasio/mmd47/envs/phate"
-#SAMPLE_WORKSHEET := ${BASEDIR}/sample_worksheet.csv
-
+##
+SHELL=/bin/bash -i
+BASEDIR := "/home/mmd47/project/retina_curio/SHiPBIO"
+CONDA_ENV_CELLCHARTER := "/gpfs/gibbs/project/distasio/mmd47/envs/cellcharter-env/"
+CONDA_ENV_PHATE := "/gpfs/gibbs/project/distasio/mmd47/envs/phate/"
+SAMPLE_WORKSHEET := ${BASEDIR}/sample_worksheet.csv
+GWAS_WORKSHEET := ${BASEDIR}/gwas_worksheet.csv
+##
+##
+##
 ##
 ########################################################################################################################
 
@@ -46,7 +59,7 @@ IMPUTATION_RESULT := $(CALC)samples_all_integrated_imputed_cellcharter_clustered
 GWAS_RESULT := $(CALC)samples_all_integrated_imputed_cellcharter_clustered_individual_$(N_HOPS)_hops_$(N_CLUSTERS)_clusters_relabeled_magic_GWAS_SCDRS.h5ad
 
 
-.dummy: preprocess integrate cluster_individual
+#.dummy: preprocess integrate cluster_individual
 
 all: cluster_individual
 
@@ -79,11 +92,13 @@ impute: $(IMPUTATION_RESULT)
 	@echo $(IMPUTATION_RESULT) " exists."
 
 gwas: $(GWAS_RESULT)
+	@echo "Here!!"
 	@echo "GWAS analysis completed."
 	@echo $(GWAS_RESULT) " exists."
 
 
-$(PREPROCESS_RESULT): 
+$(PREPROCESS_RESULT):
+	@echo "$(PREPROCESS_RESULT) does not exist. Building."
 	@echo "Preprocessing..."
 	echo 'conda activate ${CONDA_ENV_CELLCHARTER}; export LD_LIBRARY_PATH=${CONDA_ENV_CELLCHARTER}lib/; python ${SOURCE}Preprocess.py -b ${BASEDIR} -o ${PREPROCESS_RESULT}' -s ${SAMPLE_WORKSHEET} | bash -i
 
@@ -112,8 +127,8 @@ $(IMPUTATION_RESULT): $(CLUSTER_INDIVIDUAL_RELABELED_RESULT)
 	@echo "Imputation (MAGIC)..."
 	echo 'conda activate ${CONDA_ENV_PHATE}; export LD_LIBRARY_PATH=${CONDA_ENV_PHATE}lib/; python ${SOURCE}Impute_MAGIC.py -b ${BASEDIR} -i ${CLUSTER_INDIVIDUAL_RELABELED_RESULT} -o ${IMPUTATION_RESULT}' | bash -i
 
-
 $(GWAS_RESULT): $(IMPUTATION_RESULT)
+	@echo "Here!"
 	@echo "GWAS analysis (SCDRS)..."
 	echo 'conda activate ${CONDA_ENV_CELLCHARTER}; export LD_LIBRARY_PATH=${CONDA_ENV_CELLCHARTER}lib/; python ${SOURCE}GWAS_Analysis.py -b ${BASEDIR} -i ${IMPUTATION_RESULT} -g ${GWAS_WORKSHEET} -o ${GWAS_RESULT}' | bash -i
 
