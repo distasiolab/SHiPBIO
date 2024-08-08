@@ -22,7 +22,6 @@ import argparse
 import re
 import json
 import csv
-import pprint
 
 import seaborn as sns
 from matplotlib import pyplot as plt
@@ -88,9 +87,6 @@ def read_csv_into_dict(filename, known_columns):
 
 known_columns =['Condition', 'filename']
 data = read_csv_into_dict(args.gwas_worksheet, known_columns)
-pp = pprint.PrettyPrinter(indent=4, width=200)
-print("Sample worksheet info from " + args.gwas_worksheet)
-pp.pprint(data)
 
 GWAS_data = {}
 cnt = 1
@@ -109,7 +105,7 @@ print("Done loading data")
 # --------------------------------------------------------------------------------
 
 samples_all_gwas = samples_all.copy()
-samples_all_gwas.X = samples_all_gwas.layers['counts_magic']
+samples_all_gwas.X = samples_all_gwas.layers['counts_scvi']
 print('QC and filtering')
 sc.pp.calculate_qc_metrics(samples_all_gwas)
 sc.pp.filter_cells(samples_all_gwas, min_counts=100)
