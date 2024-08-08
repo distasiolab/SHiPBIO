@@ -66,6 +66,6 @@ if SAVEDATA:
     else:
         out_filename = args.output
 
-    samples_all.write_h5ad(filename_out)
+    samples_all.write_h5ad(out_filename)
     print('Saved ' + out_filename)
 
