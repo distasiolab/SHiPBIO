@@ -10,6 +10,7 @@ import scanpy as sc
 
 import os
 import csv
+import pprint
 
 from pathlib import Path
 import argparse
@@ -51,8 +52,7 @@ def read_csv_into_dict(filename, known_columns):
 
 known_columns =['sampleID', 'sampleName', 'Condition', 'AnatomicLocation', 'filename']
 data = read_csv_into_dict(args.worksheet, known_columns)
-    
-import pprint
+
 pp = pprint.PrettyPrinter(indent=4, width=200)
 print("Sample worksheet info from " + args.worksheet)
 pp.pprint(data)

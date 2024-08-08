@@ -1,0 +1,6 @@
+Condition, filename
+AMD, /home/mdistasio/Workspace/SHiPBIO/data/gwas/AMD_Fritsche-26691988.gs
+MS, /home/mdistasio/Workspace/SHiPBIO/data/gwas/MS_IMSGC-24076602.gs
+Glaucoma, /home/mdistasio/Workspace/SHiPBIO/data/gwas/Glaucoma_GlobalBiobank_36777996_GCST90399726.gs
+Alzheimers, /home/mdistasio/Workspace/SHiPBIO/data/gwas/Alzheimers_35379992-GCST90027158-MONDO_0004975_PMID_35379992.gs
+Schizophrenia, /home/mdistasio/Workspace/SHiPBIO/data/gwas/Schizophrenia_PGC3_SCZ_wave3.core.autosome.public.v3.vcf.gs

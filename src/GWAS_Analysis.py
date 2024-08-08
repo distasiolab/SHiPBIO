@@ -1,3 +1,9 @@
+# GWAS_Analysis.py
+# Part of SHiPBIO
+# Marcello DiStasio
+# July 2024
+##################################################
+
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -11,6 +17,7 @@ import numpy as np
 import pandas as pd
 import os
 from pathlib import Path
+import argparse
 
 import re
 import json
@@ -20,79 +27,78 @@ from matplotlib import pyplot as plt
 from matplotlib.colors import ListedColormap
 from cycler import cycler
 
+parser = argparse.ArgumentParser()
+parser.add_argument('-b', '--basepath', type=str, help='Path to base directory for the project; should contain directories \'data\' and \'calc\'')
+parser.add_argument('-i', '--inputfile', type=str, help='Path to input AnnData *.h5ad file')
+parser.add_argument('-g', '--gwas_worksheet', type=str, default=3, help='Path to *.csv file with list of GWAS datafiles')
+parser.add_argument('-o', '--output', type=str, help='Path to output *.h5ad file to create')
+args = parser.parse_args()
 
 # --------------------------------------------------------------------------------
 # File I/O Setup
 # --------------------------------------------------------------------------------
-
-# OS X Laptop
-# FILEPATHBASE = '/Users/mmd47/Library/CloudStorage/GoogleDrive-mmd47@yale.edu/My Drive/DiStasio Lab/DiStasio Lab Share/'
-
-# Fedora Desktop
-# conda activate cellcharter-env
-#FILEPATHBASE = '/home/mdistasio/YaleGoogleDrive/DiStasio Lab/DiStasio Lab Share/'
-FILEPATHBASE = '/home/mdistasio/Workspace/'
-
-# --------------------------------------------------------------------------------
+FILEPATHBASE = args.basepath
 
 SAVEDATA = True
 SAVEFIGS = True
 if SAVEFIGS:
-    IMGDIR = os.path.join(FILEPATHBASE,'02 Analysis', 'annData_ManualAnnotate', 'img')
+    IMGDIR = os.path.join(FILEPATHBASE, 'img', 'out')
     Path(IMGDIR).mkdir(parents=True, exist_ok=True)
 
 
 # --------------------------------------------------------------------------------
 # Load datasets 
 # --------------------------------------------------------------------------------
-filename_retinas_all_magic = os.path.join(FILEPATHBASE,'02 Analysis', 'annData_ManualAnnotate', 'calc', 'retinas_all_unfiltered_snRNAseq_imputed_GIMVI_MAGIC.h5ad')
-if os.path.isfile(filename_retinas_all_magic):
-    print("Loading Data from: " + filename_retinas_all_magic + ' ...')
-    retinas_all_magic = ad.read_h5ad(filename_retinas_all_magic)
+if args.inputfile is None:
+    filename = os.path.join(FILEPATHBASE, 'calc', 'samples_all_integrated_imputed_magic.h5ad')
 else:
-    filename = os.path.join(FILEPATHBASE,'02 Analysis', 'annData_ManualAnnotate', 'calc', 'retinas_all_unfiltered_snRNAseq_imputed_GIMVI_ClustersLabeled.h5ad')
-    print("Loading Data from: " + filename + ' ...')
-    retinas_all = ad.read_h5ad(filename)
+    filename = filename = args.inputfile
+print("Loading Data from: " + filename + '...')
+samples_all = ad.read_h5ad(filename)
 
-    # Delete duplicate indices
-    retinas_all = retinas_all[~retinas_all.obs.index.duplicated(keep='first')]
-    SampleKey = retinas_all.uns["SampleKey"]
-    Samples = list(retinas_all.obs['dataset'].cat.categories)
-    print('Done')
 
-    # --------------------------------------------------------------------------------
-    ## MAGIC imputation
-    # --------------------------------------------------------------------------------
-    print('Imputation with MAGIC')
-    retinas_all_magic = sc.external.pp.magic(retinas_all, copy=True)
-    retinas_all_magic.obsp = retinas_all.obsp
-    retinas_all_magic.uns = retinas_all.uns
-    print('Done!')
-    
-    if SAVEDATA:
-        # Save
-        filename_out = os.path.join(FILEPATHBASE,'02 Analysis', 'annData_ManualAnnotate', 'calc', 'retinas_all_unfiltered_snRNAseq_imputed_GIMVI_MAGIC.h5ad')
-        retinas_all_magic.write_h5ad(filename_out)
-        print('Saved ' + filename_out)
+# Delete duplicate indices
+samples_all = retinas_all[~retinas_all.obs.index.duplicated(keep='first')]
+SampleKey = retinas_all.uns["SampleKey"]
+Samples = list(retinas_all.obs['dataset'].cat.categories)
+print('Done')
+
         
-
-
 # --------------------------------------------------------------------------------------
 # Load GWAS data 
 # --------------------------------------------------------------------------------------
+def read_csv_into_dict(filename, known_columns):
+    result = []
+    with open(filename, mode='r', newline='\n') as file:
+        reader = csv.DictReader(file, delimiter=',')
+        for row in reader:
+            entry = {}
+            unknown_cols = []
+            for key, value in row.items():
+                if key.strip() in known_columns:
+                    entry[key.strip()] = value.strip()
+                else:
+                    if value is not None:
+                        unknown_cols.append(value.strip())
+            entry['Annotations'] = unknown_cols
+            result.append(entry)
+    return result
 
-GWAS_files = {'AMD'   : os.path.join(FILEPATHBASE,'02 Analysis', 'annData_ManualAnnotate','data', 'gwas', 'AMD_Fritsche-26691988.gs'),
-              'MS'    : os.path.join(FILEPATHBASE,'02 Analysis', 'annData_ManualAnnotate','data', 'gwas', 'MS_IMSGC-24076602.gs'),
-              'Glaucoma'   : os.path.join(FILEPATHBASE,'02 Analysis', 'annData_ManualAnnotate','data', 'gwas', 'Glaucoma_GlobalBiobank_36777996_GCST90399726.gs'),
-              'Alzheimers' : os.path.join(FILEPATHBASE,'02 Analysis', 'annData_ManualAnnotate','data', 'gwas', 'Alzheimers_35379992-GCST90027158-MONDO_0004975_PMID_35379992.gs')
-             }
+known_columns =['Condition', 'filename']
+data = read_csv_into_dict(args.gwas_worksheet, known_columns)
+pp = pprint.PrettyPrinter(indent=4, width=200)
+print("Sample worksheet info from " + args.worksheet)
+pp.pprint(data)
 
 GWAS_data = {}
-for disease in GWAS_files.keys():
-    filename = GWAS_files[disease]
-    print('Loading GWAS data from' + filename + '...')
-    GWAS_data[disease] = scdrs.util.load_gs(filename, 'hsapiens', 'hsapiens', retinas_all_magic.var_names.tolist())
-    print('Done.')
+cnt = 1
+for c in data:
+    condition = c['Condition']
+    filename = c['filename']
+    print('Loading GWAS data from' + filename + '(' + str(cnt) + '/' + str(len(data)) + ')...')
+    GWAS_data[condition] = scdrs.util.load_gs(filename, 'hsapiens', 'hsapiens', samples_all.var_names.tolist())
+    cnt=cnt+1
+print("Done loading data")
 
 
 # --------------------------------------------------------------------------------
@@ -100,84 +106,88 @@ for disease in GWAS_files.keys():
 # https://www.nature.com/articles/s41588-022-01167-z
 # --------------------------------------------------------------------------------
 
-#retinas_all_gwas = retinas_all.copy()
-retinas_all_gwas = retinas_all_magic.copy()
+samples_all_gwas = samples_all.copy()
+samples_all_gwas.X = samples_all_gwas.layers['counts_magic']
 print('QC and filtering')
-sc.pp.calculate_qc_metrics(retinas_all_gwas)
-sc.pp.filter_cells(retinas_all_gwas, min_counts=100)
-sc.pp.filter_genes(retinas_all_gwas, min_cells=10)
+sc.pp.calculate_qc_metrics(samples_all_gwas)
+sc.pp.filter_cells(samples_all_gwas, min_counts=100)
+sc.pp.filter_genes(samples_all_gwas, min_cells=10)
 print('Normalization...')
-sc.pp.normalize_total(retinas_all_gwas, target_sum=1e4)
-sc.pp.log1p(retinas_all_gwas)
+sc.pp.normalize_total(samples_all_gwas, target_sum=1e4)
+sc.pp.log1p(samples_all_gwas)
 print('Done!')
 
-df_cov = pd.DataFrame(index=retinas_all_gwas.obs.index)
+df_cov = pd.DataFrame(index=samples_all_gwas.obs.index)
 df_cov["const"] = 1
-df_cov["n_counts"] = retinas_all_gwas.obs["n_counts"]
+df_cov["n_counts"] = samples_all_gwas.obs["n_counts"]
 
 print('scDRS preproccessing')
-scdrs.preprocess(retinas_all_gwas, adj_prop='spatial_cluster_label', cov=df_cov)
+scdrs.preprocess(samples_all_gwas, adj_prop='spatial_cluster_label', cov=df_cov)
 print('Done!')
 
 for disease in GWAS_files.keys():
     d = disease
-    df = scdrs.score_cell(retinas_all_gwas, GWAS_data[d][d][0], GWAS_data[d][d][1])
+    df = scdrs.score_cell(samples_all_gwas, GWAS_data[d][d][0], GWAS_data[d][d][1])
         
-    retinas_all_gwas.uns['scdrs_' + disease + '_celltypes'] = scdrs.method.downstream_group_analysis(retinas_all_gwas, df, group_cols=['spatial_cluster_label'])
-    print(retinas_all_gwas.uns['scdrs_' + disease + '_celltypes'])
+    samples_all_gwas.uns['scdrs_' + disease + '_celltypes'] = scdrs.method.downstream_group_analysis(samples_all_gwas, df, group_cols=['spatial_cluster_label'])
+    print(samples_all_gwas.uns['scdrs_' + disease + '_celltypes'])
 
     df.columns = ['scdrs_' + disease + '_' + c for c in df.columns]
-    retinas_all_gwas.obs = pd.concat([retinas_all_gwas.obs, df], axis=1)
-    
-    if SAVEDATA:
-        # Save
-        filename_out = os.path.join(FILEPATHBASE,'02 Analysis', 'annData_ManualAnnotate', 'calc', 'retinas_all_unfiltered_snRNAseq_imputed_GIMVI_ClustersLabeled_scDRS_GWAS_scores.h5ad')
-        retinas_all_gwas.write_h5ad(filename_out)
-        print('Saved ' + filename_out)    
-print('Done!')
+    samples_all_gwas.obs = pd.concat([samples_all_gwas.obs, df], axis=1)
 
+if SAVEDATA:
+    # Save
+    if args.output is None:
+        out_filename = os.path.join(FILEPATHBASE, 'calc', 'samples_all_integrated_imputed_magic_GWAS_SCDRS.h5ad') 
+    else:
+        out_filename = args.output
 
+    samples_all.write_h5ad(filename_out)
+    print('Saved ' + out_filename)
 
 
 # ----------------------------------------------------------------------------------------------
 # 3d Plots
 # ----------------------------------------------------------------------------------------------
-print('Generating Plots')
+print('Generating Plots...')
+
+groups = np.array(sorted(np.unique(samples_all.obs['spatial_cluster_label'])))
+nGroupsToColor = len(groups) 
+spect = plt.cm.gist_rainbow.resampled(nGroupsToColor)
+newcolors = spect(np.linspace(0,1,nGroupsToColor))
+try:
+    newcolors[np.where(groups=='Other')[0][0],:] = [0.4,0.4,0.4,1] # Make 'Other' gray
+    newcolors[np.where(groups=='Photoreceptor')[0][0],:] = np.array([50, 136, 189, 255])/255
+    newcolors[np.where(groups=='RPE')[0][0],:]           = np.array([254, 224, 139, 255])/255
+    newcolors[np.where(groups=='MullerGlia')[0][0],:]    = np.array([158, 1, 66, 255])/255
+    newcolors[np.where(groups=='RGC')[0][0],:]           = np.array([244, 109, 67, 255])/255
+    newcolors[np.where(groups=='Astrocyte')[0][0],:]     = np.array([102, 194, 165, 255])/255
+    newcolors[np.where(groups=='Vascular')[0][0],:]      = np.array([94, 79, 162, 255])/255
+    newcolors[np.where(groups=='Amacrine')[0][0],:]      = np.array([213, 62, 79, 255])/255
+except:
+    pass
+
+newpalette = ListedColormap(newcolors)
+color_cycler = cycler(color=newpalette.colors)
+newcmap = dict(map(lambda i,j : (i,j) , groups, newcolors))
+
 for disease in GWAS_files.keys():
     for r in np.arange(len(Samples)):
 
-        retina = retinas_all[retinas_all.obs['dataset']==Samples[r]]
-
-
-        # Selection of groups to plot
-        groups = np.array(['RGC',
-                           'Astrocyte',
-                           'Muller glia',
-                           'Photoreceptor',
-                           'RPE',
-                           'Vascular'])
-        #groups = np.array(retinas_all.obs['spatial_cluster_label'].cat.categories.tolist())
-        nGroupsToColor = len(groups)
-        spect = plt.cm.gist_rainbow.resampled(nGroupsToColor)
-        newcolors = spect(np.linspace(0,1,nGroupsToColor))
-        newcolors = np.flipud(newcolors * np.array([0.8, 0.8, 0.8, 1]))
-        newcmap = dict(map(lambda i,j : (i,j) , groups, newcolors))
-
-
-
+        sample = samples_all[samples_all.obs['dataset']==Samples[r]]
 
         fig, ax = plt.subplots(1, 1, figsize=(60,30), subplot_kw=dict(projection='3d'))
 
-        x = np.array(retina.obsm['X_spatial'][:,0])
-        y = np.array(retina.obsm['X_spatial'][:,1])
+        x = np.array(sample.obsm['X_spatial'][:,0])
+        y = np.array(sample.obsm['X_spatial'][:,1])
         z0 = np.zeros_like(x)
-        z1 = np.array(retina.obs['scdrs_' + disease + '_raw_score'])
+        z1 = np.array(sample.obs['scdrs_' + disease + '_raw_score'])
         threshold = np.percentile(z1, 95)
         z1[z1<threshold]=0
 
         z1 = 0.1*(z1-np.min(z1))/(np.max(z1)-np.min(z1))
 
-        c = list(map(newcmap.get, retina.obs['spatial_cluster_label'].tolist()))
+        c = list(map(newcmap.get, sample.obs['spatial_cluster_label'].tolist()))
         graycolor = np.array([0.4, 0.4, 0.4, 0.2])
         c = [graycolor if v is None else v for v in c]
 
@@ -206,7 +216,7 @@ for disease in GWAS_files.keys():
 
         if SAVEFIGS:
 
-            Path(os.path.join(IMGDIR,'GWAS_3D_raw')).mkdir(parents=True, exist_ok=True)
+            Path(os.path.join(IMGDIR,'GWAS_3D')).mkdir(parents=True, exist_ok=True)
             filename_base = os.path.join(IMGDIR, 'GWAS_3D', 'GIMVI_-_CellCharter_Clusters_-_scDRS_Scores_3D_-_' + disease + '_-_Sample_' + SampleKey[Samples[r]])
 
             filename_out = filename_base + '.png'

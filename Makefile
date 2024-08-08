@@ -10,6 +10,7 @@
 SHELL=/bin/bash -i
 BASEDIR := "/home/mdistasio/Workspace/SHiPBIO/"
 CONDA_ENV_CELLCHARTER := "/home/mdistasio/miniconda3/envs/cellcharter-env/"
+CONDA_ENV_PHATE := "/home/mdistasio/miniconda3/envs/phate-env/"
 SAMPLE_WORKSHEET := ${BASEDIR}/sample_worksheet.csv
 ##
 ########################################################################################################################
@@ -37,10 +38,12 @@ CLUSTER_LABELS_FILE := $(DATA)samples_all_integrated_imputed_cellcharter_3hops_2
 PREPROCESS_RESULT := $(CALC)samples_all.h5ad
 BATCH_INTEGRATE_RESULT := $(CALC)samples_all_integrated_harmony_unfiltered.h5ad
 SINGLECELL_INTEGRATE_RESULT := $(CALC)samples_all_integrated_snRNAseq_imputed.h5ad
-IMPUTATION_RESULT := $(CALC)samples_all_integrated_imputed.h5ad
 CLUSTER_RESULT := $(CALC)samples_all_integrated_imputed_cellcharter_clustered.h5ad
 CLUSTER_INDIVIDUAL_RESULT := $(CALC)samples_all_integrated_imputed_cellcharter_clustered_individual_$(N_HOPS)_hops_$(N_CLUSTERS)_clusters.h5ad
 CLUSTER_INDIVIDUAL_RELABELED_RESULT := $(CALC)samples_all_integrated_imputed_cellcharter_clustered_individual_$(N_HOPS)_hops_$(N_CLUSTERS)_clusters_relabeled.h5ad
+IMPUTATION_RESULT := $(CALC)samples_all_integrated_imputed_cellcharter_clustered_individual_$(N_HOPS)_hops_$(N_CLUSTERS)_clusters_relabeled_magic.h5ad
+GWAS_RESULT := := $(CALC)samples_all_integrated_imputed_cellcharter_clustered_individual_$(N_HOPS)_hops_$(N_CLUSTERS)_clusters_relabeled_magic_GWAS_SCDRS.h5ad
+
 
 .dummy: preprocess integrate cluster_individual
 
@@ -58,10 +61,6 @@ singlecell_integrate: $(SINGLECELL_INTEGRATE_RESULT)
 	@echo "Single cell integration completed."
 	@echo $(SINGLECELL_INTEGRATE_RESULT) " exists."
 
-impute: $(IMPUTATION_RESULT)
-	@echo "Imputation completed."
-	@echo $(IMPUTATION_RESULT) " exists."
-
 cluster: $(CLUSTER_RESULT)
 	@echo "Clustering completed."
 	@echo $(CLUSTER_RESULT) " exists."
@@ -74,6 +73,13 @@ relabel: $(CLUSTER_INDIVIDUAL_RELABELED_RESULT)
 	@echo "Cluster relabeling completed."
 	@echo $(CLUSTER_INDIVIDUAL_RELABELED_RESULT) " exists."
 
+impute: $(IMPUTATION_RESULT)
+	@echo "Imputation completed."
+	@echo $(IMPUTATION_RESULT) " exists."
+
+gwas: $(GWAS_RESULT)
+	@echo "GWAS analysis completed."
+	@echo $(GWAS_RESULT) " exists."
 
 
 $(PREPROCESS_RESULT): 
@@ -88,9 +94,6 @@ $(SINGLECELL_INTEGRATE_RESULT): $(BATCH_INTEGRATE_RESULT) $(SINGLE_CELL_DATA)
 	@echo "Single cell integration..."
 	echo 'conda activate ${CONDA_ENV_CELLCHARTER}; export LD_LIBRARY_PATH=${CONDA_ENV_CELLCHARTER}lib/; python ${SOURCE}Integrate_scRNAseq_GIMVI.py -b ${BASEDIR} -c ${SINGLE_CELL_DATA} -o ${SINGLECELL_INTEGRATE_RESULT}' | bash -i 
 
-$(IMPUTATION_RESULT): $(SINGLECELL_INTEGRATE_RESULT)
-	@echo "Imputation (MAGIC)..."
-	echo 'conda activate ${CONDA_ENV_PHATE}; export LD_LIBRARY_PATH=${CONDA_ENV_PHATE}lib/; python ${SOURCE}Impute_MAGIC.py -b ${BASEDIR} -o ${IMPUTATION_RESULT}' | bash -i
 
 $(CLUSTER_RESULT): $(SINGLECELL_INTEGRATE_RESULT)
 	@echo "Clustering..."
@@ -103,6 +106,15 @@ $(CLUSTER_INDIVIDUAL_RESULT): $(SINGLECELL_INTEGRATE_RESULT)
 $(CLUSTER_INDIVIDUAL_RELABELED_RESULT): $(CLUSTER_INDIVIDUAL_RESULT) $(CLUSTER_LABELS_FILE)
 	@echo "Relabeling clusters"
 	echo 'conda activate ${CONDA_ENV_CELLCHARTER}; export LD_LIBRARY_PATH=${CONDA_ENV_CELLCHARTER}lib/; export PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:32; python ${SOURCE}Cluster_CellCharter_RelabelClusters.py -b ${BASEDIR} -i ${CLUSTER_INDIVIDUAL_RESULT} -c ${CLUSTER_LABELS_FILE} -o ${CLUSTER_INDIVIDUAL_RELABELED_RESULT}' | bash -i
+
+$(IMPUTATION_RESULT): $(CLUSTER_INDIVIDUAL_RELABELED_RESULT)
+	@echo "Imputation (MAGIC)..."
+	echo 'conda activate ${CONDA_ENV_PHATE}; export LD_LIBRARY_PATH=${CONDA_ENV_PHATE}lib/; python ${SOURCE}Impute_MAGIC.py -b ${BASEDIR} -i ${CLUSTER_INDIVIDUAL_RELABELED_RESULT} -o ${IMPUTATION_RESULT}' | bash -i
+
+
+$(GWAS_RESULT): $(IMPUTATION_RESULT)
+	@echo "GWAS analysis (SCDRS)..."
+	echo 'conda activate ${CONDA_ENV_CELLCHARTER}; export LD_LIBRARY_PATH=${CONDA_ENV_CELLCHARTER}lib/; python ${SOURCE}GWAS_Analysis.py -b ${BASEDIR} -i ${IMPUTATION_RESULT} -g ${GWAS_WORKSHEET} -o ${GWAS_RESULT}' | bash -i
 
 clean:
 	rm -rf calc
