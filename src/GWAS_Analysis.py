@@ -89,7 +89,7 @@ def read_csv_into_dict(filename, known_columns):
 known_columns =['Condition', 'filename']
 data = read_csv_into_dict(args.gwas_worksheet, known_columns)
 pp = pprint.PrettyPrinter(indent=4, width=200)
-print("Sample worksheet info from " + args.worksheet)
+print("Sample worksheet info from " + args.gwas_worksheet)
 pp.pprint(data)
 
 GWAS_data = {}
