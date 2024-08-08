@@ -21,6 +21,7 @@ import argparse
 
 import re
 import json
+import csv
 
 import seaborn as sns
 from matplotlib import pyplot as plt
@@ -58,9 +59,9 @@ samples_all = ad.read_h5ad(filename)
 
 
 # Delete duplicate indices
-samples_all = retinas_all[~retinas_all.obs.index.duplicated(keep='first')]
-SampleKey = retinas_all.uns["SampleKey"]
-Samples = list(retinas_all.obs['dataset'].cat.categories)
+samples_all = samples_all[~samples_all.obs.index.duplicated(keep='first')]
+SampleKey = samples_all.uns["SampleKey"]
+Samples = list(samples_all.obs['dataset'].cat.categories)
 print('Done')
 
         

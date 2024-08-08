@@ -12,6 +12,7 @@ BASEDIR := "/home/mdistasio/Workspace/SHiPBIO/"
 CONDA_ENV_CELLCHARTER := "/home/mdistasio/miniconda3/envs/cellcharter-env/"
 CONDA_ENV_PHATE := "/home/mdistasio/miniconda3/envs/phate-env/"
 SAMPLE_WORKSHEET := ${BASEDIR}/sample_worksheet.csv
+GWAS_WORKSHEET := ${BASEDIR}/gwas_worksheet.csv
 ##
 ########################################################################################################################
 ### mccleary.ycrc.yale.edu
