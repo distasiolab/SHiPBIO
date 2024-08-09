@@ -113,6 +113,8 @@ sc.pp.filter_genes(samples_all_gwas, min_cells=10)
 print('Normalization...')
 sc.pp.normalize_total(samples_all_gwas, target_sum=1e4)
 sc.pp.log1p(samples_all_gwas)
+print('Computing nearest neighbors distance matrix')
+sc.pp.neighbors(samples_all_gwas, use_rep='X', n_neighbors=32)
 print('Done!')
 
 df_cov = pd.DataFrame(index=samples_all_gwas.obs.index)
@@ -140,7 +142,7 @@ if SAVEDATA:
     else:
         out_filename = args.output
 
-    samples_all.write_h5ad(filename_out)
+    samples_all.write_h5ad(out_filename)
     print('Saved ' + out_filename)
 
 
@@ -169,7 +171,7 @@ newpalette = ListedColormap(newcolors)
 color_cycler = cycler(color=newpalette.colors)
 newcmap = dict(map(lambda i,j : (i,j) , groups, newcolors))
 
-for disease in GWAS_files.keys():
+for disease in GWAS_data.keys():
     for r in np.arange(len(Samples)):
 
         sample = samples_all[samples_all.obs['dataset']==Samples[r]]
