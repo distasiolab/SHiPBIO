@@ -105,7 +105,7 @@ print("Done loading data")
 # --------------------------------------------------------------------------------
 
 samples_all_gwas = samples_all.copy()
-samples_all_gwas.X = samples_all_gwas.layers['counts_magic']
+samples_all_gwas.X = samples_all_gwas.layers['counts_magic']   
 print('QC and filtering')
 sc.pp.calculate_qc_metrics(samples_all_gwas)
 sc.pp.filter_cells(samples_all_gwas, min_counts=100)
@@ -136,13 +136,18 @@ for disease in GWAS_data.keys():
     samples_all_gwas.obs = pd.concat([samples_all_gwas.obs, df], axis=1)
 
 if SAVEDATA:
+
+    # Delete the MAGIC imputation to save space
+    samples_all_gwas.X = samples_all_gwas.layers['counts']
+    del samples_all_gwas.layers['counts_magic']
+    
     # Save
     if args.output is None:
         out_filename = os.path.join(FILEPATHBASE, 'calc', 'samples_all_integrated_imputed_magic_GWAS_SCDRS.h5ad') 
     else:
         out_filename = args.output
 
-    samples_all.write_h5ad(out_filename)
+    samples_all_gwas.write_h5ad(out_filename)
     print('Saved ' + out_filename)
 
 
