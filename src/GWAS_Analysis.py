@@ -123,7 +123,7 @@ print('scDRS preproccessing')
 scdrs.preprocess(samples_all_gwas, adj_prop='spatial_cluster_label', cov=df_cov)
 print('Done!')
 
-for disease in GWAS_files.keys():
+for disease in GWAS_data.keys():
     d = disease
     df = scdrs.score_cell(samples_all_gwas, GWAS_data[d][d][0], GWAS_data[d][d][1])
         
