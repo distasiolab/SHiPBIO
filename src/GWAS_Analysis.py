@@ -105,7 +105,11 @@ print("Done loading data")
 # --------------------------------------------------------------------------------
 
 samples_all_gwas = samples_all.copy()
-samples_all_gwas.X = samples_all_gwas.layers['counts_magic']   
+samples_all_gwas.raw = samples_all_gwas.layers['counts_scvi']
+external.pp.magic(samples_all)
+#samples_all_gwas.obsp = samples_all.obsp
+#samples_all_gwas.uns = samples_all.uns
+
 print('QC and filtering')
 sc.pp.calculate_qc_metrics(samples_all_gwas)
 sc.pp.filter_cells(samples_all_gwas, min_counts=100)
@@ -139,8 +143,11 @@ if SAVEDATA:
 
     # Delete the MAGIC imputation to save space
     samples_all_gwas.X = samples_all_gwas.layers['counts']
-    del samples_all_gwas.layers['counts_magic']
-    
+    try:
+        del samples_all_gwas.obsm['X_magic']
+    except:
+        pass
+        
     # Save
     if args.output is None:
         out_filename = os.path.join(FILEPATHBASE, 'calc', 'samples_all_integrated_imputed_magic_GWAS_SCDRS.h5ad') 
@@ -179,7 +186,7 @@ newcmap = dict(map(lambda i,j : (i,j) , groups, newcolors))
 for disease in GWAS_data.keys():
     for r in np.arange(len(Samples)):
 
-        sample = samples_all[samples_all.obs['dataset']==Samples[r]]
+        sample = samples_all_gwas[samples_all_gwas.obs['dataset']==Samples[r]]
 
         fig, ax = plt.subplots(1, 1, figsize=(60,30), subplot_kw=dict(projection='3d'))
 
@@ -187,48 +194,50 @@ for disease in GWAS_data.keys():
         y = np.array(sample.obsm['X_spatial'][:,1])
         z0 = np.zeros_like(x)
         z1 = np.array(sample.obs['scdrs_' + disease + '_raw_score'])
-        threshold = np.percentile(z1, 95)
-        z1[z1<threshold]=0
+        
+        if (len(z1) > 0):
+            threshold = np.percentile(z1, 95)
+            z1[z1<threshold]=0
 
-        z1 = 0.1*(z1-np.min(z1))/(np.max(z1)-np.min(z1))
+            z1 = 0.1*(z1-np.min(z1))/(np.max(z1)-np.min(z1))
 
-        c = list(map(newcmap.get, sample.obs['spatial_cluster_label'].tolist()))
-        graycolor = np.array([0.4, 0.4, 0.4, 0.2])
-        c = [graycolor if v is None else v for v in c]
+            c = list(map(newcmap.get, sample.obs['spatial_cluster_label'].tolist()))
+            graycolor = np.array([0.4, 0.4, 0.4, 0.2])
+            c = [graycolor if v is None else v for v in c]
 
-        ax.bar3d(x, y, z0, 30, 30, z1, color=c, shade=True)
-        ax.set_aspect('equalxy')
-        ax.set_zlim(0,1)
-        ax.view_init(elev=60, azim=120)
-        ax.axis('off')
-        ax.set_facecolor('k')
+            ax.bar3d(x, y, z0, 30, 30, z1, color=c, shade=True)
+            ax.set_aspect('equalxy')
+            ax.set_zlim(0,1)
+            ax.view_init(elev=60, azim=120)
+            ax.axis('off')
+            ax.set_facecolor('k')
 
-        # Create custom legend entries with colors and labels
-        legend_colors = newcolors
-        legend_labels = [g + ' enriched' for g in groups]
+            # Create custom legend entries with colors and labels
+            legend_colors = newcolors
+            legend_labels = [g + ' enriched' for g in groups]
+            
+            # Add the custom legend
+            from matplotlib.lines import Line2D
+            
+            legend_patches = [Line2D([0], [0], color='w', marker='s', markersize=10, markerfacecolor=color) for color in legend_colors]
+            
+            # Add the custom legend
+            ax.legend(legend_patches, legend_labels, facecolor='k', fontsize="18", loc = "lower right")
+            
+            for text in fig.findobj(match=lambda x: isinstance(x, plt.Text)):
+                if hasattr(text, 'set_color'):
+                    text.set_color('white')
+                    
+            if SAVEFIGS:
 
-        # Add the custom legend
-        from matplotlib.lines import Line2D
-
-        legend_patches = [Line2D([0], [0], color='w', marker='s', markersize=10, markerfacecolor=color) for color in legend_colors]
-
-        # Add the custom legend
-        ax.legend(legend_patches, legend_labels, facecolor='k', fontsize="18", loc = "lower right")
-
-        for text in fig.findobj(match=lambda x: isinstance(x, plt.Text)):
-            if hasattr(text, 'set_color'):
-                text.set_color('white')
-
-        if SAVEFIGS:
-
-            Path(os.path.join(IMGDIR,'GWAS_3D')).mkdir(parents=True, exist_ok=True)
-            filename_base = os.path.join(IMGDIR, 'GWAS_3D', 'GIMVI_-_CellCharter_Clusters_-_scDRS_Scores_3D_-_' + disease + '_-_Sample_' + SampleKey[Samples[r]])
-
-            filename_out = filename_base + '.png'
-            fig.savefig(filename_out, dpi=300)
-            print('Saved: ' + filename_out)
-            filename_out = filename_base + '.svg'
-            fig.savefig(filename_out, dpi=300)
-            print('Saved: ' + filename_out)
+                Path(os.path.join(IMGDIR,'GWAS_3D')).mkdir(parents=True, exist_ok=True)
+                filename_base = os.path.join(IMGDIR, 'GWAS_3D', 'GIMVI_-_CellCharter_Clusters_-_scDRS_Scores_3D_-_' + disease + '_-_Sample_' + SampleKey[Samples[r]])
+                
+                filename_out = filename_base + '.png'
+                fig.savefig(filename_out, dpi=300)
+                print('Saved: ' + filename_out)
+                filename_out = filename_base + '.svg'
+                fig.savefig(filename_out, dpi=300)
+                print('Saved: ' + filename_out)
 
 print('Done')
