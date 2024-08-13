@@ -144,6 +144,10 @@ if SAVEDATA:
     # Delete the MAGIC imputation to save space
     samples_all_gwas.X = samples_all_gwas.layers['counts']
     try:
+        del samples_all.layers['counts_magic']
+    except:
+        pass
+    try:
         del samples_all_gwas.obsm['X_magic']
     except:
         pass
