@@ -105,8 +105,8 @@ print("Done loading data")
 # --------------------------------------------------------------------------------
 
 samples_all_gwas = samples_all.copy()
-samples_all_gwas.raw = samples_all_gwas.layers['counts_scvi']
-external.pp.magic(samples_all)
+#samples_all_gwas.raw = samples_all_gwas.layers['counts_scvi']
+sc.external.pp.magic(samples_all_gwas)
 #samples_all_gwas.obsp = samples_all.obsp
 #samples_all_gwas.uns = samples_all.uns
 
