@@ -12,7 +12,7 @@
 # NOTE: Load miniconda module if you need the job to have access to a particular conda environment
 module load miniconda
 
-make gwas
+make -f /home/mmd47/project/retina_curio/SHiPBIO/local/Makefile gwas
 
 
 

@@ -93,7 +93,7 @@ cnt = 1
 for c in data:
     condition = c['Condition']
     filename = c['filename']
-    print('Loading GWAS data from' + filename + '(' + str(cnt) + '/' + str(len(data)) + ')...')
+    print('Loading GWAS data from ' + filename + ' (' + str(cnt) + '/' + str(len(data)) + ')...')
     GWAS_data[condition] = scdrs.util.load_gs(filename, 'hsapiens', 'hsapiens', samples_all.var_names.tolist())
     cnt=cnt+1
 print("Done loading data")
