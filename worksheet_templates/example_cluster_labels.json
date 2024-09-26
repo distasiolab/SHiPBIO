@@ -1,0 +1,194 @@
+[
+    {
+        "SampleName": "A22_3781",
+        "cluster_labels": [
+            {"0": "Astrocyte"},
+            {"1": "Photoreceptor"},
+            {"2": "Photoreceptor"},
+            {"3": "Other"},
+            {"4": "RPE"},
+	    {"5": "Other"},
+	    {"6": "MullerGlia"},
+	    {"7": "Photoreceptor"},
+	    {"8": "Other"},
+	    {"9": "Other"},
+	    {"10": "Astrocyte"}
+        ]
+    },
+    {
+        "SampleName": "A23-914",
+        "cluster_labels": [
+            {"0": "Other"},
+            {"1": "Other"},
+            {"2": "Other"},
+            {"3": "Bipolar"},
+            {"4": "Photoreceptor"},
+	    {"5": "Photoreceptor"},
+	    {"6": "Vascular"},
+	    {"7": "RGC"},
+	    {"8": "Other"},
+	    {"9": "RPE"},
+	    {"10": "Other"}
+        ]
+    },
+    {
+        "SampleName": "A23-1277",
+        "cluster_labels": [
+	    {"0": "Bipolar"},
+            {"1": "Vascular"},
+            {"2": "RPE"},
+            {"3": "Photoreceptor"},
+            {"4": "Photoreceptor"},
+	    {"5": "Other"},
+	    {"6": "MullerGlia"},
+	    {"7": "Other"},
+	    {"8": "MullerGlia"},
+	    {"9": "Other"},
+	    {"10": "Vascular"}
+        ]
+    },
+    {
+        "SampleName": "A23-1279",
+        "cluster_labels": [
+            {"0": "Other"},
+            {"1": "Other"},
+            {"2": "Other"},
+            {"3": "Other"},
+            {"4": "Other"},
+	    {"5": "Other"},
+	    {"6": "Other"},
+	    {"7": "Other"},
+	    {"8": "Other"},
+	    {"9": "Other"},
+	    {"10": "Other"}
+        ]
+    },
+    {
+        "SampleName": "A23-1422",
+        "cluster_labels": [
+            {"0": "Vascular"},
+            {"1": "RPE"},
+            {"2": "Astrocyte"},
+            {"3": "Photoreceptor"},
+            {"4": "Other"},
+	    {"5": "Photoreceptor"},
+	    {"6": "Other"},
+	    {"7": "Vascular"},
+	    {"8": "Photoreceptor"},
+	    {"9": "Photoreceptor"},
+	    {"10": "Other"}
+        ]
+    },
+    {
+        "SampleName": "A23-1425-M1",
+        "cluster_labels": [
+            {"0": "Other"},
+            {"1": "Photoreceptor"},
+            {"2": "Other"},
+            {"3": "Vascular"},
+            {"4": "RGC"},
+	    {"5": "Other"},
+	    {"6": "Vascular"},
+	    {"7": "RGC"},
+	    {"8": "RPE"},
+	    {"9": "Other"},
+	    {"10": "Photoreceptor"}
+        ]
+    },
+    {
+        "SampleName": "A23-1152_OD",
+        "cluster_labels": [
+	    {"0": "RPE"},
+            {"1": "MullerGlia"},
+            {"2": "Photoreceptor"},
+            {"3": "Photoreceptor"},
+            {"4": "RGC"},
+	    {"5": "Vascular"},
+	    {"6": "Vascular"},
+	    {"7": "Other"},
+	    {"8": "MullerGlia"},
+	    {"9": "Other"},
+	    {"10": "Photoreceptor"}
+        ]
+    },
+    {
+        "SampleName": "A23-1279_P",
+        "cluster_labels": [
+            {"0": "Other"},
+            {"1": "Photoreceptor"},
+            {"2": "Other"},
+            {"3": "Vascular"},
+            {"4": "Photoreceptor"},
+	    {"5": "Other"},
+	    {"6": "Other"},
+	    {"7": "Other"},
+	    {"8": "Other"},
+	    {"9": "RGC"},
+	    {"10": "Astrocyte"}
+        ]
+    },
+    {
+        "SampleName": "A23-1341_P",
+        "cluster_labels": [
+            {"0": "Astrocyte"},
+            {"1": "Other"},
+            {"2": "Other"},
+            {"3": "Other"},
+            {"4": "Vascular"},
+	    {"5": "RPE"},
+	    {"6": "Other"},
+	    {"7": "Astrocyte"},
+	    {"8": "Other"},
+	    {"9": "Astrocyte"},
+	    {"10": "Other"}
+        ]
+    },
+    {
+        "SampleName": "A23-1422_P",
+        "cluster_labels": [
+            {"0": "Photoreceptor"},
+            {"1": "RGC"},
+            {"2": "Other"},
+            {"3": "RGC"},
+            {"4": "Astrocyte"},
+	    {"5": "Vascular"},
+	    {"6": "RPE"},
+	    {"7": "RPE"},
+	    {"8": "Vascular"},
+	    {"9": "Photoreceptor"},
+	    {"10": "Vascular"}
+        ]
+    },
+    {
+        "SampleName": "A23-1425-3_P",
+        "cluster_labels": [
+            {"0": "Photoreceptor"},
+            {"1": "RPE"},
+            {"2": "Photoreceptor"},
+            {"3": "Photoreceptor"},
+            {"4": "Photoreceptor"},
+	    {"5": "RPE"},
+	    {"6": "Other"},
+	    {"7": "Astrocyte"},
+	    {"8": "Photoreceptor"},
+	    {"9": "Vascular"},
+	    {"10": "MullerGlia"}
+        ]
+    },
+    {
+        "SampleName": "YA24-5",
+        "cluster_labels": [
+            {"0": "Other"},
+            {"1": "RGC"},
+            {"2": "Photoreceptor"},
+            {"3": "Other"},
+            {"4": "MullerGlia"},
+	    {"5": "RGC"},
+	    {"6": "Photoreceptor"},
+	    {"7": "Other"},
+	    {"8": "Other"},
+	    {"9": "Other"},
+	    {"10": "RPE"}
+        ]
+    }
+]

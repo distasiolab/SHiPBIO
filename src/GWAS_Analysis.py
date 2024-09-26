@@ -81,7 +81,6 @@ def read_csv_into_dict(filename, known_columns):
                 else:
                     if value is not None:
                         unknown_cols.append(value.strip())
-            entry['Annotations'] = unknown_cols
             result.append(entry)
     return result
 
