@@ -45,6 +45,8 @@ DATA = ./data/
 N_CLUSTERS ?=23
 N_HOPS ?=3
 
+N_SUBCLUSTERS ?=6
+
 SINGLE_CELL_DATA := $(DATA)retina_sn_combined.h5ad
 MARKER_GENE_FILE := $(DATA)retinal_celltype_gates.json
 CLUSTER_LABELS_FILE := $(DATA)samples_all_integrated_imputed_cellcharter_3hops_23_clusters_individual_clusterlabels.json
@@ -55,6 +57,7 @@ SINGLECELL_INTEGRATE_RESULT := $(CALC)samples_all_integrated_snRNAseq_imputed.h5
 CLUSTER_RESULT := $(CALC)samples_all_integrated_imputed_cellcharter_clustered.h5ad
 CLUSTER_INDIVIDUAL_RESULT := $(CALC)samples_all_integrated_imputed_cellcharter_clustered_individual_$(N_HOPS)_hops_$(N_CLUSTERS)_clusters.h5ad
 CLUSTER_INDIVIDUAL_RELABELED_RESULT := $(CALC)samples_all_integrated_imputed_cellcharter_clustered_individual_$(N_HOPS)_hops_$(N_CLUSTERS)_clusters_relabeled.h5ad
+CLUSTER_SUBCLUSTER_RESULT := $(CALC)samples_all_integrated_imputed_cellcharter_clustered_subclustered.h5ad
 IMPUTATION_RESULT := $(CALC)samples_all_integrated_imputed_cellcharter_clustered_individual_$(N_HOPS)_hops_$(N_CLUSTERS)_clusters_relabeled_magic.h5ad
 GWAS_RESULT := $(CALC)samples_all_integrated_imputed_cellcharter_clustered_individual_$(N_HOPS)_hops_$(N_CLUSTERS)_clusters_relabeled_magic_GWAS_SCDRS.h5ad
 
@@ -81,6 +84,10 @@ cluster: $(CLUSTER_RESULT)
 cluster_individual: $(CLUSTER_INDIVIDUAL_RESULT)
 	@echo "Clustering completed."
 	@echo $(CLUSTER_INDIVIDUAL_RESULT) " exists."
+
+subcluster: $(CLUSTER_SUBCLUSTER_RESULT)
+	@echo "Subclustering completed."
+	@echo $(CLUSTER_SUBCLUSTER_RESULT) " exists."
 
 relabel: $(CLUSTER_INDIVIDUAL_RELABELED_RESULT)
 	@echo "Cluster relabeling completed."
@@ -121,6 +128,10 @@ $(CLUSTER_INDIVIDUAL_RESULT): $(SINGLECELL_INTEGRATE_RESULT)
 $(CLUSTER_INDIVIDUAL_RELABELED_RESULT): $(CLUSTER_INDIVIDUAL_RESULT) $(CLUSTER_LABELS_FILE)
 	@echo "Relabeling clusters"
 	echo 'conda activate ${CONDA_ENV_CELLCHARTER}; export LD_LIBRARY_PATH=${CONDA_ENV_CELLCHARTER}lib/; export PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:32; python ${SOURCE}Cluster_CellCharter_RelabelClusters.py -b ${BASEDIR} -i ${CLUSTER_INDIVIDUAL_RESULT} -c ${CLUSTER_LABELS_FILE} -o ${CLUSTER_INDIVIDUAL_RELABELED_RESULT}' | bash -i
+
+$(CLUSTER_SUBCLUSTER_RESULT): $(CLUSTER_INDIVIDUAL_RESULT)
+	@echo "Subclustering"
+	echo 'conda activate ${CONDA_ENV_CELLCHARTER}; export LD_LIBRARY_PATH=${CONDA_ENV_CELLCHARTER}lib/; export PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:32; python ${SOURCE}Cluster_CellCharter_Subcluster.py -b ${BASEDIR} -i ${CLUSTER_INDIVIDUAL_RESULT} -n ${N_SUBCLUSTERS} -o ${CLUSTER_SUBCLUSTER_RESULT}' | bash -i
 
 $(IMPUTATION_RESULT): $(CLUSTER_INDIVIDUAL_RELABELED_RESULT)
 	@echo "Imputation (MAGIC)..."
