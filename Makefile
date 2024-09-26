@@ -129,9 +129,9 @@ $(CLUSTER_INDIVIDUAL_RELABELED_RESULT): $(CLUSTER_INDIVIDUAL_RESULT) $(CLUSTER_L
 	@echo "Relabeling clusters"
 	echo 'conda activate ${CONDA_ENV_CELLCHARTER}; export LD_LIBRARY_PATH=${CONDA_ENV_CELLCHARTER}lib/; export PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:32; python ${SOURCE}Cluster_CellCharter_RelabelClusters.py -b ${BASEDIR} -i ${CLUSTER_INDIVIDUAL_RESULT} -c ${CLUSTER_LABELS_FILE} -o ${CLUSTER_INDIVIDUAL_RELABELED_RESULT}' | bash -i
 
-$(CLUSTER_SUBCLUSTER_RESULT): $(CLUSTER_INDIVIDUAL_RESULT)
+$(CLUSTER_SUBCLUSTER_RESULT): $(GWAS_RESULT)
 	@echo "Subclustering"
-	echo 'conda activate ${CONDA_ENV_CELLCHARTER}; export LD_LIBRARY_PATH=${CONDA_ENV_CELLCHARTER}lib/; export PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:32; python ${SOURCE}Cluster_CellCharter_Subcluster.py -b ${BASEDIR} -i ${CLUSTER_INDIVIDUAL_RESULT} -n ${N_SUBCLUSTERS} -o ${CLUSTER_SUBCLUSTER_RESULT}' | bash -i
+	echo 'conda activate ${CONDA_ENV_CELLCHARTER}; export LD_LIBRARY_PATH=${CONDA_ENV_CELLCHARTER}lib/; export PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:32; python ${SOURCE}Cluster_CellCharter_Subcluster.py -b ${BASEDIR} -i ${GWAS_RESULT} -n ${N_SUBCLUSTERS} -o ${CLUSTER_SUBCLUSTER_RESULT}' | bash -i
 
 $(IMPUTATION_RESULT): $(CLUSTER_INDIVIDUAL_RELABELED_RESULT)
 	@echo "Imputation (MAGIC)..."

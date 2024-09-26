@@ -85,7 +85,7 @@ for group in groups:
                         trainer_params=dict(accelerator='gpu', devices=1, default_root_dir=os.path.join(FILEPATHBASE, 'tmp')))
     
     gmm.fit(samples_all, use_rep='X_cellcharter')
-    samples_all_group.obs['spatial_subcluster'] = gmm.predict(samples_all, use_rep='X_cellcharter')
+    samples_all_group.obs['spatial_subcluster'] = gmm.predict(samples_all_group, use_rep='X_cellcharter')
 
 # --------------------------------------------------------------------------------
 # Save
