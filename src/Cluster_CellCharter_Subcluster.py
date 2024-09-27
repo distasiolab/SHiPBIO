@@ -85,13 +85,19 @@ for group in groups:
                         trainer_params=dict(accelerator='gpu', devices=1, default_root_dir=os.path.join(FILEPATHBASE, 'tmp')))
     
     gmm.fit(samples_all, use_rep='X_cellcharter')
-    samples_all_group.obs['spatial_subcluster'] = gmm.predict(samples_all_group, use_rep='X_cellcharter')
+    samples_all.obs['spatial_subcluster',samples_all.obs['spatial_cluster_label'] == group] = gmm.predict(samples_all_group, use_rep='X_cellcharter') 
 
+    
 # --------------------------------------------------------------------------------
 # Save
 # --------------------------------------------------------------------------------
 if SAVEDATA:
     # Save
+    try:
+        del samples_all.layers['counts_magic']
+    except:
+        pass
+    
     if args.output is None:
         out_filename = os.path.join(FILEPATHBASE, 'calc', 'samples_all_integrated_imputed_cellcharter_clustered_subclustered.h5ad')
     else:
