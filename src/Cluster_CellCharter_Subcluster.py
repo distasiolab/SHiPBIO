@@ -79,8 +79,8 @@ for group in groups:
     samples_all_group = samples_all[samples_all.obs['spatial_cluster_label'] == group]
 
     n_hops = args.distance
-    sq.gr.spatial_neighbors(samples_all_group, coord_type='generic', delaunay=True, spatial_key='X_spatial')
-    cc.gr.remove_long_links(samples_all_group)
+#    sq.gr.spatial_neighbors(samples_all_group, coord_type='generic', delaunay=True, spatial_key='X_spatial')
+#    cc.gr.remove_long_links(samples_all_group)
     cc.gr.aggregate_neighbors(samples_all_group, n_layers=n_hops, use_rep='X_scVI', out_key='X_cellcharter_subcluster', sample_key='batch') #n_layers = 3 means 1,2,3-hop neighbors
 
     
@@ -89,9 +89,10 @@ for group in groups:
                         random_state=12345,
                         covariance_type='full',
                         batch_size=256,
-                        trainer_params=dict(accelerator='gpu', devices=1, default_root_dir=os.path.join(FILEPATHBASE, 'tmp')))
+#                        trainer_params=dict(accelerator='gpu', devices=1, default_root_dir=os.path.join(FILEPATHBASE, 'tmp')))
+                        trainer_params=dict(accelerator='cpu', devices=1, default_root_dir=os.path.join(FILEPATHBASE, 'tmp')))
     
-    gmm.fit(samples_all, use_rep='X_cellcharter')
+    gmm.fit(samples_all, use_rep='X_cellcharter_subcluster')
     #samples_all.obs['spatial_subcluster',samples_all.obs['spatial_cluster_label'] == group] = gmm.predict(samples_all_group, use_rep='X_cellcharter')
     samples_all_group.obs['spatial_subcluster'] = gmm.predict(samples_all_group, use_rep='X_cellcharter_subcluster')
 
