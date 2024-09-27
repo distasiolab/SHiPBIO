@@ -67,36 +67,42 @@ SampleKey = samples_all.uns["SampleKey"]
 Samples = list(samples_all.obs['dataset'].cat.categories)
 
 
+# Arrange samples in space
+print('Arrange samples in space...')
+samples_all.obsm['X_spatial_fov'] = samples_all.obsm['X_spatial'].copy()
+y_max_p = [np.max(samples_all[samples_all.obs['dataset']==Samples[r]].obsm['X_spatial'][:,1]) for r in np.arange(1,len(Samples))]
+y_offsets = np.append(0,np.cumsum(y_max_p)+10000)
+for r in np.arange(1,len(Samples)):
+    samples_all.obsm['X_spatial_fov'][samples_all.obs['dataset']==Samples[r],1] = samples_all.obsm['X_spatial_fov'][samples_all.obs['dataset']==Samples[r],1] + y_offsets[r]
+
+
 # --------------------------------------------------------------------------------
 # Subclustering
 # --------------------------------------------------------------------------------
 groups = np.array(sorted(np.unique(samples_all.obs['spatial_cluster_label'])))
 
 n_clusters = args.n_clusters
-
+n_hops = args.distance
+    
 s_all = {}
 for group in groups:
     samples_all_group = samples_all[samples_all.obs['spatial_cluster_label'] == group]
 
-
-    n_hops = args.distance
-    #sq.gr.spatial_neighbors(samples_all_group, coord_type='generic', delaunay=True, spatial_key='X_spatial')
-    #cc.gr.remove_long_links(samples_all_group)
+    sq.gr.spatial_neighbors(samples_all_group, coord_type='generic', delaunay=True, spatial_key='X_spatial_fov')
+    cc.gr.remove_long_links(samples_all_group)
     
-    print(f"Aggregating neighbors with {n_hops}...")
+    print(f"Aggregating neighbors with {n_hops}-hops...")
     cc.gr.aggregate_neighbors(samples_all_group, n_layers=n_hops, use_rep='X_scVI', out_key='X_cellcharter_subcluster', sample_key='batch') #n_layers = 3 means 1,2,3-hop neighbors
 
-    
     print(f"Fitting Gaussian Mixture model with {n_clusters} clusters to {group} data...")
     gmm = cc.tl.Cluster(n_clusters=n_clusters,
                         random_state=12345,
                         covariance_type='full',
                         batch_size=256,
-#                        trainer_params=dict(accelerator='gpu', devices=1, default_root_dir=os.path.join(FILEPATHBASE, 'tmp')))
-                        trainer_params=dict(accelerator='cpu', devices=1, default_root_dir=os.path.join(FILEPATHBASE, 'tmp')))
+                        trainer_params=dict(accelerator='gpu', devices=1, default_root_dir=os.path.join(FILEPATHBASE, 'tmp')))
     
-    gmm.fit(samples_all, use_rep='X_cellcharter_subcluster')
-    #samples_all.obs['spatial_subcluster',samples_all.obs['spatial_cluster_label'] == group] = gmm.predict(samples_all_group, use_rep='X_cellcharter')
+    gmm.fit(samples_all_group, use_rep='X_cellcharter_subcluster')
+
     samples_all_group.obs['spatial_subcluster'] = gmm.predict(samples_all_group, use_rep='X_cellcharter_subcluster')
 
     s_all[group] = samples_all_group
@@ -115,7 +121,7 @@ if SAVEDATA:
         pass
     
     if args.output is None:
-        out_filename = os.path.join(FILEPATHBASE, 'calc', 'samples_all_integrated_imputed_cellcharter_clustered_subclustered.h5ad')
+        out_filename = os.path.join(FILEPATHBASE, 'calc', f'samples_all_integrated_imputed_cellcharter_clustered_subclustered_{n_hops}hops.h5ad')
     else:
         out_filename = args.output
 
