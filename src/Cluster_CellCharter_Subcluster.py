@@ -93,7 +93,6 @@ s_all = {}
 for group in groups:
     samples_all_group = samples_all[samples_all.obs['spatial_cluster_label'] == group]
 
-
     print(f"Fitting Gaussian Mixture model with {n_clusters} clusters to {group} data...")
     gmm = cc.tl.Cluster(n_clusters=n_clusters,
                         random_state=12345,
