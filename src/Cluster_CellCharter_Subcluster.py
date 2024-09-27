@@ -36,7 +36,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-b', '--basepath', type=str, help='Path to base directory for the project; should contain directories \'data\' and \'calc\'')
 parser.add_argument('-i', '--inputfile', type=str, help='Path to input AnnData *.h5ad file')
 parser.add_argument('-n', '--n_clusters', type=int, default=11, help='Number of clusters for CellCharter to find')
-#parser.add_argument('-d', '--distance', type=int, default=3, help='Distance; Number of hops to use to build neighborhood graph')
+parser.add_argument('-d', '--distance', type=int, default=3, help='Distance; Number of hops to use to build neighborhood graph')
 #parser.add_argument('-m', '--markers', type=str, default=3, help='Path to marker gene file')
 parser.add_argument('-o', '--output', type=str, help='Path to output *.h5ad file to create')
 args = parser.parse_args()
@@ -78,6 +78,12 @@ s_all = {}
 for group in groups:
     samples_all_group = samples_all[samples_all.obs['spatial_cluster_label'] == group]
 
+    n_hops = args.distance
+    sq.gr.spatial_neighbors(samples_all_group, coord_type='generic', delaunay=True, spatial_key='X_spatial')
+    cc.gr.remove_long_links(samples_all_group)
+    cc.gr.aggregate_neighbors(samples_all_group, n_layers=n_hops, use_rep='X_scVI', out_key='X_cellcharter_subcluster', sample_key='batch') #n_layers = 3 means 1,2,3-hop neighbors
+
+    
     print(f"Fitting Gaussian Mixture model with {n_clusters} clusters to {group} data...")
     gmm = cc.tl.Cluster(n_clusters=n_clusters,
                         random_state=12345,
@@ -87,7 +93,7 @@ for group in groups:
     
     gmm.fit(samples_all, use_rep='X_cellcharter')
     #samples_all.obs['spatial_subcluster',samples_all.obs['spatial_cluster_label'] == group] = gmm.predict(samples_all_group, use_rep='X_cellcharter')
-    samples_all_group.obs['spatial_subcluster'] = gmm.predict(samples_all_group, use_rep='X_cellcharter')
+    samples_all_group.obs['spatial_subcluster'] = gmm.predict(samples_all_group, use_rep='X_cellcharter_subcluster')
 
     s_all[group] = samples_all_group
 
