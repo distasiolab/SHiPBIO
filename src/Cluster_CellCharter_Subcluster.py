@@ -78,9 +78,12 @@ s_all = {}
 for group in groups:
     samples_all_group = samples_all[samples_all.obs['spatial_cluster_label'] == group]
 
+
     n_hops = args.distance
-#    sq.gr.spatial_neighbors(samples_all_group, coord_type='generic', delaunay=True, spatial_key='X_spatial')
-#    cc.gr.remove_long_links(samples_all_group)
+    #sq.gr.spatial_neighbors(samples_all_group, coord_type='generic', delaunay=True, spatial_key='X_spatial')
+    #cc.gr.remove_long_links(samples_all_group)
+    
+    print(f"Aggregating neighbors with {n_hops}...")
     cc.gr.aggregate_neighbors(samples_all_group, n_layers=n_hops, use_rep='X_scVI', out_key='X_cellcharter_subcluster', sample_key='batch') #n_layers = 3 means 1,2,3-hop neighbors
 
     
