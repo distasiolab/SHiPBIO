@@ -58,7 +58,7 @@ SINGLECELL_INTEGRATE_RESULT := $(CALC)samples_all_integrated_snRNAseq_imputed.h5
 CLUSTER_RESULT := $(CALC)samples_all_integrated_imputed_cellcharter_clustered.h5ad
 CLUSTER_INDIVIDUAL_RESULT := $(CALC)samples_all_integrated_imputed_cellcharter_clustered_individual_$(N_HOPS)_hops_$(N_CLUSTERS)_clusters.h5ad
 CLUSTER_INDIVIDUAL_RELABELED_RESULT := $(CALC)samples_all_integrated_imputed_cellcharter_clustered_individual_$(N_HOPS)_hops_$(N_CLUSTERS)_clusters_relabeled.h5ad
-CLUSTER_SUBCLUSTER_RESULT := $(CALC)samples_all_integrated_imputed_cellcharter_clustered_individual_$(N_HOPS)_hops_$(N_CLUSTERS)_clusters_subclustered_$(N_HOPS)_hops_$(N_SUBCLUSTERS).h5ad
+CLUSTER_SUBCLUSTER_RESULT := $(CALC)samples_all_integrated_imputed_cellcharter_clustered_individual_$(N_HOPS)_hops_$(N_CLUSTERS)_clusters_$(N_HOPS_SUBCLUSTER)_hops_$(N_SUBCLUSTERS)_subclusters.h5ad
 IMPUTATION_RESULT := $(CALC)samples_all_integrated_imputed_cellcharter_clustered_individual_$(N_HOPS)_hops_$(N_CLUSTERS)_clusters_relabeled_magic.h5ad
 GWAS_RESULT := $(CALC)samples_all_integrated_imputed_cellcharter_clustered_individual_$(N_HOPS)_hops_$(N_CLUSTERS)_clusters_relabeled_magic_GWAS_SCDRS.h5ad
 

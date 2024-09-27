@@ -76,23 +76,23 @@ for r in np.arange(1,len(Samples)):
     samples_all.obsm['X_spatial_fov'][samples_all.obs['dataset']==Samples[r],1] = samples_all.obsm['X_spatial_fov'][samples_all.obs['dataset']==Samples[r],1] + y_offsets[r]
 
 
+n_hops = args.distance
+sq.gr.spatial_neighbors(samples_all, coord_type='generic', delaunay=True, spatial_key='X_spatial_fov')
+cc.gr.remove_long_links(samples_all)
+print(f"Aggregating neighbors with {n_hops}-hops...")
+cc.gr.aggregate_neighbors(samples_all, n_layers=n_hops, use_rep='X_scVI', out_key='X_cellcharter_subcluster', sample_key='batch') #n_layers = 3 means 1,2,3-hop neighbors
+
 # --------------------------------------------------------------------------------
 # Subclustering
 # --------------------------------------------------------------------------------
 groups = np.array(sorted(np.unique(samples_all.obs['spatial_cluster_label'])))
 
 n_clusters = args.n_clusters
-n_hops = args.distance
     
 s_all = {}
 for group in groups:
     samples_all_group = samples_all[samples_all.obs['spatial_cluster_label'] == group]
 
-    sq.gr.spatial_neighbors(samples_all_group, coord_type='generic', delaunay=True, spatial_key='X_spatial_fov')
-    cc.gr.remove_long_links(samples_all_group)
-    
-    print(f"Aggregating neighbors with {n_hops}-hops...")
-    cc.gr.aggregate_neighbors(samples_all_group, n_layers=n_hops, use_rep='X_scVI', out_key='X_cellcharter_subcluster', sample_key='batch') #n_layers = 3 means 1,2,3-hop neighbors
 
     print(f"Fitting Gaussian Mixture model with {n_clusters} clusters to {group} data...")
     gmm = cc.tl.Cluster(n_clusters=n_clusters,
