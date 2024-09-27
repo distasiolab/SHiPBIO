@@ -75,7 +75,6 @@ y_offsets = np.append(0,np.cumsum(y_max_p)+10000)
 for r in np.arange(1,len(Samples)):
     samples_all.obsm['X_spatial_fov'][samples_all.obs['dataset']==Samples[r],1] = samples_all.obsm['X_spatial_fov'][samples_all.obs['dataset']==Samples[r],1] + y_offsets[r]
 
-
 n_hops = args.distance
 sq.gr.spatial_neighbors(samples_all, coord_type='generic', delaunay=True, spatial_key='X_spatial_fov')
 cc.gr.remove_long_links(samples_all)
@@ -92,17 +91,26 @@ n_clusters = args.n_clusters
 s_all = {}
 for group in groups:
     samples_all_group = samples_all[samples_all.obs['spatial_cluster_label'] == group]
-
-    print(f"Fitting Gaussian Mixture model with {n_clusters} clusters to {group} data...")
-    gmm = cc.tl.Cluster(n_clusters=n_clusters,
-                        random_state=12345,
-                        covariance_type='full',
-                        batch_size=256,
-                        trainer_params=dict(accelerator='gpu', devices=1, default_root_dir=os.path.join(FILEPATHBASE, 'tmp')))
+    print(f"Fitting model with AutoK for number of clusters to {group} data...")
     
-    gmm.fit(samples_all_group, use_rep='X_cellcharter_subcluster')
+    autok = cc.tl.ClusterAutoK(
+        n_clusters=(2,10), 
+        max_runs=10,
+        convergence_tol=0.001
+    )
 
-    samples_all_group.obs['spatial_subcluster'] = gmm.predict(samples_all_group, use_rep='X_cellcharter_subcluster')
+    autok.fit(adata, use_rep='X_cellcharter_subcluster')
+    samples_all_group.obs['spatial_subcluster'] = autok.predict(samples_all_group, use_rep='X_cellcharter_subcluster')
+    
+    # gmm = cc.tl.Cluster(n_clusters=n_clusters,
+    #                     random_state=12345,
+    #                     covariance_type='full',
+    #                     batch_size=256,
+    #                     trainer_params=dict(accelerator='gpu', devices=1, default_root_dir=os.path.join(FILEPATHBASE, 'tmp')))
+    
+    # gmm.fit(samples_all_group, use_rep='X_cellcharter_subcluster')
+
+    # samples_all_group.obs['spatial_subcluster'] = gmm.predict(samples_all_group, use_rep='X_cellcharter_subcluster')
 
     s_all[group] = samples_all_group
 
