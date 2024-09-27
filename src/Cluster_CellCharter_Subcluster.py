@@ -82,7 +82,7 @@ for group in groups:
     gmm = cc.tl.Cluster(n_clusters=n_clusters,
                         random_state=12345,
                         covariance_type='full',
-                        batch_size=2,
+                        batch_size=256,
                         trainer_params=dict(accelerator='gpu', devices=1, default_root_dir=os.path.join(FILEPATHBASE, 'tmp')))
     
     gmm.fit(samples_all, use_rep='X_cellcharter')
