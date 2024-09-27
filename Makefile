@@ -46,6 +46,7 @@ N_CLUSTERS ?=23
 N_HOPS ?=3
 
 N_SUBCLUSTERS ?=6
+N_HOPS_SUBCLUSTER ?=3
 
 SINGLE_CELL_DATA := $(DATA)retina_sn_combined.h5ad
 MARKER_GENE_FILE := $(DATA)retinal_celltype_gates.json
@@ -57,7 +58,7 @@ SINGLECELL_INTEGRATE_RESULT := $(CALC)samples_all_integrated_snRNAseq_imputed.h5
 CLUSTER_RESULT := $(CALC)samples_all_integrated_imputed_cellcharter_clustered.h5ad
 CLUSTER_INDIVIDUAL_RESULT := $(CALC)samples_all_integrated_imputed_cellcharter_clustered_individual_$(N_HOPS)_hops_$(N_CLUSTERS)_clusters.h5ad
 CLUSTER_INDIVIDUAL_RELABELED_RESULT := $(CALC)samples_all_integrated_imputed_cellcharter_clustered_individual_$(N_HOPS)_hops_$(N_CLUSTERS)_clusters_relabeled.h5ad
-CLUSTER_SUBCLUSTER_RESULT := $(CALC)samples_all_integrated_imputed_cellcharter_clustered_subclustered.h5ad
+CLUSTER_SUBCLUSTER_RESULT := $(CALC)samples_all_integrated_imputed_cellcharter_clustered_individual_$(N_HOPS)_hops_$(N_CLUSTERS)_clusters_subclustered_$(N_HOPS)_hops_$(N_SUBCLUSTERS).h5ad
 IMPUTATION_RESULT := $(CALC)samples_all_integrated_imputed_cellcharter_clustered_individual_$(N_HOPS)_hops_$(N_CLUSTERS)_clusters_relabeled_magic.h5ad
 GWAS_RESULT := $(CALC)samples_all_integrated_imputed_cellcharter_clustered_individual_$(N_HOPS)_hops_$(N_CLUSTERS)_clusters_relabeled_magic_GWAS_SCDRS.h5ad
 
@@ -131,7 +132,7 @@ $(CLUSTER_INDIVIDUAL_RELABELED_RESULT): $(CLUSTER_INDIVIDUAL_RESULT) $(CLUSTER_L
 
 $(CLUSTER_SUBCLUSTER_RESULT): $(GWAS_RESULT)
 	@echo "Subclustering"
-	echo 'conda activate ${CONDA_ENV_CELLCHARTER}; export LD_LIBRARY_PATH=${CONDA_ENV_CELLCHARTER}lib/; export PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:32; python ${SOURCE}Cluster_CellCharter_Subcluster.py -b ${BASEDIR} -i ${GWAS_RESULT} -n ${N_SUBCLUSTERS} -o ${CLUSTER_SUBCLUSTER_RESULT}' | bash -i
+	echo 'conda activate ${CONDA_ENV_CELLCHARTER}; export LD_LIBRARY_PATH=${CONDA_ENV_CELLCHARTER}lib/; export PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:32; python ${SOURCE}Cluster_CellCharter_Subcluster.py -b ${BASEDIR} -i ${GWAS_RESULT} -n ${N_SUBCLUSTERS} -d ${N_HOPS_SUBCLUSTER} -o ${CLUSTER_SUBCLUSTER_RESULT}' | bash -i
 
 $(IMPUTATION_RESULT): $(CLUSTER_INDIVIDUAL_RELABELED_RESULT)
 	@echo "Imputation (MAGIC)..."
