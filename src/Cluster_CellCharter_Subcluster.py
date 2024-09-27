@@ -94,9 +94,11 @@ for group in groups:
     print(f"Fitting model with AutoK for number of clusters to {group} data...")
     
     autok = cc.tl.ClusterAutoK(
+        model_class=cc.tl.GaussianMixture,
         n_clusters=(2,10), 
         max_runs=10,
-        convergence_tol=0.001
+        convergence_tol=0.001,
+        model_params = {'batch_size': 256}
     )
 
     autok.fit(samples_all_group, use_rep='X_cellcharter_subcluster')
