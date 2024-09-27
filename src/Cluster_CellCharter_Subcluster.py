@@ -99,7 +99,7 @@ for group in groups:
         convergence_tol=0.001
     )
 
-    autok.fit(adata, use_rep='X_cellcharter_subcluster')
+    autok.fit(samples_all_group, use_rep='X_cellcharter_subcluster')
     samples_all_group.obs['spatial_subcluster'] = autok.predict(samples_all_group, use_rep='X_cellcharter_subcluster')
     
     # gmm = cc.tl.Cluster(n_clusters=n_clusters,
