@@ -104,6 +104,18 @@ samples_all.uns["SampleKey"] = SampleKey
 samples_all.uns["Anatomic_Location"] = AnatLoc
 samples_all.uns["ConditionKey"] = ConditionKey
 
+
+# --------------------------------------------------------------------------------
+# Quality Control Tests
+# --------------------------------------------------------------------------------
+sc.pp.calculate_qc_metrics(samples_all, 
+                           expr_type='counts', 
+                           var_type='genes',
+                           percent_top=(5, 10, 20, 50), 
+                           layer='counts',
+                           inplace=True)
+
+
 # --------------------------------------------------------------------------------
 # Save concatenated data
 # --------------------------------------------------------------------------------
