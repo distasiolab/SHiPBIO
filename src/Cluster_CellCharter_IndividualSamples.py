@@ -99,6 +99,7 @@ gmm = cc.tl.Cluster(
     n_clusters=n_clusters, 
     random_state=12346,
     covariance_type='full',
+    batch_size=100000,
     # If running on GPU
     #trainer_params=dict(accelerator='gpu', devices=1, auto_scale_batch_size='binsearch')
     trainer_params=dict(accelerator='gpu', devices=1, default_root_dir=os.path.join(FILEPATHBASE, 'tmp'))
