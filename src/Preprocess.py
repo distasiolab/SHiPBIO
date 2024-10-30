@@ -7,7 +7,7 @@
 import anndata as ad
 import squidpy as sq
 import scanpy as sc
-
+import numpy as np
 import os
 import csv
 import pprint
@@ -114,6 +114,11 @@ SUBSET_GOOD = True
 if SUBSET_GOOD:
     samples_all = samples_all[samples_all.obs['dataset'].map(samples_all.uns['GoodSampleKey']),:].copy()
 
+    n_left = len(list(np.unique(samples_all.obs['dataset'])))
+    print(f"Subsetted samples, retaining {n_left} samples:")
+    print(list(np.unique(samples_all.obs['dataset'])))
+    
+    
 # --------------------------------------------------------------------------------
 # Quality Control Tests
 # --------------------------------------------------------------------------------
