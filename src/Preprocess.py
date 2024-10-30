@@ -50,7 +50,7 @@ def read_csv_into_dict(filename, known_columns):
     return result
 
 
-known_columns =['sampleID', 'sampleName', 'Condition', 'AnatomicLocation', 'filename']
+known_columns =['sampleID', 'sampleName', 'Condition', 'AnatomicLocation', 'GoodSample', 'filename']
 data = read_csv_into_dict(args.worksheet, known_columns)
 
 pp = pprint.PrettyPrinter(indent=4, width=200)
@@ -77,7 +77,8 @@ print("Done loading data")
 r_all =     dict([[sample['sampleID'],sample['data']] for sample in data])
 SampleKey = dict([[sample['sampleID'],sample['sampleName']] for sample in data])
 AnatLoc =    dict([[sample['sampleID'],sample['AnatomicLocation']] for sample in data])
-ConditionKey =    dict([[sample['sampleID'],sample['Condition']] for sample in data])
+ConditionKey =  dict([[sample['sampleID'],sample['Condition']] for sample in data])
+GoodSampleKey = dict([[sample['sampleID'],bool(sample['GoodSample'])] for sample in data])
 
 # --------------------------------------------------------------------------------
 # Concatenation of all datasets into one
@@ -103,7 +104,15 @@ samples_all.uns["spatial"][library_id] = dict()
 samples_all.uns["SampleKey"] = SampleKey
 samples_all.uns["Anatomic_Location"] = AnatLoc
 samples_all.uns["ConditionKey"] = ConditionKey
+samples_all.uns["GoodSampleKey"] = GoodSampleKey
 
+
+# --------------------------------------------------------------------------------
+# Subset only good samples
+# --------------------------------------------------------------------------------
+SUBSET_GOOD = True
+if SUBSET_GOOD:
+    samples_all = samples_all[samples_all.obs['dataset'].map(samples_all.uns['GoodSampleKey']),:]
 
 # --------------------------------------------------------------------------------
 # Quality Control Tests
@@ -114,6 +123,24 @@ sc.pp.calculate_qc_metrics(samples_all,
                            percent_top=(5, 10, 20, 50), 
                            layer='counts',
                            inplace=True)
+
+# Gene thresholds
+F_genes_counts = sc.pp.filter_genes(samples_all,
+                       min_counts = 3,
+                       inplace=False)
+F_genes_cells = sc.pp.filter_genes(samples_all,
+                       min_cells = 3,
+                       inplace=False)
+
+# SPOT thresholds
+F_cells_counts = sc.pp.filter_cells(samples_all,
+                       min_counts = 40,
+                       inplace=False)
+F_cells_genes = sc.pp.filter_cells(samples_all,
+                       min_genes = 3,
+                       inplace=False)
+
+samples_all_filtered = samples_all[F_cells_counts[0] & F_cells_genes[0], F_genes_counts[0] & F_genes_cells[0]].copy()
 
 
 # --------------------------------------------------------------------------------
