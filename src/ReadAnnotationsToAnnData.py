@@ -113,7 +113,7 @@ for Annotation in Annotations:
     if len(dim(Annotation['geometry']['coordinates'][0])) > 2:
         for coord_set in Annotation['geometry']['coordinates']:
             for c in coord_set:
-                InPolygon = PointsInPolygon(np.array(adata.obsm['X_spatial'] - X_origin), c)
+                InPolygon = PointsInPolygon(np.array(adata.obsm['X_spatial'] - X_origin), np.array(c))
                 adata.obs[Annotation["properties"]["classification"]["name"]][np.where(InPolygon)[0]] = True
     else:
         coords = np.array(Annotation['geometry']['coordinates'])
