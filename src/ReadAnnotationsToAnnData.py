@@ -117,11 +117,10 @@ for Annotation in Annotations:
                 adata.obs[Annotation["properties"]["classification"]["name"]][np.where(InPolygon)[0]] = True
     else:
         coords = np.array(Annotation['geometry']['coordinates'])
+        InPolygon = PointsInPolygon(np.array(adata.obsm['X_spatial'] - X_origin), coords)
+        adata.obs[Annotation["properties"]["classification"]["name"]][np.where(InPolygon)[0]] = True
 
-        
-    InPolygon = PointsInPolygon(np.array(adata.obsm['X_spatial'] - X_origin), coords)
-    adata.obs[Annotation["properties"]["classification"]["name"]][np.where(InPolygon)[0]] = True
-    print("{0} contains {1} points.".format(Annotation["properties"]["classification"]["name"],np.sum(InPolygon)))
+    print("{0} contains {1} points.".format(Annotation["properties"]["classification"]["name"], adata.obs[Annotation["properties"]["classification"]["name"]].sum()))
 
 
 adata.write(outfilename)
