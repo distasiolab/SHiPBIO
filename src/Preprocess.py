@@ -7,7 +7,7 @@
 import anndata as ad
 import squidpy as sq
 import scanpy as sc
-
+import numpy as np
 import os
 import csv
 import pprint
@@ -78,7 +78,7 @@ r_all =     dict([[sample['sampleID'],sample['data']] for sample in data])
 SampleKey = dict([[sample['sampleID'],sample['sampleName']] for sample in data])
 AnatLoc =    dict([[sample['sampleID'],sample['AnatomicLocation']] for sample in data])
 ConditionKey =  dict([[sample['sampleID'],sample['Condition']] for sample in data])
-GoodSampleKey = dict([[sample['sampleID'],bool(sample['GoodSample'])] for sample in data])
+GoodSampleKey = dict([[sample['sampleID'],sample['GoodSample']=='True'] for sample in data])
 
 # --------------------------------------------------------------------------------
 # Concatenation of all datasets into one
@@ -112,8 +112,13 @@ samples_all.uns["GoodSampleKey"] = GoodSampleKey
 # --------------------------------------------------------------------------------
 SUBSET_GOOD = True
 if SUBSET_GOOD:
-    samples_all = samples_all[samples_all.obs['dataset'].map(samples_all.uns['GoodSampleKey']),:]
+    samples_all = samples_all[samples_all.obs['dataset'].map(samples_all.uns['GoodSampleKey']),:].copy()
 
+    n_left = len(list(np.unique(samples_all.obs['dataset'])))
+    print(f"Subsetted samples, retaining {n_left} samples:")
+    print(list(np.unique(samples_all.obs['dataset'])))
+    
+    
 # --------------------------------------------------------------------------------
 # Quality Control Tests
 # --------------------------------------------------------------------------------
