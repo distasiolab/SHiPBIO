@@ -90,6 +90,7 @@ for F in FeatureCollection:
     
 AnnotationNames = list(set([A["properties"]["classification"]["name"] for A in Annotations]))
 
+
 print("\n")
 print("Found {0} annotations.".format(len(Annotations)))
 print("Found {0} UNIQUE annotations: ".format(len(AnnotationNames))+" ".join(AnnotationNames))
@@ -109,16 +110,14 @@ X_origin = [min(adata.obsm['X_spatial'][:,0]),min(adata.obsm['X_spatial'][:,1])]
 
 print("\n")
 for Annotation in Annotations:
-
-
     if len(dim(Annotation['geometry']['coordinates'][0])) > 2:
-        coords = np.array(Annotation['geometry']['coordinates'][0][0])
-    elif len(dim(Annotation['geometry']['coordinates'])) > 2:
-        coords = np.array(Annotation['geometry']['coordinates'][0])
+        for coord_set in Annotation['geometry']['coordinates']:
+            for c in coord_set:
+                InPolygon = PointsInPolygon(np.array(adata.obsm['X_spatial'] - X_origin), c)
+                adata.obs[Annotation["properties"]["classification"]["name"]][np.where(InPolygon)[0]] = True
     else:
         coords = np.array(Annotation['geometry']['coordinates'])
 
-    print(coords)
         
     InPolygon = PointsInPolygon(np.array(adata.obsm['X_spatial'] - X_origin), coords)
     adata.obs[Annotation["properties"]["classification"]["name"]][np.where(InPolygon)[0]] = True
