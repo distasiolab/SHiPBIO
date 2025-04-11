@@ -14,11 +14,13 @@ import squidpy as sq
 import scanpy as sc
 import scvi
 from scvi.model import CondSCVI, DestVI
-
+import pymde
 import numpy as np
 import os
 
 from matplotlib import pyplot as plt
+
+
 
 # --------------------------------------------------------------------------------
 # Edit this path
@@ -70,7 +72,8 @@ retinas_all.layers['counts_scvi'] = model.posterior_predictive_sample().to_scipy
 sc.pp.neighbors(retinas_all, use_rep=SCVI_LATENT_KEY)
 sc.tl.leiden(retinas_all)
 SCVI_MDE_KEY = "X_scVI_MDE"
-retinas_all.obsm[SCVI_MDE_KEY] = scvi.model.utils.mde(retinas_all.obsm[SCVI_LATENT_KEY])
+mde = pymde.preserve_neighbors(retinas_all.obsm[SCVI_LATENT_KEY])
+retinas_all.obsm[SCVI_MDE_KEY] = mde.embed(verbose=True)
 
 
 # --------------------------------------------------------------------------------
