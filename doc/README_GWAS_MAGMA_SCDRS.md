@@ -1,5 +1,7 @@
+# Preparing GWAS data for single cell analysis with [SCDRS](https://github.com/martinjzhang/scDRS)
 
-- Downloaded GWAS data from GWAS Catalog FTP: http://ftp.ebi.ac.uk/pub/databases/gwas/summary_statistics/GCST003001-GCST004000/GCST003219/Fritsche-26691988.txt.gz
+
+- Download GWAS data from GWAS Catalog FTP: (e.g. http://ftp.ebi.ac.uk/pub/databases/gwas/summary_statistics/GCST003001-GCST004000/GCST003219/Fritsche-26691988.txt.gz)
 - Unzip tsv file, rename to **.pval
 
 - To make a n_total column, summing the
