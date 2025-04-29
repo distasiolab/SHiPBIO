@@ -56,22 +56,30 @@ Output will be `*.genes.out` in the `out/step2` folder
    
 Use https://biit.cs.ut.ee/gprofiler/convert to convert Entrez accession IDs to Gene Names
        - Target namespace is ENTREZGENE; Numeric IDs treated as ENTREZGENE_ACC
-       	        - Download csv and replace commas with tabs to create 'gProfiler_hsapiens_*.tsv'
-		awk -F ',' 'BEGIN {OFS="\t"} {$1=$1}1' gProfiler_hsapiens_*.csv > gProfiler_hsapiens_*.tsv
+       	- Download csv and replace commas with tabs to create `gProfiler_hsapiens_*.tsv`
 
-		- Remove quotes:
-		cat gProfiler_hsapiens_**.tsv | tr -d '"' > gProfiler_hsapiens_**.tsv2
-		dos2unix gProfiler_hsapiens_**.tsv2
-		
-       	 	- Do inner join to get gene names for each gene ID (accession #) in *.genes.stats.tsv
-		~/Programs/tsv-utils/bin/tsv-join -H -f gProfiler_hsapiens_**.tsv2 -a name -k initial_alias -z -d GENE Glaucoma_GlobalBiobank_36777996_GCST90399726.genes.stats.tsv > COMBINED.tsv
-		
-		- Remove duplicate gene names in COMBINED:
-		awk -i inplace '!seen[$3]++' COMBINED.tsv
-		
+`awk -F ',' 'BEGIN {OFS="\t"} {$1=$1}1' gProfiler_hsapiens_*.csv > gProfiler_hsapiens_*.tsv  `
+  
+- Remove quotes:
+
+`cat gProfiler_hsapiens_**.tsv | tr -d '"' > gProfiler_hsapiens_**.tsv2`
+`dos2unix gProfiler_hsapiens_**.tsv2`
+			
+- Do inner join to get gene names with [tsv_utils](https://github.com/eBay/tsv-utils) for each gene ID (accession #) in *.genes.stats.tsv
+
+```
+~/Programs/tsv-utils/bin/tsv-join -H -f gProfiler_hsapiens_**.tsv2 -a name -k initial_alias -z -d GENE *.genes.stats.tsv > COMBINED.tsv
+```
+  
+- Remove duplicate gene names in COMBINED:
+
+`awk -i inplace '!seen[$3]++' COMBINED.tsv`	
 		  	 
 - Select and rename columns, resulting in **.genes.zscore.tsv (which just has column names 'GENE' and disease name (e.g. 'AMD', 'MS', 'Alzheimers')
+
+ ```
 	   awk -F'\t' 'BEGIN {OFS = FS} NR == 1 {print "GENE", "AMD"} NR > 1 {print $3, $2}' COMBINED.tsv > **.genes.zscore.tsv
+```
 
 - Run SCDRS Munge (RunSCDRS_Munge_001.sh) to get **.gs
 
