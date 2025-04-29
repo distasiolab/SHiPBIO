@@ -35,14 +35,25 @@ awk -i inplace -F'\t' -v OFS='\t' '{for(i=1; i<=NF; i++) if($i=="") $i="NA"; pri
 
 - Use MAGMA to get zscores (RunMAGMA_001.sh), resulting in **.genes.out
 
-magma --bfile [DATA] --gene-annot [ANNOT].genes.annot --pval [PVAL_FILE] N=[N]  
+```
+magma --bfile [DATA] --gene-annot [ANNOT].genes.annot --pval [PVAL_FILE] N=[N]
+```
+
+or
+
+```
 magma --bfile [DATA] --gene-annot [ANNOT].genes.annot --pval [PVAL_FILE] ncol=[N_COL]
+```
 
+Output will be `*.genes.out` in the `out/step2` folder
 
-- Delete all columns except GeneI (i.e. Entrez accession number) and Z-score (which you rename to the disease name): Use awk to select 'GENE' and 'ZSTAT' columns:
+- Delete all columns except `GENE` (i.e. Entrez accession number) and `ZSTAT` (which you rename to the disease name): Use awk to select 'GENE' and 'ZSTAT' columns:
+
+  	```
 	   awk 'BEGIN { FS = OFS } { print $1, $8 }' **.genes.out > * genes.zscore.tsv # Use only columns 1 and 8 (indexing starts with 1)
 	   awk -i inplace -v OFS="\t" '$1=$1' *.genes.zscore.tsv 
-	   
+	```
+   
 Use https://biit.cs.ut.ee/gprofiler/convert to convert Entrez accession IDs to Gene Names
        - Target namespace is ENTREZGENE; Numeric IDs treated as ENTREZGENE_ACC
        	        - Download csv and replace commas with tabs to create 'gProfiler_hsapiens_*.tsv'
