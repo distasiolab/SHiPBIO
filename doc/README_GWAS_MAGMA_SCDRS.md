@@ -1,20 +1,37 @@
 # Preparing GWAS data for single cell analysis with [SCDRS](https://github.com/martinjzhang/scDRS)
 
+## GWAS summary statistics data download and preparation
 
 - Download GWAS data from GWAS Catalog FTP: (e.g. http://ftp.ebi.ac.uk/pub/databases/gwas/summary_statistics/GCST003001-GCST004000/GCST003219/Fritsche-26691988.txt.gz)
 - Unzip tsv file, rename to **.pval
 
-- To make a n_total column, summing the
-awk -F'\t' 'BEGIN {OFS = FS} NR == 1 {print $0, "n_total"} NR > 1 {print $0, $25+$26}' **.pval > out.pval
-or
-awk -F'\t' 'BEGIN {OFS = FS} {RS=ORS="\r\n"} NR == 1 {print $0, "n_total"} NR > 1 {print $0, $c1 +$c2}' c1="n_cas" c2="n_con" **.pval > out.pval
+NOTE: On Mac OSX use `gawk` (can be installed via homebrew), rather than `awk`
 
-- For Chromosome position to rsid:
-      - awk 'BEGIN {FS="\t"; OFS=""} {print "select chrom,chromStart,name from snp138 where chrom = \"chr",$1,"\" and chromStart + 1 = ",$2,";"}' Alzheimers_GCST013197_PMID_34493870.pval > snps.sql
-      - mysql -h genome-mysql.cse.ucsc.edu -u genome -A -D hg19 --skip-column-names < snps.sql > rsids.txt
+- To make a n_total column:
+	- summing the `n_cas` and `n_con` columns:
+   
+	`awk -F'\t' 'BEGIN {OFS = FS} {RS=ORS="\r\n"} NR == 1 {print $0, "n_total"} NR > 1 {print $0, $c1 +$c2}' c1="n_cas" c2="n_con" **.pval > out.pval`
 
-- To replace empty values with NA:
-     - awk -i inplace -F'\t' -v OFS='\t' '{for(i=1; i<=NF; i++) if($i=="") $i="NA"; print}' **.tsv
+	- summing the 25th and 26th columns (for example):
+   
+  	`awk -F'\t' 'BEGIN {OFS = FS} NR == 1 {print $0, "n_total"} NR > 1 {print $0, $25+$26}' **.pval > out.pval`
+   
+- For Chromosome position to rsid (if `rsid` is not a column given in the summary stastistics file:
+
+  ```
+  awk 'BEGIN {FS="\t"; OFS=""} {print "select chrom,chromStart,name from snp138 where chrom = \"chr",$1,"\" and chromStart + 1 = ",$2,";"}' **.pval > snps.sql`
+  mysql -h genome-mysql.cse.ucsc.edu -u genome -A -D hg19 --skip-column-names < snps.sql > rsids.txt
+   ```
+
+- Rename tsv file to something useful like `{Condition}_-_{Author}_{PMID}`
+
+- Replace empty values with NA:
+
+```
+awk -i inplace -F'\t' -v OFS='\t' '{for(i=1; i<=NF; i++) if($i=="") $i="NA"; print}' **.tsv
+```
+
+## Now run MAGMA
 
 - Use MAGMA to get zscores (RunMAGMA_001.sh), resulting in **.genes.out
 
