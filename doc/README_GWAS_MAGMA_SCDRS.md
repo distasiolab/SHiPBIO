@@ -63,6 +63,7 @@ Use https://biit.cs.ut.ee/gprofiler/convert to convert Entrez accession IDs to G
 - Remove quotes:
 
 `cat gProfiler_hsapiens_**.tsv | tr -d '"' > gProfiler_hsapiens_**.tsv2`
+
 `dos2unix gProfiler_hsapiens_**.tsv2`
 			
 - Do inner join to get gene names with [tsv_utils](https://github.com/eBay/tsv-utils) for each gene ID (accession #) in *.genes.stats.tsv
