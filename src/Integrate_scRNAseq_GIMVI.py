@@ -68,8 +68,6 @@ print('Loading snRNAseq data from' + filename_sn + ' ...')
 samples_sn = ad.read_h5ad(filename_sn)
 print('Done')
 
-SampleKey = samples_all.uns["SampleKey"]
-Samples = list(samples_all.obs['dataset'].cat.categories)
 
 # --------------------------------------------------------------------------------
 # Imputation from snRNAseq data
