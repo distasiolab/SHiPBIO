@@ -69,8 +69,27 @@ for F in FeatureCollection:
         Annotations.append(F)
     except KeyError:
         pass
+    
+    try:
+        # Make sure the right keys are there
+        _ = F['properties']['name']
+        Annotations.append(F)
+    except KeyError:
+        pass
+        
 
-AnnotationNames = list(set([A["properties"]["classification"]["name"] for A in Annotations]))
+HasClassification = True
+try:
+    AnnotationNames = list(set([A["properties"]["classification"]["name"] for A in Annotations]))
+except KeyError:
+    HasClassification = False
+    pass
+
+try:
+    AnnotationNames = list(set([A["properties"]["name"] for A in Annotations]))
+except KeyError:
+    pass
+
 
 print("\n")
 print("Found {0} annotations.".format(len(Annotations)))
@@ -91,20 +110,25 @@ X_origin = [min(adata.obsm['X_spatial'][:, 0]), min(adata.obsm['X_spatial'][:, 1
 
 print("\n")
 for Annotation in Annotations:
-    
+
+    if HasClassification:
+        ThisAnnotation = adata.obs[Annotation["properties"]["classification"]["name"]]
+    else:
+        ThisAnnotation = adata.obs[Annotation["properties"]["name"]]
+        
     if Annotation['geometry']['type'] == 'Polygon':
         # Single polygon, just use the coordinates directly
         coords = np.array(Annotation['geometry']['coordinates'][0]) 
         InPolygon = PointsInPolygon(np.array(adata.obsm['X_spatial'] - X_origin), coords)
-        adata.obs[Annotation["properties"]["classification"]["name"]][np.where(InPolygon)[0]] = True
+        ThisAnnotation[np.where(InPolygon)[0]] = True
     elif Annotation['geometry']['type'] == 'MultiPolygon':
         # Multiple polygons MultiPolygon, iterate over each
         for poly in Annotation['geometry']['coordinates']:
             coords = np.array(poly[0])  
             InPolygon = PointsInPolygon(np.array(adata.obsm['X_spatial'] - X_origin), coords)
-            adata.obs[Annotation["properties"]["classification"]["name"]][np.where(InPolygon)[0]] = True
-
-    print("{0} contains {1} points.".format(Annotation["properties"]["classification"]["name"], adata.obs[Annotation["properties"]["classification"]["name"]].sum()))
+            ThisAnnotation[np.where(InPolygon)[0]] = True
+                
+    print("{0} contains {1} points.".format(ThisAnnotation.name, ThisAnnotation.sum()))
 
 adata.write(outfilename)
 print("\n")
