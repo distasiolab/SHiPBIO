@@ -159,7 +159,7 @@ if args.output is None:
 else:
     out_filename = args.output
     
-samples_all.write(out_filename)
+samples_all_filtered.write(out_filename)
 
 print('Saved concatenated data to: ' + out_filename)
 print('Done!')
