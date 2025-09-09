@@ -81,6 +81,7 @@ samples_all = samples_all[mask,:]
 print('Arrange samples in space...')
 samples_all.obsm['X_spatial_fov'] = samples_all.obsm['X_spatial'].copy()
 y_max_p = [np.max(samples_all[samples_all.obs['dataset']==Samples[r]].obsm['X_spatial'][:,1]) for r in np.arange(1,len(Samples))]
+y_max_p = [y+np.max(y_max_p) for y in y_max_p]
 y_offsets = np.append(0,np.cumsum(y_max_p))
 for r in np.arange(1,len(Samples)):
     samples_all.obsm['X_spatial_fov'][samples_all.obs['dataset']==Samples[r],1] = samples_all.obsm['X_spatial_fov'][samples_all.obs['dataset']==Samples[r],1] + y_offsets[r]
