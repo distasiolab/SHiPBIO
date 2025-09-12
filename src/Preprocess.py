@@ -94,7 +94,7 @@ samples_all.obs[cs] = samples_all.obs[cs].astype('boolean').fillna(False)
 samples_all.raw = samples_all
 samples_all.layers["counts"] = samples_all.X.copy()   
 
-library_id = 'Curio_Seeker_v1.1_AllRetinas'
+library_id = 'Curio_Seeker_v1.1_All'
 samples_all.uns["spatial"] = dict()
 samples_all.uns["spatial"][library_id] = dict()
 

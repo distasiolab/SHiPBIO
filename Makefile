@@ -12,13 +12,13 @@
 ########################################################################################################################
 ### Fedora
 ##
-BASEDIR := "/home/mdistasio/YaleGoogleDrive/DiStasio Lab/DiStasio Lab Share/02 Analysis/Muscle_IBM/SHiPBIO"
-SHELL=/bin/bash -i
-BASEDIR := "/home/mdistasio/Workspace/SHiPBIO/"
-CONDA_ENV_CELLCHARTER := "/home/mdistasio/miniconda3/envs/cellcharter-env/"
-CONDA_ENV_PHATE := "/home/mdistasio/miniconda3/envs/phate-env/"
-SAMPLE_WORKSHEET := ${BASEDIR}/sample_worksheet.csv
-GWAS_WORKSHEET := ${BASEDIR}/gwas_worksheet.csv
+#BASEDIR := "/home/mdistasio/YaleGoogleDrive/DiStasio Lab/DiStasio Lab Share/02 Analysis/Muscle_IBM/SHiPBIO"
+#SHELL=/bin/bash -i
+#BASEDIR := "/home/mdistasio/Workspace/SHiPBIO/"
+#CONDA_ENV_CELLCHARTER := "/home/mdistasio/miniconda3/envs/cellcharter-env/"
+#CONDA_ENV_PHATE := "/home/mdistasio/miniconda3/envs/phate-env/"
+#SAMPLE_WORKSHEET := ${BASEDIR}/sample_worksheet.csv
+#GWAS_WORKSHEET := ${BASEDIR}/gwas_worksheet.csv
 ##
 ##
 ##
@@ -27,11 +27,11 @@ GWAS_WORKSHEET := ${BASEDIR}/gwas_worksheet.csv
 ### mccleary.ycrc.yale.edu
 ##
 #SHELL=/bin/bash -i
-#BASEDIR := "/home/mmd47/project/retina_curio/SHiPBIO"
-#CONDA_ENV_CELLCHARTER := "/gpfs/gibbs/project/distasio/mmd47/envs/cellcharter-env/"
-#CONDA_ENV_PHATE := "/gpfs/gibbs/project/distasio/mmd47/envs/phate/"
-#SAMPLE_WORKSHEET := ${BASEDIR}/sample_worksheet.csv
-#GWAS_WORKSHEET := ${BASEDIR}/gwas_worksheet.csv
+BASEDIR := "/home/mmd47/project/ChoroidPlexus/ChP_Curio/SHiPBIO"
+CONDA_ENV_CELLCHARTER := "/gpfs/gibbs/project/distasio/mmd47/envs/cellcharter-env/"
+CONDA_ENV_PHATE := "/gpfs/gibbs/project/distasio/mmd47/envs/phate/"
+SAMPLE_WORKSHEET := ${BASEDIR}/local/sample_worksheet.csv
+GWAS_WORKSHEET := ${BASEDIR}/local/gwas_worksheet.csv
 ##
 ##
 ##
@@ -45,8 +45,8 @@ DATA = ./data/
 N_CLUSTERS ?=23
 N_HOPS ?=3
 
-SINGLE_CELL_DATA := $(DATA)retina_sn_combined.h5ad
-MARKER_GENE_FILE := $(DATA)retinal_celltype_gates.json
+SINGLE_CELL_DATA := /gpfs/gibbs/project/distasio/mmd47/ChoroidPlexus/ChP_snRNAseq/data/ChP_snRNAseq_AD_and_control_scVI.h5ad
+MARKER_GENE_FILE := $(DATA)Choroid_plexus_celltype_gates_MMD_20250606.json
 CLUSTER_LABELS_FILE := $(DATA)samples_all_integrated_imputed_cellcharter_3hops_23_clusters_individual_clusterlabels.json
 
 PREPROCESS_RESULT := $(CALC)samples_all.h5ad

@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --partition=gpu
-#SBATCH --job-name=Retina
+#SBATCH --job-name=ChP_Curio
 #SBATCH --cpus-per-task=12
 #SBATCH --gpus 1
 #SBATCH --mem=512G
@@ -10,9 +10,10 @@
 #SBATCH -o tmp/slurm-%j.out
 
 # NOTE: Load miniconda module if you need the job to have access to a particular conda environment
+module purge
 module load miniconda
 
-make gwas
+make cluster_individual
 
 
 
