@@ -95,16 +95,6 @@ sc.pp.log1p(samples_all, layer='counts_scvi')
 n_clusters = args.n_clusters
 print(f"Fitting Gaussian Mixture model with {n_clusters} clusters...")
 
-gmm = cc.tl.Cluster(
-    n_clusters=n_clusters, 
-    random_state=12346,
-    covariance_type='full',
-    batch_size=len(sample),
-    # If running on GPU
-    #trainer_params=dict(accelerator='gpu', devices=1, auto_scale_batch_size='binsearch')
-    trainer_params=dict(accelerator='gpu', devices=1, default_root_dir=os.path.join(FILEPATHBASE, 'tmp'))
-)
-
 Samples = list(samples_all.obs['dataset'].cat.categories)
 
 s_all = {}
@@ -112,6 +102,17 @@ for r in np.arange(len(Samples)):
     # Select each sample individually
     sample = samples_all[samples_all.obs['dataset']==Samples[r]]
 
+    gmm = cc.tl.Cluster(
+        n_clusters=n_clusters, 
+        random_state=12346,
+        covariance_type='full',
+        batch_size=len(sample),
+        # If running on GPU
+        #trainer_params=dict(accelerator='gpu', devices=1, auto_scale_batch_size='binsearch')
+        trainer_params=dict(accelerator='gpu', devices=1, default_root_dir=os.path.join(FILEPATHBASE, 'tmp'))
+    )
+
+    
     # --------------------------------------------------------------------------------
     # Compute Neighborhood Graph
     # --------------------------------------------------------------------------------
