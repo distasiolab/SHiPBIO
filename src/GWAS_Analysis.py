@@ -10,7 +10,6 @@ warnings.filterwarnings('ignore')
 import scdrs
 
 import anndata as ad
-import squidpy as sq
 import scanpy as sc
 
 import numpy as np
@@ -76,11 +75,16 @@ def read_csv_into_dict(filename, known_columns):
             entry = {}
             unknown_cols = []
             for key, value in row.items():
-                if key.strip() in known_columns:
-                    entry[key.strip()] = value.strip()
+                if key is None:   # happens if extra fields exist
+                    continue
+                key = key.strip()
+                if value is not None:
+                    value = value.strip()
+                if key in known_columns:
+                    entry[key] = value
                 else:
-                    if value is not None:
-                        unknown_cols.append(value.strip())
+                    if value:  # only add non-empty unknown values
+                        unknown_cols.append(value)
             result.append(entry)
     return result
 

@@ -12,13 +12,13 @@
 ########################################################################################################################
 ### Fedora
 ##
-BASEDIR := "/home/mdistasio/YaleGoogleDrive/DiStasio Lab/DiStasio Lab Share/02 Analysis/Muscle_IBM/SHiPBIO"
-SHELL=/bin/bash -i
-BASEDIR := "/home/mdistasio/Workspace/SHiPBIO/"
-CONDA_ENV_CELLCHARTER := "/home/mdistasio/miniconda3/envs/cellcharter-env/"
-CONDA_ENV_PHATE := "/home/mdistasio/miniconda3/envs/phate-env/"
-SAMPLE_WORKSHEET := ${BASEDIR}/sample_worksheet.csv
-GWAS_WORKSHEET := ${BASEDIR}/gwas_worksheet.csv
+#BASEDIR := "/home/mdistasio/YaleGoogleDrive/DiStasio Lab/DiStasio Lab Share/02 Analysis/Muscle_IBM/SHiPBIO"
+#SHELL=/bin/bash -i
+#BASEDIR := "/home/mdistasio/Workspace/SHiPBIO/"
+#CONDA_ENV_CELLCHARTER := "/home/mdistasio/miniconda3/envs/cellcharter-env/"
+#CONDA_ENV_PHATE := "/home/mdistasio/miniconda3/envs/phate-env/"
+#SAMPLE_WORKSHEET := ${BASEDIR}/sample_worksheet.csv
+#GWAS_WORKSHEET := ${BASEDIR}/gwas_worksheet.csv
 ##
 ##
 ##
@@ -26,12 +26,13 @@ GWAS_WORKSHEET := ${BASEDIR}/gwas_worksheet.csv
 ########################################################################################################################
 ### mccleary.ycrc.yale.edu
 ##
-#SHELL=/bin/bash -i
-#BASEDIR := "/home/mmd47/project/retina_curio/SHiPBIO"
-#CONDA_ENV_CELLCHARTER := "/gpfs/gibbs/project/distasio/mmd47/envs/cellcharter-env/"
-#CONDA_ENV_PHATE := "/gpfs/gibbs/project/distasio/mmd47/envs/phate/"
-#SAMPLE_WORKSHEET := ${BASEDIR}/sample_worksheet.csv
-#GWAS_WORKSHEET := ${BASEDIR}/gwas_worksheet.csv
+SHELL=/bin/bash -i
+BASEDIR := "/home/mmd47/project/retina_curio/SHiPBIO"
+CONDA_ENV_CELLCHARTER := "/gpfs/gibbs/project/distasio/mmd47/envs/cellcharter-env/"
+CONDA_ENV_SCDRS := "/gpfs/gibbs/project/distasio/mmd47/envs/scdrs-env/"
+CONDA_ENV_PHATE := "/gpfs/gibbs/project/distasio/mmd47/envs/phate/"
+SAMPLE_WORKSHEET := ${BASEDIR}/sample_worksheet.csv
+GWAS_WORKSHEET := ${BASEDIR}/gwas_worksheet.csv
 ##
 ##
 ##
@@ -141,7 +142,7 @@ $(IMPUTATION_RESULT): $(CLUSTER_INDIVIDUAL_RELABELED_RESULT)
 $(GWAS_RESULT): $(CLUSTER_INDIVIDUAL_RELABELED_RESULT)
 	@echo "Here!"
 	@echo "GWAS analysis (SCDRS)..."
-	echo 'conda activate ${CONDA_ENV_CELLCHARTER}; export LD_LIBRARY_PATH=${CONDA_ENV_CELLCHARTER}lib/; python ${SOURCE}GWAS_Analysis.py -b ${BASEDIR} -i $(CLUSTER_INDIVIDUAL_RELABELED_RESULT) -g ${GWAS_WORKSHEET} -o ${GWAS_RESULT}' | bash -i
+	echo 'conda activate ${CONDA_ENV_SCDRS}; export LD_LIBRARY_PATH=${CONDA_ENV_SCDRS}lib/; python ${SOURCE}GWAS_Analysis.py -b ${BASEDIR} -i $(CLUSTER_INDIVIDUAL_RELABELED_RESULT) -g ${GWAS_WORKSHEET} -o ${GWAS_RESULT}' | bash -i
 
 clean:
 	rm -rf calc
